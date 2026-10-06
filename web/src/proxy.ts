@@ -1,6 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isProtected = createRouteMatcher(['/onboarding', '/h/(.*)/post', '/admin(.*)'])
+// /post is public so the signed-out "claim your stamp" page works. Everything that writes,
+// and admin, is behind auth.
+const isProtected = createRouteMatcher([
+  '/onboarding(.*)',
+  '/p/(.*)',
+  '/admin(.*)',
+  '/api/((?!story).)*',
+])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtected(req)) await auth.protect()

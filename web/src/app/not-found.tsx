@@ -9,7 +9,7 @@ export default function NotFound() {
           <h2>Wrong turn on the course.</h2>
           <p>That page doesn&apos;t exist. The next heat does.</p>
         </div>
-        <Link className="btn" href="/#calendar" style={{ justifySelf: 'start' }}>See upcoming heats</Link>
+        <Link className="btn" href="/" style={{ justifySelf: 'start' }}>Back to the heat</Link>
       </section>
     </main>
   )

@@ -1,0 +1,128 @@
+import 'server-only'
+import sharp from 'sharp'
+import { db } from './db'
+import { dhash, hamming, sha256 } from './dhash'
+import { readStatsBuf, type OcrResult } from './ocr'
+import { checkCard, type VisionResult } from './vision'
+
+const MAX_BYTES = 8 * 1024 * 1024
+const ALLOWED = new Set(['image/png', 'image/jpeg', 'image/webp'])
+const HAMMING_MAX = 6
+
+export type ReviewReason =
+  | 'not_strava' | 'location' | 'ocr_mismatch' | 'distance'
+  | 'duplicate' | 'runner_flagged' | 'vision_unavailable'
+
+export type PipelineInput = {
+  heatId: string
+  locationTerms: string[]
+  minKm: number
+  maxKm: number
+  bytes: Buffer
+  contentType: string
+  /** exclude this submission id when checking duplicates (resubmits) */
+  ignoreSubmissionId?: string
+}
+
+export type PipelineOutput = {
+  status: 'auto_verified' | 'needs_review'
+  review_reason: ReviewReason | null
+  sha256: string
+  dhash: string
+  distance_km: number | null
+  time_s: number | null
+  pace_s_per_km: number | null
+  ocr_raw: unknown
+  vision_raw: unknown
+  is_strava: boolean | null
+  location_ok: boolean | null
+}
+
+// The map crop sent to the vision model: top ~64%, scaled to ~512px wide, as a data URL.
+async function mapDataUrl(buf: Buffer): Promise<string | null> {
+  try {
+    const meta = await sharp(buf).metadata()
+    const W = meta.width ?? 0, H = meta.height ?? 0
+    if (!W || !H) return null
+    const crop = await sharp(buf)
+      .extract({ left: 0, top: 0, width: W, height: Math.max(1, Math.floor(H * 0.64)) })
+      .resize(512, null, { withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer()
+    return `data:image/webp;base64,${crop.toString('base64')}`
+  } catch {
+    return null
+  }
+}
+
+export function decide(o: {
+  duplicate: boolean
+  vision: VisionResult | null
+  ocr: OcrResult
+  km: number | null
+  minKm: number
+  maxKm: number
+}): { status: 'auto_verified' | 'needs_review'; review_reason: ReviewReason | null } {
+  if (o.duplicate) return { status: 'needs_review', review_reason: 'duplicate' }
+  if (!o.ocr.ok || o.ocr.mismatch) return { status: 'needs_review', review_reason: 'ocr_mismatch' }
+  if (o.km === null || o.km < o.minKm || o.km > o.maxKm) return { status: 'needs_review', review_reason: 'distance' }
+  // Vision is the only source of not_strava / location. If it didn't answer, we never auto-verify
+  // and we never blame the runner — vision_unavailable.
+  if (!o.vision) return { status: 'needs_review', review_reason: 'vision_unavailable' }
+  if (!o.vision.is_strava_card) return { status: 'needs_review', review_reason: 'not_strava' }
+  if (!o.vision.location_ok) return { status: 'needs_review', review_reason: 'location' }
+  return { status: 'auto_verified', review_reason: null }
+}
+
+// Returns true when this image is a duplicate of an existing submission for the heat.
+// Exact: same sha256. Near: hamming ≤ 6 AND the same parsed time and distance — because two
+// different runners' cards over the same park look alike at the pixel level.
+export async function isDuplicate(heatId: string, sha: string, hash: string, timeS: number | null, km: number | null, ignoreId?: string): Promise<boolean> {
+  let q = db().from('submissions').select('id, sha256, dhash, time_s, distance_km').eq('heat_id', heatId)
+  if (ignoreId) q = q.neq('id', ignoreId)
+  const { data } = await q
+  for (const row of data ?? []) {
+    if (row.sha256 === sha) return true
+    const close = hamming(hash, row.dhash as string) <= HAMMING_MAX
+    if (close && row.time_s === timeS && num(row.distance_km) !== null && km !== null && Math.abs(num(row.distance_km)! - km) < 0.05) return true
+  }
+  return false
+}
+
+const num = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v))
+
+export async function runPipeline(input: PipelineInput): Promise<PipelineOutput> {
+  if (input.bytes.byteLength > MAX_BYTES) throw new Error('too_large')
+  if (!ALLOWED.has(input.contentType)) throw new Error('bad_type')
+
+  const sha = sha256(input.bytes)
+  const hash = await dhash(input.bytes)
+
+  // OCR and vision are independent — run them together.
+  const [ocr, vision] = await Promise.all([
+    readStatsBuf(input.bytes),
+    (async (): Promise<VisionResult | null> => {
+      const img = await mapDataUrl(input.bytes)
+      if (!img) return null
+      return checkCard(img, input.locationTerms)
+    })(),
+  ])
+
+  const km = ocr.distance_km
+  const timeS = ocr.time_s
+  const duplicate = await isDuplicate(input.heatId, sha, hash, timeS, km, input.ignoreSubmissionId)
+
+  const { status, review_reason } = decide({
+    duplicate, vision, ocr, km,
+    minKm: Number(input.minKm), maxKm: Number(input.maxKm),
+  })
+
+  return {
+    status, review_reason,
+    sha256: sha, dhash: hash,
+    distance_km: km, time_s: timeS, pace_s_per_km: ocr.pace_s_per_km,
+    ocr_raw: ocr, vision_raw: vision,
+    is_strava: vision ? vision.is_strava_card : null,
+    location_ok: vision ? vision.location_ok : null,
+  }
+}

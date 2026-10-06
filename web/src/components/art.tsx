@@ -1,10 +1,9 @@
 import type { CSSProperties } from 'react'
 import { courseSVG, guilloche, medalSVG, stampSVG, type MedalKind } from '@/lib/art'
-import { coverBG, park } from '@/lib/themes'
+import { coverBG, PARKS } from '@/lib/themes'
 import { heatNo } from '@/lib/time'
-import type { Heat } from '@/lib/types'
 
-type StampHeat = Pick<Heat, 'number' | 'park' | 'starts_at' | 'color_key' | 'stamp_shape'>
+type StampHeat = { number: number; name: string; opens_at: string; location_terms: string[] }
 
 export function Stamp({ heat, salt, className = '', style }: { heat: StampHeat; salt?: string; className?: string; style?: CSSProperties }) {
   return <span className={`stamp ${className}`} style={style} dangerouslySetInnerHTML={{ __html: stampSVG(heat, salt) }} />
@@ -14,14 +13,13 @@ export function Medal({ kind, salt, className = '', style }: { kind: MedalKind; 
   return <span className={`medal-art ${className}`} style={style} dangerouslySetInnerHTML={{ __html: medalSVG(kind, salt) }} />
 }
 
-export function Cover({ heat, label = true, className = '' }: { heat: Heat; label?: boolean; className?: string }) {
-  const photo = heat.cover_url
+export function Cover({ heat, label = true, className = '' }: { heat: StampHeat; label?: boolean; className?: string }) {
   return (
-    <div className={`cover ${className}`} style={{ background: photo ? `center/cover url(${photo})` : coverBG(heat) }}>
+    <div className={`cover ${className}`} style={{ background: coverBG() }}>
       {label && <span className="ctag">HEAT {heatNo(heat.number)}</span>}
-      {label && <span className="ctag r">{Number(heat.distance_km).toFixed(1)} KM</span>}
-      <span className="course-wrap" dangerouslySetInnerHTML={{ __html: courseSVG(heat, { light: !!photo }) }} />
-      {label && <span className="cname" style={photo ? { color: '#fff' } : undefined}>{heat.park}</span>}
+      {label && <span className="ctag r">5.0 KM</span>}
+      <span className="course-wrap" dangerouslySetInnerHTML={{ __html: courseSVG() }} />
+      {label && <span className="cname">{heat.name}</span>}
     </div>
   )
 }
@@ -50,7 +48,7 @@ export function InkFilter() {
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
       <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
         <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves={2} seed={4} result="n" />
-        <feDisplacementMap in="SourceGraphic" in2="n" scale={3.2} xChannelSelector="R" yChannelSelector="G" result="d" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d" />
         <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves={1} seed={9} result="s" />
         <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4.2 0 0 0 3.05" result="m" />
         <feComposite in="d" in2="m" operator="in" />
@@ -59,4 +57,4 @@ export function InkFilter() {
   )
 }
 
-export const parkDot = (h: Pick<Heat, 'color_key'>) => park(h).b
+export const parkDot = () => PARKS.volt.b

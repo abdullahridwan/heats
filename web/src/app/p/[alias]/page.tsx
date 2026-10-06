@@ -1,28 +1,26 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MedalGrid, PassportBook } from '@/components/passport'
-import { getFinishes, getHeats, getProfileByAlias } from '@/lib/data'
-import { computeMedals } from '@/lib/medals'
-import { park } from '@/lib/themes'
-import { formatTime, heatNo, isUpcoming, ordinal, shortDate } from '@/lib/time'
+import { Medal } from '@/components/art'
+import { Avatar } from '@/components/avatar'
+import { getStampsForAlias, getUserByAlias } from '@/lib/data'
+import { computeMedals, MEDAL_INFO, MEDAL_ORDER } from '@/lib/medals'
+import { formatTime, heatNo, ordinal, shortDate } from '@/lib/time'
 
 type Props = { params: Promise<{ alias: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props) {
   const { alias } = await params
-  return { title: `${alias}'s passport`, description: `${alias}'s Heats run passport: stamps and medals from community 5Ks across New York.` }
+  return { title: `${alias}'s passport`, description: `${alias}'s Heats run passport.` }
 }
 
 export default async function Passport({ params }: Props) {
   const { alias } = await params
-  const profile = await getProfileByAlias(alias)
-  if (!profile) notFound()
-  const [finishes, heats] = await Promise.all([getFinishes(profile.id), getHeats()])
-  const medals = computeMedals(finishes)
-  const earned = medals.filter(m => m.earned).length
-  const boroughs = new Set(finishes.map(f => f.heat.borough)).size
-  const nextHeat = heats.find(h => h.status === 'open' && isUpcoming(h.starts_at) && !finishes.some(f => f.heat.id === h.id))
+  const user = await getUserByAlias(alias)
+  if (!user) notFound()
+  const stamps = await getStampsForAlias(user)
+  const medals = computeMedals(stamps)
+  const earned = medals.filter(m => m.earned)
+  const best = stamps.length ? Math.min(...stamps.map(s => s.time_s)) : null
 
   return (
     <>
@@ -31,33 +29,58 @@ export default async function Passport({ params }: Props) {
         <section className="s first">
           <div className="head">
             <span className="eyebrow">Run passport</span>
-            <h2>{profile.alias}</h2>
-            <p>{finishes.length ? `${finishes.length} ${finishes.length === 1 ? 'heat' : 'heats'} stamped across ${boroughs} ${boroughs === 1 ? 'borough' : 'boroughs'}.` : 'No stamps yet. The first heat is the best one to start with.'}</p>
+            <h2>{user.alias}</h2>
+            <p>{stamps.length ? `${stamps.length} ${stamps.length === 1 ? 'heat' : 'heats'} stamped, ${earned.length} of 3 medals.` : 'No stamps yet. The first heat is the best one to start with.'}</p>
+            <div className="row-actions">
+              <a className="btn ghost sm" href={`/api/story/passport/${user.alias}`}>Share passport</a>
+            </div>
           </div>
 
-          <PassportBook profile={profile} finishes={finishes} medalsEarned={earned} nextHeat={nextHeat} />
-        </section>
-
-        <section className="s">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
-            <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-.03em' }}>Medals</h2>
-            <span className="eyebrow">{earned} of 8 earned</span>
+          <div className="stats" style={{ maxWidth: 520 }}>
+            <div className="stat"><b>{stamps.length}</b><small>heats</small></div>
+            <div className="stat"><b>{earned.length}/3</b><small>medals</small></div>
+            <div className="stat"><b>{best ? formatTime(best) : '—'}</b><small>best 5K</small></div>
           </div>
-          <MedalGrid medals={medals} />
+
+          <div className="medals" data-reveal="">
+            {MEDAL_ORDER.map((k, i) => {
+              const m = medals.find(x => x.kind === k)!
+              return (
+                <div className={`medal${m.earned ? '' : ' locked'}`} key={k} style={{ ['--i' as string]: String(i) }}>
+                  <Medal kind={k} salt="pp" />
+                  <span className="medal-shadow" aria-hidden="true" />
+                  <b>{MEDAL_INFO[k].name}</b>
+                  <i className="obj" style={{ fontStyle: 'normal' }}>{MEDAL_INFO[k].obj}</i>
+                  {m.earned
+                    ? <span className="st" style={{ background: 'var(--volt-soft)', color: '#4B7A00' }}>Earned</span>
+                    : <span className="st" style={{ border: '1px dashed #CDD0C7', color: 'var(--text2)' }}>{MEDAL_INFO[k].how}</span>}
+                </div>
+              )
+            })}
+          </div>
         </section>
 
-        {finishes.length > 0 && (
+        {stamps.length > 0 ? (
           <section className="s">
-            <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-.03em' }}>Heats</h2>
+            <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-.03em' }}>Stamps</h2>
             <div className="sheet">
-              {[...finishes].reverse().map(f => (
-                <Link key={f.heat.id} href={`/h/${heatNo(f.heat.number)}`} className="rowr" style={{ gridTemplateColumns: '14px minmax(0,1fr) auto' }}>
-                  <span className="dot" style={{ width: 12, height: 12, background: park(f.heat).b }} />
-                  <div className="who"><div className="nm">Heat {heatNo(f.heat.number)} · {f.heat.name}</div><div className="cm">{shortDate(f.heat.starts_at)} · {ordinal(f.place)} of {f.finishers}{f.note ? ` · ${f.note}` : ''}</div></div>
-                  <span className="tm">{formatTime(f.time_seconds)}</span>
-                </Link>
+              {[...stamps].reverse().map(s => (
+                <div key={s.heat.id} className="rowr">
+                  <span className="dot" style={{ width: 12, height: 12, background: 'var(--e-b)' }} />
+                  <Avatar alias={s.alias} size={32} />
+                  <div className="who">
+                    <div className="nm">Heat {heatNo(s.heat.number)} · {s.heat.name}</div>
+                    <div className="cm">{shortDate(s.heat.opens_at)} · {ordinal(s.place)} of {s.finishers}{s.note ? ` · ${s.note}` : ''}</div>
+                  </div>
+                  <span className="tm">{formatTime(s.time_s)}</span>
+                </div>
               ))}
             </div>
+          </section>
+        ) : (
+          <section className="s">
+            <div className="sheet"><div className="empty"><b style={{ color: 'var(--ink)' }}>Nothing stamped yet.</b><span>Race it, post a screenshot, and your stamp lands here.</span></div></div>
+            <div className="row-actions"><Link className="btn theme" href="/post">Post a time</Link></div>
           </section>
         )}
       </main>

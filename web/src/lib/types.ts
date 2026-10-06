@@ -1,60 +1,58 @@
-export type HeatStatus = 'draft' | 'open' | 'results' | 'closed'
-export type StampShape = 'circle' | 'octagon' | 'rect' | 'oval'
-
 export type Heat = {
   id: string
   number: number
   name: string
-  park: string
-  borough: string
-  starts_at: string
-  meet_point: string
-  address: string | null
-  note: string | null
-  distance_km: number
-  color_key: string
-  stamp_shape: StampShape
-  course_key: string | null
-  cover_url: string | null
-  status: HeatStatus
+  opens_at: string
+  closes_at: string
+  location_terms: string[]
+  min_km: number
+  max_km: number
 }
 
-export type Profile = {
+export type UserRow = {
   id: string
   alias: string
+  email: string
   avatar_url: string | null
-  home_park: string | null
   created_at: string
 }
 
-export type SheetRow = {
+export type SubmissionStatus = 'auto_verified' | 'needs_review' | 'verified' | 'rejected'
+
+export type Submission = {
+  id: string
+  user_id: string
   heat_id: string
+  image_path: string
+  sha256: string
+  dhash: string
+  distance_km: number | null
+  time_s: number | null
+  pace_s_per_km: number | null
+  note: string | null
+  status: SubmissionStatus
+  review_reason: string | null
+  attempts: number
+  reviewed_by: string | null
+  reviewed_at: string | null
+  created_at: string
+}
+
+export type ResultRow = {
+  heat_id: string
+  alias: string
+  avatar_url: string | null
+  time_s: number
+  note: string | null
   place: number
-  result_id: string
-  user_id: string
-  alias: string
-  avatar_url: string | null
-  time_seconds: number
-  note: string | null
 }
 
-export type Result = {
-  id: string
-  heat_id: string
-  user_id: string
-  time_seconds: number
-  note: string | null
-  screenshot_path: string
-  status: 'pending' | 'verified' | 'rejected'
-  reject_reason: string | null
-  created_at: string
-}
-
-export type Finish = {
+// A stamped heat on a passport: the result row joined to its heat.
+export type Stamp = {
   heat: Heat
-  time_seconds: number
+  alias: string
+  time_s: number
   note: string | null
   place: number
   finishers: number
-  last: boolean
 }
