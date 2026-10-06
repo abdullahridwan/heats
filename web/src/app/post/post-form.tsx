@@ -1,9 +1,8 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
-import { useSession } from '@clerk/nextjs'
-import { formatTime } from '@/lib/time'
+import { formatTime, ordinal } from '@/lib/time'
 
 // idle → uploading → processing → stamped | review | error. One pass, no polling: the POST
 // returns the decision synchronously (expect ~4–8 s).
@@ -12,6 +11,7 @@ type Phase = 'idle' | 'uploading' | 'processing' | 'stamped' | 'review' | 'error
 
 type Props = {
   heatNumber: number
+  alias: string
   minKm: number
   maxKm: number
   attempts: number
@@ -49,13 +49,14 @@ async function compress(file: File): Promise<Blob> {
   return new Promise((res, rej) => canvas.toBlob(b => (b ? res(b) : rej(new Error('encode'))), 'image/webp', 0.82))
 }
 
-export function PostForm({ heatNumber, minKm, maxKm, attempts, initialNote, previousStatus }: Props) {
-  const { session } = useSession()
-  const supabase = createClient(
+export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNote, previousStatus }: Props) {
+  // Only used for the signed upload: the one-time token from /api/submissions/upload-url is the
+  // authorisation, so the client needs just the public URL and publishable key. No Clerk token.
+  const supabase = useMemo(() => createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { persistSession: false }, async accessToken() { return (await session?.getToken()) ?? null } },
-  )
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  ), [])
   const [phase, setPhase] = useState<Phase>('idle')
   const [message, setMessage] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
@@ -116,10 +117,10 @@ export function PostForm({ heatNumber, minKm, maxKm, attempts, initialNote, prev
   if (phase === 'stamped') {
     return (
       <div className="state">
-        <b>Stamped. {result?.time_s ? formatTime(result.time_s) : ''}{result?.place ? ` · ${result.place} place` : ''}</b>
+        <b>Stamped. {result?.time_s ? formatTime(result.time_s) : ''}{result?.place ? ` · ${ordinal(result.place)}` : ''}</b>
         <span className="muted" style={{ fontSize: 14 }}>Heat {heatNumber} is in your passport.</span>
         <div className="row-actions">
-          <a className="btn theme sm" href={`/api/story/result?alias=&heat=${heatNumber}&download=1`}>Save your stamp</a>
+          <a className="btn theme sm" href={`/api/story/result?alias=${encodeURIComponent(alias)}&heat=${heatNumber}&download=1`}>Save your stamp</a>
           <Link className="btn ghost sm" href="/results">See the heat sheet</Link>
         </div>
       </div>

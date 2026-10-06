@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@resvg/resvg-js', 'sharp', 'tesseract.js'],
   outputFileTracingIncludes: {
     '/api/story/**': ['./assets/fonts/**'],
-    '/api/submissions/**': ['./eng.traineddata'],
+    // Tesseract loads its worker script and WASM core dynamically, which static tracing can't see.
+    '/api/submissions/**': ['./assets/tessdata/**', './node_modules/tesseract.js/**', './node_modules/tesseract.js-core/**'],
   },
 }
 

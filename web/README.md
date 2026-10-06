@@ -39,7 +39,7 @@ npm run dev
 3. **Fingerprints**: `sha256` for exact copies, `dhash` for near copies. Duplicate = same sha, or
    hamming ≤ 6 **and** the same parsed time and distance (two runners' cards over the same park
    look alike at the pixel level).
-4. **In parallel**: Tesseract reads the stats band (`src/lib/ocr.ts`); OpenRouter vision
+4. **In parallel**: Tesseract reads the stats band in two passes (`src/lib/ocr.ts`: whole band, then a digits-only re-read under each label, with the time chosen by cross-checking pace × distance and a lost decimal point recovered the same way); OpenRouter vision
    (`src/lib/vision.ts`, `anthropic/claude-haiku-4.5`, strict JSON, 12 s timeout) reads the map.
 5. **Decide** (`src/lib/pipeline.ts`): duplicate → not_strava → ocr_mismatch → distance →
    location → else auto-verified. If vision is unavailable the row goes to review with
@@ -55,7 +55,7 @@ npm run dev
 | `/results` | Heat sheet (revalidates every 30 s) |
 | `/post` | Public. Client state machine: idle → uploading → processing → stamped / review / error |
 | `/onboarding` | Pick an alias |
-| `/p/[alias]` | Public passport: stamps, medals, best 5K |
+| `/p/[alias]` | Passport: stamps, medals, best 5K. **Sign-in required** (the share images are public) |
 | `/admin` | Review queue with signed image URLs; verify / reject |
 | `POST /api/me/profile` | Create the user row (alias + lowercased Clerk email) |
 | `POST /api/submissions/upload-url` | Signed upload URL for `proofs` |
@@ -70,8 +70,9 @@ npm run dev
 
 ## Launch checklist
 
-1. **Supabase**: create a project (us-east-1). Run `supabase/migrations/0002_v1.sql` in the SQL
-   editor. Copy the URL and service-role key into the env.
+1. **Supabase**: **done.** Project `heats` (`qhzdsobnftgjxmhaloqg`, us-east-1) exists and `0002_v1.sql` is applied.
+   `SUPABASE_URL` and the two `NEXT_PUBLIC_SUPABASE_*` values are in `.env.local`. **Still needed:** paste the
+   **service-role (secret) key** from Project Settings → API into `SUPABASE_SERVICE_ROLE_KEY` yourself.
 2. **Clerk**: create a "Heats" app, turn on Email code, Google and Apple, and put the keys in the
    env. Set your own user's `publicMetadata.role` to `admin`.
 3. **OpenRouter**: put `OPENROUTER_API_KEY` in the env.
@@ -99,15 +100,17 @@ Drop real screenshots into `fixtures/` (see `fixtures/README.md`) and run:
 npm run check:pipeline
 ```
 
-Target: every number and the location right, at least 9 of 10. It exercises OCR and the
-fingerprints only; it does not call the vision model or the database.
+Target: every number right, at least 9 of 10. It exercises OCR and the fingerprints only; it does not
+call the vision model or the database. `fixtures/synthetic-*` are drawn cards (regression only); add real
+Strava screenshots next to them, each with a `.json` of the expected values.
 
 ## Deployment notes
 
 1. **Body limit.** Vercel caps request bodies around 4.5 MB and a 1080×1920 PNG can exceed it,
    so uploads go straight to Supabase via a signed URL and the API only receives a path.
-2. **Tesseract on serverless is the main risk.** Language data is bundled (`eng.traineddata`);
-   `next.config.ts` sets `serverExternalPackages` and `outputFileTracingIncludes`. **Test on a
+2. **Tesseract on serverless is the main risk.** The language data (`assets/tessdata/eng.traineddata`,
+   tracked in git) and the WASM engine (`tesseract.js-core`, ~43 MB) are listed in
+   `outputFileTracingIncludes` because Tesseract loads them dynamically. **Test on a
    Vercel preview early.** If it misbehaves, the fallback is to send the stats band to the vision
    model too (~a tenth of a cent per image, no OCR dependency).
 3. **`maxDuration`** is 30 s on the submissions route; confirm your Vercel plan allows it.

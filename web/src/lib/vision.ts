@@ -12,7 +12,8 @@ const TIMEOUT_MS = 12_000
 const VisionSchema = z.object({
   is_strava_card: z.boolean(),
   location_ok: z.boolean(),
-  labels: z.array(z.string()).default([]),
+  // Place names the model could actually read on the map. Shown to the admin as evidence.
+  place_labels: z.array(z.string()).default([]),
 })
 
 export type VisionResult = z.infer<typeof VisionSchema>
@@ -24,18 +25,18 @@ export function visionPrompt(locationTerms: string[], locationNote: string) {
     `Additional location context: ${locationNote || 'none'}.`,
     '',
     'Look at the map and the stats band in the image and answer strictly as JSON, nothing else:',
-    '{"is_strava_card": boolean, "location_ok": boolean, "labels": string[]}',
+    '{"is_strava_card": boolean, "location_ok": boolean, "place_labels": string[]}',
     '',
     '- is_strava_card: true only if this looks like a running-app activity card (Strava, Garmin, Apple Fitness, Nike, Coros) with a map and distance/time stats.',
-    '- location_ok: true if the map or any place name overlaps the event location above. Tekst anywhere on the card naming a different, clearly distant place means false.',
-    '- labels: the stat labels you can read (e.g. "Distance", "Time", "Pace").',
+    '- location_ok: true if the map or any place name overlaps the event location above. Text anywhere on the card naming a different, clearly distant place means false. Prefer true only when you can read a matching place name or the route clearly follows that location; do not guess from a generic green area.',
+    '- place_labels: the street, park or landmark names you can actually read on the map (empty if none are legible).',
   ].join('\n')
 }
 
 // image is a data URL: "data:image/webp;base64,…"
 export async function checkCard(image: string, locationTerms: string[], locationNote = ''): Promise<VisionResult | null> {
   const key = process.env.OPENROUTER_API_KEY
-  if (!key) return null
+  if (!key) { console.warn('[vision] OPENROUTER_API_KEY is not set; every submission will go to review'); return null }
   try {
     const res = await fetch(ENDPOINT, {
       method: 'POST',

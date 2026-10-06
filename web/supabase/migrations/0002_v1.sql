@@ -70,7 +70,9 @@ create table public.rsvps (
 );
 
 -- The public results view: only stamped submissions, ranked per heat by time.
-create view public.results as
+-- security_invoker: the view obeys RLS of the caller, so the public API (anon key) sees nothing.
+-- Only our server (service key) reads it.
+create view public.results with (security_invoker = true) as
 select s.heat_id, u.alias, u.avatar_url, s.time_s, s.note,
        rank() over (partition by s.heat_id order by s.time_s) as place
 from public.submissions s
@@ -84,10 +86,15 @@ alter table public.heats       enable row level security;
 alter table public.submissions enable row level security;
 alter table public.rsvps       enable row level security;
 
+-- Belt and braces: the public API roles get no table privileges at all.
+revoke all on public.users, public.heats, public.submissions, public.rsvps, public.results from anon, authenticated;
+
 -- ───────────────────────── storage: one private bucket for screenshots
 
-insert into storage.buckets (id, name, public) values ('proofs', 'proofs', false)
-on conflict (id) do nothing;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('proofs', 'proofs', false, 8388608, array['image/png', 'image/jpeg', 'image/webp'])
+on conflict (id) do update
+  set file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
 
 -- No storage policies: only the service key can read or write the bucket.
 

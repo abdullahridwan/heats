@@ -39,6 +39,7 @@ export default async function PostPage() {
           <div className="panel">
             <PostForm
               heatNumber={heat.number}
+              alias={me?.alias ?? ''}
               minKm={Number(heat.min_km)}
               maxKm={Number(heat.max_km)}
               attempts={mine?.attempts ?? 0}

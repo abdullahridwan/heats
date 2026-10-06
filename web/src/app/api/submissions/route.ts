@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   const { path, note } = parsed.data
 
   // The runner may only submit their own upload path.
-  if (!path.startsWith(`${me.id}/`)) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  if (!path.startsWith(`${me.id}/`) || path.includes('..')) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
 
   const heat = await getHeat(parsed.data.heat ?? 1)
   if (!heat) return NextResponse.json({ error: 'no_heat' }, { status: 404 })

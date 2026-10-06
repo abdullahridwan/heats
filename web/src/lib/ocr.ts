@@ -1,13 +1,20 @@
 import path from 'node:path'
 import sharp from 'sharp'
-import { createWorker, type Worker } from 'tesseract.js'
+import { createWorker, PSM, type Worker } from 'tesseract.js'
 
 // OCR of a Strava-style stats band. Tesseract is the biggest serverless risk, so the caller
-// treats any failure here as ocr.failed → needs_review rather than throwing. We bundle the
-// language data and point langPath at it so nothing is downloaded at runtime.
+// treats any failure here as ocr.failed → needs_review rather than throwing. The language data
+// is bundled in assets/tessdata (tracked in git, traced into the submissions function) and
+// langPath points at it, so nothing is downloaded at runtime.
+//
+// Two passes. Pass 1 reads the whole band and finds the Distance / Time / Pace labels. Pass 2
+// re-reads the value directly under each label with a digits-only whitelist and a single-line
+// layout, because pass 1 garbles stylised numerals ("18m 41s" came back as "18mé4ls" on a real
+// card). The time is then chosen by cross-checking against pace × distance.
 
-const LANG_DIR = path.join(process.cwd(), 'eng.traineddata') // file; tesseract wants a dir, set below
+const LANG_DIR = path.join(process.cwd(), 'assets', 'tessdata')
 const LANG_CACHE = process.env.TESSERACT_CACHE ?? '/tmp'
+const SCALE = 2
 
 export type OcrResult = {
   ok: boolean
@@ -16,18 +23,22 @@ export type OcrResult = {
   pace_s_per_km: number | null
   mismatch: boolean
   raw: string
+  /** every time we considered, for the admin / debugging */
+  time_candidates: number[]
 }
+
+const FAILED: OcrResult = { ok: false, distance_km: null, time_s: null, pace_s_per_km: null, mismatch: false, raw: '', time_candidates: [] }
 
 // Fuzzy label match: OCR gives "Tlme", "Dlstance", "Pace". Normalise and compare loosely.
 const normLabel = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '').replace(/[li1]/g, 'i').replace(/[0]/g, 'o')
-function looksLike(label: string, target: 'distance' | 'time' | 'pace') {
+type Kind = 'distance' | 'time' | 'pace'
+function looksLike(label: string, target: Kind) {
   const n = normLabel(label)
   const t = target
   if (n === t) return true
   if (n.length >= 4 && n.includes(t)) return true
-  // distance: d?stance ; time: t?me ; pace: pace
   if (target === 'distance' && /^d.{0,3}stance$/.test(n)) return true
-  if (target === 'time' && /^t.{0,2}me$/.test(n)) return true
+  if (target === 'time' && (/^t.{0,2}me$/.test(n) || /^(ti|tim|ime)$/.test(n))) return true
   if (target === 'pace' && /^p.{0,2}ce$/.test(n)) return true
   return false
 }
@@ -75,110 +86,227 @@ export function crossChecks(timeS: number | null, distanceKm: number | null, pac
   return Math.abs(predicted - timeS) <= tol
 }
 
-let workerPromise: Promise<Worker> | null = null
-async function getWorker(): Promise<Worker> {
-  if (!workerPromise) {
-    workerPromise = createWorker('eng', 1, {
-      langPath: path.dirname(LANG_DIR),
-      cachePath: LANG_CACHE,
-      gzip: false,
-      logger: () => {},
-    })
-  }
-  return workerPromise
-}
-
-// Crop the bottom ~36% (the stats band), greyscale, upscale 2×, normalise, then extract the
-// Distance / Time / Pace values from whatever layout OCR produces.
-export async function readStatsBuf(buf: Buffer): Promise<OcrResult> {
-  const base = sharp(buf)
-  const meta = await base.metadata()
-  const W = meta.width ?? 0, H = meta.height ?? 0
-  if (!W || !H) return { ok: false, distance_km: null, time_s: null, pace_s_per_km: null, mismatch: false, raw: '' }
-
-  // Crop the stats band. Real cards put the stats below the map, but the map/stat split varies,
-  // so take a generous band from 58% down rather than 64% — cheaper to over-include than to clip.
-  const bandTop = Math.floor(H * 0.58)
-  const band = sharp(buf)
-    .extract({ left: 0, top: bandTop, width: W, height: H - bandTop })
-    .greyscale()
-    .resize(W * 2, (H - bandTop) * 2, { fit: 'fill' })
-    .normalise()
-
-  let raw = ''
-  try {
-    const bandBuf = await band.png().toBuffer()
-    const worker = await getWorker()
-    const { data } = await worker.recognize(bandBuf)
-    raw = data.text
-
-    // Robust extraction. OCR may put the label and value on one line ("Distance 5.02 km"), on
-    // separate lines, or merge rows. Rather than trusting layout, collect every value-looking
-    // token in the band, then classify: the value nearest a label wins; if there are no labels,
-    // fall back to shape (a duration, a distance with a unit, a duration-with-/km).
-    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
-
-    const dur = (s: string) => parseDuration(s)
-    const dist = (s: string) => parseDistance(s)
-    const pace = (s: string) => parsePace(s)
-
-    // Candidates: pull substrings that look like each field.
-    let distance_km: number | null = null
-    let time_s: number | null = null
-    let pace_s_per_km: number | null = null
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      // distance: number followed by km/mi anywhere on the line
-      const dm = line.match(/(\d+(?:[.,]\d+)?)\s*(km|mi)\b/i)
-      const hasDistLabel = looksLike(line, 'distance')
-      // time: h/m/s form or clock form (but not a "/km" or "/mi" pace)
-      const isPaceLine = /\/\s*(km|mi)\b|per\s*(km|mi)\b/i.test(line)
-      const tm = line.replace(/[^0-9:hms.\s]/gi, ' ').trim()
-      const hasTimeLabel = looksLike(line, 'time') || looksLike(lines[i - 1] ?? '', 'time')
-      const hasPaceLabel = looksLike(line, 'pace') || isPaceLine
-
-      if (pace_s_per_km === null && isPaceLine) {
-        const p = pace(line.replace(/^.*?([\d:]+)\s*\/\s*(km|mi).*$/i, '$1/$2'))
-        if (p !== null) pace_s_per_km = p
-      }
-      if (distance_km === null && dm && !isPaceLine) {
-        const d = dist(dm[0]); if (d !== null) distance_km = d
-      }
-      if (time_s === null && !isPaceLine) {
-        // Prefer a labelled time; else any duration-shaped token on the line.
-        const cand = hasTimeLabel ? (parseClockish(line) ?? dur(tm)) : parseClockish(line)
-        if (cand !== null && cand >= 60) time_s = cand
-      }
-
-      // value on the line below a bare label
-      if (distance_km === null && hasDistLabel) { const d = dist(lines[i + 1] ?? ''); if (d !== null) distance_km = d }
-      if (time_s === null && looksLike(line, 'time')) { const nxt = lines[i + 1] ?? ''; const t = parseClockish(nxt) ?? dur(nxt); if (t !== null && t >= 60) time_s = t }
-      if (pace_s_per_km === null && hasPaceLabel) { const p = pace(lines[i + 1] ?? ''); if (p !== null) pace_s_per_km = p }
-    }
-
-    // If the time never surfaced (e.g. it fell on one merged line), take the first duration-shaped
-    // token in the whole band that isn't a pace.
-    if (time_s === null) {
-      for (const line of lines) {
-        if (/\/\s*(km|mi)\b/i.test(line)) continue
-        const c = parseClockish(line)
-        if (c !== null && c >= 600) { time_s = c; break }
+// "113 mi" → 1.13 mi when time ÷ pace says the distance is about 1.8 km. Tries each decimal
+// position and keeps the first that lands within 3% of the predicted distance. The final
+// cross-check still decides whether the whole read is trusted.
+function recoverDecimal(texts: string[], times: number[], paceS: number): number | null {
+  for (const txt of texts) {
+    const unit = /mi/i.test(txt) ? 'mi' : /km/i.test(txt) ? 'km' : null
+    const digits = txt.replace(/[^0-9]/g, '')
+    if (!unit || digits.length < 2 || digits.length > 4) continue
+    for (const t of times) {
+      const predicted = t / paceS
+      for (let i = 1; i < digits.length; i++) {
+        const km = parseFloat(`${digits.slice(0, i)}.${digits.slice(i)}`) * (unit === 'mi' ? 1.609344 : 1)
+        if (Math.abs(km - predicted) <= predicted * 0.03) return km
       }
     }
-
-    const ok = distance_km !== null && time_s !== null
-    const mismatch = ok && pace_s_per_km !== null && !crossChecks(time_s, distance_km, pace_s_per_km)
-    return { ok, distance_km, time_s, pace_s_per_km, mismatch, raw }
-  } catch {
-    return { ok: false, distance_km: null, time_s: null, pace_s_per_km: null, mismatch: false, raw }
   }
+  return null
 }
 
 // A clock-looking duration inside a longer string ("18:41", "1:02:10"). Returns null if none.
 function parseClockish(s: string): number | null {
   const m = s.match(/(\d{1,2}:\d{2}(?::\d{2})?)/)
   return m ? parseDuration(m[1]) : null
+}
+
+// ───────────────────────── worker
+
+let workerPromise: Promise<Worker> | null = null
+async function getWorker(): Promise<Worker> {
+  if (!workerPromise) {
+    workerPromise = createWorker('eng', 1, {
+      langPath: LANG_DIR,
+      cachePath: LANG_CACHE,
+      gzip: false,
+      logger: () => {},
+    }).catch(e => {
+      // Don't cache a failed start: the next request should get a fresh attempt.
+      workerPromise = null
+      throw e
+    })
+  }
+  return workerPromise
+}
+
+// One worker, one job at a time. The re-read passes change the whitelist and layout mode, so
+// two requests must never interleave on the same worker.
+let chain: Promise<unknown> = Promise.resolve()
+function serial<T>(fn: () => Promise<T>): Promise<T> {
+  const run = chain.then(fn, fn)
+  chain = run.catch(() => undefined)
+  return run
+}
+
+type Word = { text: string; x0: number; y0: number; x1: number; y1: number }
+
+async function recognizeWords(worker: Worker, img: Buffer): Promise<{ text: string; words: Word[] }> {
+  const { data } = await worker.recognize(img, {}, { blocks: true })
+  const words: Word[] = []
+  for (const b of data.blocks ?? []) for (const p of b.paragraphs) for (const l of p.lines) for (const w of l.words) {
+    words.push({ text: w.text, x0: w.bbox.x0, y0: w.bbox.y0, x1: w.bbox.x1, y1: w.bbox.y1 })
+  }
+  return { text: data.text, words }
+}
+
+const WHITELIST: Record<Kind, string> = {
+  time: '0123456789hms ',
+  distance: '0123456789.,kmi ',
+  pace: '0123456789:/kmi ',
+}
+
+// Re-read the value directly under a label, in two contrast variants, with a digits-only
+// whitelist and single-line layout. Returns the raw strings (parsed by the caller).
+async function rereadBelow(worker: Worker, band: Buffer, bw: number, bh: number, label: Word, nextX: number, kind: Kind): Promise<string[]> {
+  const lh = Math.max(1, label.y1 - label.y0)
+  const left = Math.max(0, Math.min(bw - 40, label.x0 - 24))
+  const right = Math.max(left + 40, Math.min(bw, nextX - 8))
+  const top = Math.max(0, Math.min(bh - 20, label.y1 + 4))
+  const height = Math.max(20, Math.min(bh - top, Math.round(lh * 3.8)))
+  const base = sharp(band).extract({ left, top, width: right - left, height })
+  const variants = [
+    await base.clone().resize({ height: 140 }).png().toBuffer(),
+    await base.clone().negate().resize({ height: 140 }).png().toBuffer(),
+  ]
+  const out: string[] = []
+  try {
+    await worker.setParameters({ tessedit_char_whitelist: WHITELIST[kind], tessedit_pageseg_mode: PSM.SINGLE_LINE })
+    for (const v of variants) {
+      const { data } = await worker.recognize(v)
+      const t = data.text.trim()
+      if (t) out.push(t)
+    }
+  } finally {
+    await worker.setParameters({ tessedit_char_whitelist: '', tessedit_pageseg_mode: PSM.AUTO })
+  }
+  return out
+}
+
+// Crop the bottom ~42% (the stats band), greyscale, upscale 2×, normalise, then extract the
+// Distance / Time / Pace values from whatever layout OCR produces.
+export async function readStatsBuf(buf: Buffer): Promise<OcrResult> {
+  let meta
+  try { meta = await sharp(buf).metadata() } catch { return FAILED }
+  const W = meta.width ?? 0, H = meta.height ?? 0
+  if (!W || !H) return FAILED
+
+  // Real cards put the stats below the map, but the split varies, so take a generous band from
+  // 58% down — cheaper to over-include than to clip.
+  const bandTop = Math.floor(H * 0.58)
+  const bw = W * SCALE, bh = (H - bandTop) * SCALE
+
+  let bandBuf: Buffer
+  try {
+    bandBuf = await sharp(buf)
+      .extract({ left: 0, top: bandTop, width: W, height: H - bandTop })
+      .greyscale()
+      .resize(bw, bh, { fit: 'fill' })
+      .normalise()
+      .png()
+      .toBuffer()
+  } catch {
+    return FAILED
+  }
+
+  return serial(async () => {
+    let raw = ''
+    try {
+      const worker = await getWorker()
+      await worker.setParameters({ tessedit_char_whitelist: '', tessedit_pageseg_mode: PSM.AUTO })
+      const first = await recognizeWords(worker, bandBuf)
+      raw = first.text
+
+      // ── pass 1: whole-band extraction, tolerant of the layout OCR produces
+      let distance_km: number | null = null
+      let time1: number | null = null
+      let pace_s_per_km: number | null = null
+      let distText = ''
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const dm = line.match(/(\d+(?:[.,]\d+)?)\s*(km|mi)\b/i)
+        const hasDistLabel = looksLike(line, 'distance')
+        const isPaceLine = /\/\s*(km|mi)\b|per\s*(km|mi)\b/i.test(line)
+        const tm = line.replace(/[^0-9:hms.\s]/gi, ' ').trim()
+        const hasTimeLabel = looksLike(line, 'time') || looksLike(lines[i - 1] ?? '', 'time')
+        const hasPaceLabel = looksLike(line, 'pace') || isPaceLine
+
+        if (pace_s_per_km === null && isPaceLine) {
+          const p = parsePace(line.replace(/^.*?([\d:]+)\s*\/\s*(km|mi).*$/i, '$1/$2'))
+          if (p !== null) pace_s_per_km = p
+        }
+        if (distance_km === null && dm && !isPaceLine) {
+          const d = parseDistance(dm[0]); if (d !== null) { distance_km = d; distText = dm[0] }
+        }
+        if (time1 === null && !isPaceLine) {
+          const cand = hasTimeLabel ? (parseClockish(line) ?? parseDuration(tm)) : parseClockish(line)
+          if (cand !== null && cand >= 60) time1 = cand
+        }
+        if (distance_km === null && hasDistLabel) { const d = parseDistance(lines[i + 1] ?? ''); if (d !== null) distance_km = d }
+        if (time1 === null && looksLike(line, 'time')) { const nxt = lines[i + 1] ?? ''; const t = parseClockish(nxt) ?? parseDuration(nxt); if (t !== null && t >= 60) time1 = t }
+        if (pace_s_per_km === null && hasPaceLabel) { const p = parsePace(lines[i + 1] ?? ''); if (p !== null) pace_s_per_km = p }
+      }
+      if (time1 === null) {
+        for (const line of lines) {
+          if (/\/\s*(km|mi)\b/i.test(line)) continue
+          const c = parseClockish(line)
+          if (c !== null && c >= 600) { time1 = c; break }
+        }
+      }
+
+      // ── pass 2: re-read the value under each label
+      const labelWords = first.words.map(w => ({ w, kind: (['distance', 'time', 'pace'] as Kind[]).find(k => looksLike(w.text, k)) })).filter((x): x is { w: Word; kind: Kind } => !!x.kind)
+      const rowNextX = (label: Word) => {
+        const lh = Math.max(1, label.y1 - label.y0)
+        const right = labelWords.map(x => x.w).filter(o => o !== label && Math.abs(o.y0 - label.y0) < lh && o.x0 > label.x1)
+        return right.length ? Math.min(...right.map(o => o.x0)) : bw
+      }
+      const reread = async (kind: Kind): Promise<string[]> => {
+        const hit = labelWords.find(x => x.kind === kind)
+        return hit ? rereadBelow(worker, bandBuf, bw, bh, hit.w, rowNextX(hit.w), kind) : []
+      }
+
+      const timeCands = new Set<number>()
+      for (const s of await reread('time')) { const t = parseDuration(s) ?? parseClockish(s); if (t !== null && t >= 60) timeCands.add(t) }
+      const rereadTimes = [...timeCands]
+      if (time1 !== null) timeCands.add(time1)
+
+      // Distance and pace usually read fine in pass 1; re-read them only when missing or when
+      // nothing agrees yet, and keep whichever value makes pace × distance match a time.
+      const pick = <T,>(cur: T | null, cands: T[], fits: (v: T) => boolean): T | null => {
+        if (cur !== null && fits(cur)) return cur
+        // Nothing to cross-check against: trust the digits-only re-read over the whole-band read.
+        return cands.find(fits) ?? cands[0] ?? cur
+      }
+      const anyTime = (f: (t: number) => boolean) => [...timeCands].some(f)
+      if (distance_km === null || !anyTime(t => crossChecks(t, distance_km, pace_s_per_km))) {
+        const dTexts = (await reread('distance')).filter(s => /(km|mi)/i.test(s))
+        const ds = dTexts.map(parseDistance).filter((d): d is number => d !== null)
+        distance_km = pick(distance_km, ds, d => anyTime(t => crossChecks(t, d, pace_s_per_km)))
+        // A lost decimal point ("113 mi" for 1.13 mi) is recoverable: time ÷ pace says how far.
+        if (pace_s_per_km !== null && !anyTime(t => crossChecks(t, distance_km, pace_s_per_km))) {
+          const rec = recoverDecimal([distText, ...dTexts], [...timeCands], pace_s_per_km)
+          if (rec !== null) distance_km = rec
+        }
+      }
+      if (pace_s_per_km === null || !anyTime(t => crossChecks(t, distance_km, pace_s_per_km))) {
+        const ps = (await reread('pace')).map(s => (/(km|mi)/i.test(s) ? parsePace(s) : null)).filter((p): p is number => p !== null)
+        pace_s_per_km = pick(pace_s_per_km, ps, p => anyTime(t => crossChecks(t, distance_km, p)))
+      }
+
+      // Choose the time: the one that agrees with pace × distance; prefer the digits-only read.
+      const agreeing = [...timeCands].filter(t => crossChecks(t, distance_km, pace_s_per_km))
+      const time_s = agreeing.find(t => rereadTimes.includes(t)) ?? agreeing[0] ?? rereadTimes[0] ?? time1
+
+      const ok = distance_km !== null && time_s !== null
+      const mismatch = ok && pace_s_per_km !== null && !crossChecks(time_s, distance_km, pace_s_per_km)
+      return { ok, distance_km, time_s, pace_s_per_km, mismatch, raw, time_candidates: [...timeCands] }
+    } catch {
+      return { ...FAILED, raw }
+    }
+  })
 }
 
 // Exported so tests can hit the parsers without touching a worker.

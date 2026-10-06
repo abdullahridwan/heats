@@ -6,3 +6,4 @@
 /web/.tmp/
 # tesseract language-data cache (downloaded at runtime)
 *.traineddata
+!/web/assets/tessdata/eng.traineddata

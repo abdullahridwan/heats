@@ -14,10 +14,13 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     .from('submissions').select('id, user_id, status')
     .eq('id', id).maybeSingle()
   if (!row || row.user_id !== me.id) return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  // Only an auto-stamped row can be flagged. A rejected row must not be able to re-enter review
+  // (that would bypass the admin's call and the attempt cap), and a human-verified row is final.
+  if (row.status !== 'auto_verified') return NextResponse.json({ error: 'not_flaggable' }, { status: 409 })
 
   const { error } = await db().from('submissions')
     .update({ status: 'needs_review', review_reason: 'runner_flagged' })
-    .eq('id', id).eq('user_id', me.id)
+    .eq('id', id).eq('user_id', me.id).eq('status', 'auto_verified')
   if (error) return NextResponse.json({ error: 'update_failed' }, { status: 500 })
 
   return NextResponse.json({ ok: true })
