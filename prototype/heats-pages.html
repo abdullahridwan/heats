@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heats Page Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@1,125,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sitemap rail | v1 page in a scaled desktop frame | engineering notes.
+   v1 = one race (Chilly Central Park 5K), RSVP on Luma, stamp only. */
+:root {
+  --white: #FFFFFF; --ink: #0B0C0A; --text2: #5E625B; --text3: #9A9D95; --hair: #ECEDE7;
+  --volt: #CCFF00; --volt-soft: #F2FFC4;
+  /* Heat 001 · fall: burnt orange */
+  --e-b: #FF8A3D; --e-d: #B4471B; --e-s: #FFEEDF; --e-g: #FFD27A;
+  --shadow: 0 1px 2px rgba(11,12,10,.04), 0 10px 30px -8px rgba(11,12,10,.10);
+  --shadow-lg: 0 2px 4px rgba(11,12,10,.04), 0 28px 70px -18px rgba(11,12,10,.22);
+  --r-lg: 22px;
+  --f-wm: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-ui: "Geist", -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  --desk: #F1F2EE;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--desk); color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button { font: inherit; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.wm, .t-wm { font-family: var(--f-wm); font-weight: 900; font-style: italic; font-stretch: 125%; }
+.wm { text-transform: uppercase; letter-spacing: -.04em; line-height: .85; }
+.t-mono { font-family: var(--f-mono); font-weight: 600; }
+
+/* ───────── workbench */
+.bench { display: grid; grid-template-columns: 236px minmax(0, 1fr) 300px; height: 100vh; }
+@media (max-width: 1180px) { .bench { grid-template-columns: 214px minmax(0, 1fr); } .notes { display: none; } }
+.rail { border-right: 1px solid #E2E4DC; padding: 18px 14px; overflow: auto; background: #FAFAF7; }
+.rail .brand { margin: 0 6px 6px; display: flex; align-items: baseline; gap: 8px; }
+.rail .brand .wm { font-size: 18px; }
+.rail .brand small, .rail .sub { font-family: var(--f-mono); font-size: 10.5px; color: var(--text3); letter-spacing: .06em; }
+.rail .sub { margin: 0 6px 18px; display: block; line-height: 1.5; }
+.grp { margin-bottom: 14px; }
+.grp h4 { margin: 0 6px 6px; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.grp h4 i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.nav-item { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 1px; width: 100%; padding: 7px 8px; border-radius: 10px; }
+.nav-item:hover { background: #F0F1EB; }
+.nav-item[aria-current="true"] { background: var(--ink); color: #fff; }
+.nav-item[aria-current="true"] .r { color: #B9BCB3; }
+.nav-item b { font-weight: 600; font-size: 13.5px; }
+.nav-item .r { font-family: var(--f-mono); font-size: 11px; color: var(--text3); }
+.nav-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.flowbox { margin: 16px 6px 0; padding: 12px; border: 1px solid #E2E4DC; border-radius: 12px; background: #fff; font-size: 12px; color: var(--text2); display: grid; gap: 6px; }
+.flowbox b { color: var(--ink); font-size: 12.5px; }
+.flowbox ol { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
+
+.stagecol { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100vh; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; flex-wrap: wrap; }
+.bar .ttl { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+.access { font-family: var(--f-mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--hair); background: #fff; }
+.states { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: #fff; border: 1px solid #E2E4DC; flex-wrap: wrap; }
+.states button { all: unset; cursor: pointer; padding: 5px 10px; border-radius: 9px; font-size: 12.5px; font-weight: 500; color: var(--text2); }
+.states button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.states button:focus-visible { outline: 2px solid var(--ink); }
+.scroll { overflow: auto; padding: 0 18px 24px; min-width: 0; }
+.fit { overflow: hidden; }
+.frame { width: 1240px; background: #fff; border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 20px 50px -20px rgba(0,0,0,.18); overflow: hidden; border: 1px solid #E2E4DC; transform-origin: top left; }
+.chrome { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--hair); background: #FAFAF8; }
+.dots { display: flex; gap: 6px; } .dots i { width: 10px; height: 10px; border-radius: 50%; background: #E2E4DC; display: block; }
+.url { flex: 1; max-width: 520px; margin: 0 auto; font-family: var(--f-mono); font-size: 12px; color: var(--text2); background: #fff; border: 1px solid var(--hair); border-radius: 8px; padding: 5px 12px; text-align: center; }
+
+.notes { border-left: 1px solid #E2E4DC; background: #FAFAF7; padding: 18px; overflow: auto; display: grid; gap: 16px; align-content: start; }
+.notes h3 { margin: 0; font-size: 12px; font-family: var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text3); font-weight: 500; }
+.notes .blk { display: grid; gap: 6px; }
+.notes ul { margin: 0; padding-left: 16px; display: grid; gap: 4px; font-size: 13px; color: #33362F; }
+.notes code { font-family: var(--f-mono); font-size: 11.5px; background: #fff; border: 1px solid var(--hair); padding: 1px 5px; border-radius: 5px; }
+.notes .kv { display: grid; grid-template-columns: 64px 1fr; gap: 4px 10px; font-size: 13px; }
+.notes .kv span:nth-child(odd) { color: var(--text3); }
+.notes p { margin: 0; font-size: 13px; color: #33362F; }
+
+/* ───────── site (inside the frame) */
+.site { position: relative; overflow: hidden; isolation: isolate; background: #fff; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 40px; position: relative; z-index: 1; }
+.ambient { position: absolute; inset: 0 0 auto 0; height: 680px; pointer-events: none; overflow: hidden; z-index: 0; -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); }
+.ambient i { position: absolute; border-radius: 50%; filter: blur(90px); }
+.ambient i:nth-child(1) { width: 520px; height: 420px; left: -140px; top: -170px; background: #CCFF00; opacity: .32; }
+.ambient i:nth-child(2) { width: 520px; height: 420px; left: 38%; top: -230px; background: var(--e-g); opacity: .45; }
+.ambient i:nth-child(3) { width: 520px; height: 440px; right: -160px; top: -110px; background: var(--e-b); opacity: .28; }
+
+/* navbar: plain text links, one solid action */
+nav.top { display: flex; align-items: center; gap: 36px; padding-block: 22px; }
+.sbrand { display: flex; align-items: center; gap: 10px; }
+.sbrand .wm { font-size: 20px; }
+.navlinks { display: flex; gap: 28px; font-size: 14.5px; font-weight: 500; color: #3B3E38; }
+.navr { margin-left: auto; display: flex; align-items: center; gap: 22px; font-size: 14.5px; font-weight: 500; }
+.avatar-btn { width: 32px; height: 32px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #fff, #2ED3C6 60%); box-shadow: 0 0 0 1px var(--hair); }
+
+.btn { appearance: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 13px 20px; border-radius: 12px; background: var(--ink); color: #fff; }
+.btn.volt { background: var(--volt); color: var(--ink); }
+.btn.theme { background: var(--e-b); color: var(--ink); }
+.btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--hair); }
+.btn.sm { padding: 9px 14px; font-size: 13.5px; border-radius: 10px; }
+.btn.lg { padding: 16px 24px; font-size: 16px; border-radius: 14px; }
+.btn.block { width: 100%; }
+.luma { width: 16px; height: 16px; border-radius: 5px; background: var(--ink); color: #fff; font-size: 10px; font-weight: 700; display: inline-grid; place-items: center; }
+.btn.volt .luma { background: var(--ink); color: var(--volt); }
+.eyebrow { font-size: 13px; font-weight: 500; color: var(--text3); }
+.muted { color: var(--text2); }
+section.s { padding-block: 72px; border-top: 1px solid var(--hair); display: grid; gap: 36px; }
+section.s.first { border-top: 0; padding-top: 28px; }
+.head { display: grid; gap: 12px; max-width: 640px; }
+.head h2 { margin: 0; font-size: 46px; font-weight: 600; letter-spacing: -.04em; line-height: 1.03; text-wrap: balance; }
+.head p { margin: 0; font-size: 17px; color: var(--text2); }
+h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.015em; }
+p { margin: 0; }
+.panel { background: #fff; border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 20px; display: grid; gap: 10px; align-content: start; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.av { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; display: inline-block; flex: none; }
+.avs { display: inline-flex; } .avs .av + .av { margin-left: -9px; }
+footer.foot { padding-block: 32px 40px; border-top: 1px solid var(--hair); display: flex; justify-content: space-between; color: var(--text3); font-size: 13px; }
+.stamp { display: block; mix-blend-mode: multiply; }
+.stamp svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; align-items: center; padding-block: 36px 84px; }
+.hero .kicker { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: var(--shadow); font-size: 14px; font-weight: 500; }
+.hero .kicker .date { font-family: var(--f-mono); font-size: 12px; background: var(--e-s); color: var(--e-d); padding: 3px 8px; border-radius: 999px; font-weight: 600; }
+.hero h1 { margin: 22px 0 0; font-size: 128px; }
+.hero .sub { font-size: 26px; font-weight: 500; letter-spacing: -.025em; line-height: 1.22; margin-top: 22px; max-width: 22ch; }
+.hero-cta { display: flex; gap: 16px; align-items: center; margin-top: 30px; }
+.hero .fine { margin-top: 14px; font-size: 13.5px; color: var(--text2); }
+.hero-art { position: relative; aspect-ratio: 1; max-width: 470px; width: 100%; justify-self: center; }
+.hero-art .stamp { position: absolute; inset: 6%; transform: rotate(-9deg); }
+.leaf { position: absolute; width: 34px; height: 34px; }
+.leaf svg { width: 100%; height: 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .leaf { animation: fall 7s ease-in-out infinite; }
+  .leaf:nth-of-type(2) { animation-duration: 9s; animation-delay: -3s; }
+  .leaf:nth-of-type(3) { animation-duration: 8s; animation-delay: -5s; }
+  .leaf:nth-of-type(4) { animation-duration: 10s; animation-delay: -1s; }
+  @keyframes fall { 0% { transform: translate(0, -30px) rotate(0); opacity: 0; } 15% { opacity: 1; } 50% { transform: translate(18px, 60px) rotate(120deg); } 85% { opacity: 1; } 100% { transform: translate(-10px, 150px) rotate(260deg); opacity: 0; } }
+}
+
+/* how it works */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.step { border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 18px; display: grid; gap: 8px; background: #fff; align-content: start; }
+.step .ic { height: 120px; border-radius: 14px; background-color: #fff; background-image: radial-gradient(#E6E8E1 1px, transparent 1.2px); background-size: 12px 12px; border: 1px solid var(--hair); display: grid; place-items: center; margin-bottom: 6px; overflow: hidden; }
+.step .n { font-family: var(--f-mono); font-size: 12px; color: var(--text3); display: flex; justify-content: space-between; }
+.step .where { font-family: var(--f-mono); font-size: 11px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--hair); color: var(--text2); }
+.step .where.luma-w { background: var(--ink); color: #fff; border-color: var(--ink); }
+.step .where.heats-w { background: var(--volt); color: var(--ink); border-color: var(--volt); }
+.step p { font-size: 14px; color: var(--text2); }
+.note-strip { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 14px; background: var(--volt-soft); font-size: 14.5px; }
+.note-strip b { font-weight: 600; }
+
+/* the stamp */
+.stampsec { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
+.passport { display: grid; grid-template-columns: .62fr 1.38fr; gap: 16px; align-items: center; }
+.pcover { aspect-ratio: 5/7; border-radius: 8px 16px 16px 8px; background: linear-gradient(150deg, #1A1C17, #0B0C0A 60%); position: relative; overflow: hidden; box-shadow: var(--shadow-lg); display: grid; place-items: center; text-align: center; isolation: isolate; }
+.pcover .g { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .35; z-index: -1; }
+.pcover .inner { display: grid; gap: 10px; justify-items: center; }
+.pcover .l1 { font-family: var(--f-mono); font-size: 8.5px; letter-spacing: .22em; color: rgba(204,255,0,.8); }
+.pcover .wm { font-size: 24px; color: var(--volt); }
+.pcover .l2 { font-weight: 600; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(204,255,0,.85); }
+.page { position: relative; aspect-ratio: 5/7; overflow: hidden; isolation: isolate; background: #fff; border-radius: 6px 14px 14px 6px; box-shadow: var(--shadow-lg); padding: 16px; }
+.page .g { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.phdr { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 9.5px; letter-spacing: .14em; color: var(--text2); }
+.page .stamp { position: absolute; }
+.slot { position: absolute; border: 1.5px dashed #CDD0C7; border-radius: 50%; display: grid; place-items: center; text-align: center; font-size: 10.5px; color: var(--text3); aspect-ratio: 1; background: rgba(255,255,255,.7); line-height: 1.35; }
+.slot b { display: block; color: var(--text2); font-size: 11.5px; }
+.facts { display: grid; gap: 14px; }
+.fact { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; font-size: 15px; }
+.fact .k { width: 28px; height: 28px; border-radius: 50%; background: var(--e-s); color: var(--e-d); display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; font-weight: 600; }
+
+/* final CTA row */
+.ctarow { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; }
+.ctarow .left { display: grid; gap: 18px; justify-items: start; }
+.ctarow h2 { margin: 0; font-size: 52px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.event { display: grid; grid-template-columns: 200px 1fr; gap: 22px; padding: 16px; border: 1px solid var(--hair); border-radius: 24px; background: #fff; box-shadow: var(--shadow-lg); }
+.event .info { display: grid; gap: 10px; align-content: start; }
+.event h3 { font-size: 26px; letter-spacing: -.035em; line-height: 1.05; }
+.cover { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 1; isolation: isolate; background: radial-gradient(at 20% 14%, var(--e-b) 0, transparent 55%), radial-gradient(at 88% 22%, var(--e-g) 0, transparent 52%), radial-gradient(at 60% 96%, var(--e-s) 0, transparent 60%), var(--e-s); }
+.cover::after { content: ""; position: absolute; inset: 0; background-image: var(--grain); opacity: .22; mix-blend-mode: multiply; }
+.cover .course { position: absolute; inset: 14%; width: 72%; height: 72%; z-index: 2; overflow: visible; }
+.cover .ctag { position: absolute; left: 12px; top: 10px; z-index: 3; font-family: var(--f-mono); font-size: 11px; color: rgba(11,12,10,.7); }
+.cover .leafc { position: absolute; width: 22px; z-index: 2; }
+.meta-row { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; }
+.calt { width: 40px; height: 42px; border-radius: 10px; border: 1px solid var(--hair); overflow: hidden; display: grid; grid-template-rows: 15px 1fr; text-align: center; }
+.calt b { font-size: 9px; letter-spacing: .06em; background: var(--e-b); line-height: 15px; }
+.calt span { font-size: 15px; font-weight: 600; line-height: 26px; }
+.pinbox { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--hair); display: grid; place-items: center; }
+.meta-row .a { font-weight: 600; font-size: 14px; } .meta-row .b { font-size: 13px; color: var(--text2); }
+.going { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--text2); } .going b { color: var(--ink); }
+
+/* results */
+.sheet { background: #fff; border: 1px solid var(--hair); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--hair); }
+.rowr { display: grid; grid-template-columns: 34px 34px 1fr auto; gap: 14px; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--hair); }
+.rowr:last-child { border-bottom: 0; }
+.pl { font-family: var(--f-mono); font-size: 14px; color: var(--text3); } .pl.first { color: var(--ink); font-weight: 600; }
+.who .nm { font-weight: 600; font-size: 15px; } .who .cm { font-size: 13.5px; color: var(--text2); }
+.tm { font-family: var(--f-mono); font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.chk { width: 16px; height: 16px; border-radius: 50%; background: var(--ink); display: grid; place-items: center; }
+.empty { padding: 30px 20px; color: var(--text2); display: grid; gap: 6px; justify-items: start; }
+.resgrid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+.statcard { display: grid; gap: 12px; }
+.stat { border: 1px solid var(--hair); border-radius: 16px; padding: 14px 16px; display: grid; gap: 2px; background: #fff; }
+.stat b { font-family: var(--f-mono); font-size: 28px; font-weight: 500; letter-spacing: -.02em; } .stat small { font-size: 13px; color: var(--text2); }
+
+/* post */
+.post { display: grid; grid-template-columns: 1fr 330px; gap: 24px; align-items: start; }
+.drop { border: 1.5px dashed #D7D9D1; border-radius: var(--r-lg); padding: 28px; display: grid; justify-items: center; gap: 12px; text-align: center; background: #fff; }
+.strava { width: 168px; aspect-ratio: 9/16; border-radius: 16px; overflow: hidden; position: relative; background: linear-gradient(#E8EBE3 0 55%, #3C4038 100%); box-shadow: var(--shadow-lg); flex: none; }
+.strava svg.map { position: absolute; inset: 0; width: 100%; height: 62%; }
+.strava .sv { position: absolute; left: 12px; right: 12px; bottom: 12px; color: #fff; display: grid; gap: 4px; }
+.strava .sv b { font-size: 13px; }
+.strava .sv .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; }
+.strava .sv small { font-size: 8px; opacity: .8; } .strava .sv em { font-style: normal; font-weight: 700; font-size: 14px; }
+.strava .logo { position: absolute; right: 12px; bottom: 96px; color: #fff; font-weight: 800; font-size: 11px; letter-spacing: .04em; }
+.field { display: grid; gap: 6px; text-align: left; width: 100%; }
+.field label { font-size: 13px; font-weight: 500; color: var(--text2); }
+.input { border: 1px solid var(--hair); border-radius: 12px; padding: 12px 14px; font: inherit; width: 100%; background: #fff; }
+.readlist { display: grid; gap: 10px; }
+.readlist div { display: flex; align-items: center; gap: 10px; font-size: 14.5px; }
+.readlist .c { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--volt); font-size: 11px; flex: none; }
+.readlist .c.wait { background: none; border: 2px solid var(--hair); border-top-color: var(--ink); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.result { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.result .r { border: 1px solid var(--hair); border-radius: 14px; padding: 12px; background: #fff; }
+.result .r small { font-size: 12px; color: var(--text2); display: block; } .result .r b { font-family: var(--f-mono); font-size: 24px; font-weight: 500; }
+.won { display: flex; align-items: center; gap: 26px; padding: 24px; border-radius: 22px; background: linear-gradient(120deg, var(--e-s), #fff 85%); border: 1px solid var(--hair); }
+.won .stamp { width: 180px; transform: rotate(-8deg); flex: none; }
+.won h3 { font-size: 34px; letter-spacing: -.04em; }
+.claim { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.claim h2 { margin: 0; font-size: 54px; font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.claim .art { position: relative; aspect-ratio: 1; max-width: 400px; justify-self: center; width: 100%; }
+.claim .art .stamp { position: absolute; inset: 8%; transform: rotate(-9deg); opacity: .9; }
+.claim .art .lock { position: absolute; right: 8%; bottom: 10%; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px; box-shadow: var(--shadow-lg); }
+
+/* auth */
+.auth { min-height: 660px; display: grid; grid-template-columns: 1fr 1fr; }
+.auth .left { position: relative; overflow: hidden; display: grid; place-items: center; border-right: 1px solid var(--hair); }
+.auth .right { display: grid; place-items: center; padding: 40px; }
+.clerk { width: 400px; background: #fff; border: 1px solid var(--hair); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 30px 30px 22px; display: grid; gap: 14px; }
+.clerk h2 { margin: 0; font-size: 21px; letter-spacing: -.02em; text-align: center; }
+.clerk .csub { text-align: center; font-size: 14px; color: var(--text2); margin-top: -8px; }
+.sso { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sso div { border: 1px solid var(--hair); border-radius: 10px; padding: 9px; text-align: center; font-size: 13.5px; font-weight: 500; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--text3); font-size: 12px; } .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+.clerk .foot3 { text-align: center; font-size: 13px; color: var(--text2); border-top: 1px solid var(--hair); padding-top: 14px; }
+.clerk .foot3 b { color: var(--ink); }
+.claimbar { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--e-s); font-size: 13.5px; }
+.claimbar .stamp { width: 46px; }
+
+/* admin */
+.queue { display: grid; gap: 12px; }
+.review { display: grid; grid-template-columns: 120px 1fr auto; gap: 18px; padding: 14px; border: 1px solid var(--hair); border-radius: var(--r-lg); background: #fff; align-items: center; }
+.review .strava { width: 120px; }
+.flag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #FFE5DD; color: #B4321A; }
+.ok { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--volt-soft); color: #4B7A00; }
+.toolrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* luma mock */
+.lumapage { background: #F4F5F6; min-height: 760px; padding: 0 0 40px; font-family: -apple-system, "Segoe UI", sans-serif; }
+.lumanav { display: flex; align-items: center; gap: 10px; padding: 14px 28px; font-size: 14px; color: #6B7280; }
+.lumanav b { color: #111; }
+.lumabody { max-width: 900px; margin: 18px auto 0; display: grid; grid-template-columns: 300px 1fr; gap: 32px; }
+.lumabody .cover { border-radius: 14px; }
+.lumabody h1 { margin: 0; font-size: 38px; letter-spacing: -.02em; line-height: 1.1; font-weight: 700; }
+.lumacard { background: #fff; border-radius: 14px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.lumacard h4 { margin: 0; font-size: 13px; color: #6B7280; font-weight: 600; }
+.lumabtn { background: #111; color: #fff; border-radius: 10px; padding: 11px; text-align: center; font-weight: 600; }
+.desc { font-size: 15px; line-height: 1.6; color: #222; display: grid; gap: 10px; }
+.desc mark { background: var(--volt-soft); padding: 1px 4px; border-radius: 4px; }
+.cmt { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 14px; } .cmt b { font-size: 13px; }
+
+/* medals (enamel pins) */
+.medal-art { display: block; }
+.medal-art svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pin { filter: drop-shadow(0 16px 20px rgba(11,12,10,.22)); }
+.medals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.mcard { border: 1px solid var(--hair); border-radius: var(--r-lg); padding: 22px 16px 18px; display: grid; justify-items: center; text-align: center; gap: 7px; background: #fff; }
+.mcard .medal-art { width: 116px; }
+.mshadow { width: 84px; height: 14px; margin-top: -10px; border-radius: 50%; background: radial-gradient(closest-side, rgba(11,12,10,.2), rgba(11,12,10,0)); }
+.mcard b { font-size: 15px; } .mcard span.h { font-size: 13px; color: var(--text2); max-width: 22ch; }
+.mtag { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+.mtag.now { background: var(--e-s); color: var(--e-d); } .mtag.later { border: 1px dashed #CDD0C7; color: var(--text2); }
+.mcard.feature { grid-column: span 1; background: linear-gradient(160deg, var(--e-s), #fff 70%); border-color: transparent; box-shadow: var(--shadow); }
+.mrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.mrow .medal-art { width: 62px; }
+.mrow .locked { filter: grayscale(1); opacity: .28; }
+@media (prefers-reduced-motion: no-preference) {
+  .mcard .medal-art { animation: md-spin var(--spin, 6s) cubic-bezier(.45,0,.2,1) infinite; animation-delay: var(--dl, 0s); }
+  @keyframes md-spin { 0%, 84% { transform: perspective(600px) rotateY(0); } 96% { transform: perspective(600px) rotateY(360deg) scale(1.06); } 100% { transform: perspective(600px) rotateY(360deg); } }
+}
+
+/* share sheet */
+.overlay { position: absolute; inset: 0; z-index: 20; background: rgba(11,12,10,.4); display: grid; place-items: center; }
+.share-panel { width: 380px; background: #fff; border-radius: 28px; padding: 16px; display: grid; gap: 12px; box-shadow: var(--shadow-lg); }
+.story { height: 470px; aspect-ratio: 9/16; border-radius: 18px; position: relative; overflow: hidden; justify-self: center; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; isolation: isolate; background: radial-gradient(at 20% 15%, var(--e-b), transparent 55%), radial-gradient(at 90% 25%, var(--e-g), transparent 50%), var(--e-s); }
+.story::after { content: ""; position: absolute; inset: 0; background-image: var(--grain); opacity: .2; mix-blend-mode: multiply; z-index: -1; }
+.story .bt { font-family: var(--f-mono); font-weight: 500; font-size: 60px; letter-spacing: -.05em; line-height: 1; }
+.story .stamp { position: absolute; right: 2px; bottom: 54px; width: 170px; transform: rotate(-12deg); }
+.story .medal-art { position: absolute; left: 16px; bottom: 60px; width: 82px; transform: rotate(-8deg); }
+.won .medal-art { width: 120px; transform: rotate(8deg); flex: none; filter: drop-shadow(0 12px 14px rgba(11,12,10,.2)); }
+.hero-art .medal-art { position: absolute; right: -2%; bottom: 4%; width: 34%; transform: rotate(10deg); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="1" seed="9" result="s"/>
+    <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4.2 0 0 0 3.05" result="m"/>
+    <feComposite in="d" in2="m" operator="in"/>
+  </filter>
+</svg>
+
+<div class="bench">
+  <aside class="rail" aria-label="Sitemap">
+    <div class="brand"><span class="wm">Heats</span><small>V1 PAGE MAP</small></div>
+    <span class="sub">ONE RACE · CHILLY CENTRAL PARK 5K<br>RSVP ON LUMA · STAMP ON HEATS</span>
+    <div id="sitemap"></div>
+    <div class="flowbox">
+      <b>The v1 loop</b>
+      <ol><li>RSVP on Luma (no Heats account)</li><li>Run the loop any time Saturday</li><li>Sign up on Heats + post screenshot</li><li>Get stamped, share</li></ol>
+    </div>
+  </aside>
+  <div class="stagecol">
+    <div class="bar">
+      <div class="ttl" id="ttl"></div>
+      <div class="states" id="states" role="group" aria-label="Page state"></div>
+    </div>
+    <div class="scroll">
+      <div class="fit" id="fit"><div class="frame" id="frame">
+        <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url" id="url"></div><div style="width:46px"></div></div>
+        <div class="site" id="site"></div>
+      </div></div>
+    </div>
+  </div>
+  <aside class="notes" id="notes" aria-label="Engineering notes"></aside>
+</div>
+
+<script>
+(function () {
+  /* ───────── Heat 001 */
+  var H = { name: 'Chilly Central Park 5K', date: 'Saturday, October 10', time: 'All day', meet: 'The Central Park loop', addr: 'Start anywhere · 6.1 mi full loop, 5K is enough', going: 34 };
+  var D = '#B4471B', B = '#FF8A3D';
+
+  /* ───────── art */
+  // Maple leaf, centred on 0,0, ~20 units tall
+  var LEAF_D = 'M0,-10 L2,-5.2 L5.4,-6.6 L4.2,-2.2 L8.6,-3.2 L6.2,0.8 L9.6,2.2 L4.4,4.2 L5.2,7.4 L1.2,5.6 L0.9,10.4 L-0.9,10.4 L-1.2,5.6 L-5.2,7.4 L-4.4,4.2 L-9.6,2.2 L-6.2,0.8 L-8.6,-3.2 L-4.2,-2.2 L-5.4,-6.6 L-2,-5.2 Z';
+  function leafSVG(color) { return '<svg viewBox="-11 -11 22 23"><path d="' + LEAF_D + '" fill="' + color + '"/><path d="M0,-6 L0,10" stroke="rgba(0,0,0,.25)" stroke-width=".8"/></svg>'; }
+  var uid = 0;
+  // Heat 001 stamp: double ring, CHILLY CENTRAL PARK on the arc, leaves around the number
+  function stamp() {
+    var c = D, id = 's' + (++uid);
+    var leaf = function (x, y, r, s) { return '<path d="' + LEAF_D + '" transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(' + s + ')" fill="' + c + '"/>'; };
+    return '<svg viewBox="0 0 200 200"><g filter="url(#ink)" opacity=".94">' +
+      '<circle cx="100" cy="100" r="93" fill="none" stroke="' + c + '" stroke-width="5"/><circle cx="100" cy="100" r="81" fill="none" stroke="' + c + '" stroke-width="1.6"/>' +
+      '<path id="' + id + 't" d="M 33 100 A 67 67 0 0 1 167 100" fill="none"/><path id="' + id + 'b" d="M 25 100 A 75 75 0 0 0 175 100" fill="none"/>' +
+      '<text class="t-mono" fill="' + c + '" font-size="11.4" letter-spacing="1.6" text-anchor="middle"><textPath href="#' + id + 't" startOffset="50%">CHILLY CENTRAL PARK</textPath></text>' +
+      '<text class="t-mono" fill="' + c + '" font-size="10.5" letter-spacing="2.2" text-anchor="middle"><textPath href="#' + id + 'b" startOffset="50%">OCT 10 2026 · 5K · NYC</textPath></text>' +
+      leaf(36, 100, -40, .42) + leaf(164, 100, 40, .42) +
+      '<text x="100" y="80" text-anchor="middle" class="t-mono" font-size="9.5" letter-spacing="4" fill="' + c + '">HEAT</text>' +
+      '<text x="100" y="125" text-anchor="middle" class="t-wm" font-size="50" letter-spacing="-2" fill="' + c + '">001</text>' +
+      leaf(70, 142, -20, .55) + leaf(100, 146, 8, .62) + leaf(130, 142, 26, .55) +
+      '</g></svg>';
+  }
+  function starPts(cx, cy, R, r, n) { var p = [], a0 = -Math.PI / 2; for (var i = 0; i < n * 2; i++) { var rr = i % 2 ? r : R, a = a0 + i * Math.PI / n; p.push((cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1)); } return p.join(' '); }
+  var WM = 'class="t-wm" text-anchor="middle"', MO = 'class="t-mono" text-anchor="middle"', PETALS = ['#CCFF00', '#FF7A5C', '#5B8CFF', '#FFAA2B', '#A58BFF'];
+  var MEDALS = {
+    sun: { c: '#CCFF00', shape: function () { return '<polygon points="' + starPts(80, 80, 74, 62, 24) + '"/>'; }, detail: function (G) { return '<circle cx="80" cy="80" r="45" fill="#0B0C0A" stroke="' + G + '" stroke-width="3"/><circle cx="80" cy="80" r="38" fill="none" stroke="#E3C065" stroke-width="1" stroke-dasharray="1.5 3"/><text x="80" y="64" ' + MO + ' font-size="7" letter-spacing="1.8" fill="#E3C065">FOUNDING</text><text x="80" y="95" ' + WM + ' font-size="32" fill="#CCFF00">01</text><text x="80" y="108" ' + MO + ' font-size="7" letter-spacing="2" fill="#E3C065">RUNNER</text>'; } },
+    watch: { c: '#FF7A5C', shape: function () { return '<circle cx="80" cy="90" r="56"/><rect x="69" y="12" width="22" height="14" rx="4"/><rect x="75" y="24" width="10" height="12"/><rect x="117" y="36" width="16" height="11" rx="3" transform="rotate(45 125 41.5)"/>'; }, detail: function (G) { var t = ''; for (var i = 0; i < 12; i++) { var a = i * Math.PI / 6, r1 = i % 3 ? 37 : 33; t += '<line x1="' + (80 + r1 * Math.sin(a)).toFixed(1) + '" y1="' + (90 - r1 * Math.cos(a)).toFixed(1) + '" x2="' + (80 + 41 * Math.sin(a)).toFixed(1) + '" y2="' + (90 - 41 * Math.cos(a)).toFixed(1) + '" stroke="#C9A24A" stroke-width="2" stroke-linecap="round"/>'; } return '<circle cx="80" cy="90" r="45" fill="#FFF7F3" stroke="' + G + '" stroke-width="2.5"/>' + t + '<path d="M80 90 L80 52 A38 38 0 0 1 112 70 Z" fill="#FF7A5C" opacity=".25"/><line x1="80" y1="90" x2="104" y2="62" stroke="#D2361B" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="90" r="5.5" fill="#0B0C0A" stroke="' + G + '" stroke-width="1.5"/><text x="80" y="121" ' + WM + ' font-size="17" fill="#0B0C0A">PR</text>'; } },
+    token: { c: '#E9CF7A', shape: function () { return '<circle cx="80" cy="80" r="68"/>'; }, detail: function (G, id) { return '<circle cx="80" cy="80" r="55" fill="none" stroke="#1F4FD8" stroke-width="21"/><circle cx="80" cy="80" r="65.5" fill="none" stroke="' + G + '" stroke-width="1.6"/><circle cx="80" cy="80" r="44.5" fill="none" stroke="' + G + '" stroke-width="1.6"/><path id="' + id + 'tt" d="M 29 80 A 51 51 0 0 1 131 80" fill="none"/><path id="' + id + 'tb" d="M 21 80 A 59 59 0 0 0 139 80" fill="none"/><text ' + MO + ' font-size="8.6" letter-spacing="1.8" fill="#fff"><textPath href="#' + id + 'tt" startOffset="50%">GOOD FOR ONE HEAT</textPath></text><text ' + MO + ' font-size="8.6" letter-spacing="1.8" fill="#fff"><textPath href="#' + id + 'tb" startOffset="50%">NEW YORK · 3 BOROUGHS</textPath></text><polygon points="63,55 74,55 80,67 86,55 97,55 85.5,76 85.5,104 74.5,104 74.5,76" fill="#FFFFFF" stroke="#9C7A22" stroke-width="1.6" stroke-linejoin="round"/>'; } },
+    mega: { c: '#2ED3C6', shape: function () { return '<path d="M28 68 L58 60 L118 28 Q126 24 126 34 L126 126 Q126 136 118 132 L58 100 L28 92 Q22 90 22 80 Q22 70 28 68 Z"/><rect x="52" y="96" width="15" height="32" rx="5" transform="rotate(-12 59 112)"/>'; }, detail: function (G) { return '<line x1="111" y1="35" x2="111" y2="125" stroke="' + G + '" stroke-width="2.5"/><line x1="58" y1="61" x2="58" y2="99" stroke="' + G + '" stroke-width="2.5"/><text x="85" y="86" ' + WM + ' font-size="14" fill="#0B0C0A">LAST</text>'; }, after: function (G) { return '<path d="M136 64 Q144 80 136 96" fill="none" stroke="' + G + '" stroke-width="4" stroke-linecap="round"/><path d="M144 50 Q158 80 144 110" fill="none" stroke="' + G + '" stroke-width="4" stroke-linecap="round"/>'; } },
+    star: { c: '#A58BFF', shape: function () { return '<polygon points="' + starPts(80, 86, 76, 36, 5) + '"/>'; }, detail: function (G) { return '<polygon points="' + starPts(80, 86, 56, 26, 5) + '" fill="none" stroke="' + G + '" stroke-width="1.6" stroke-linejoin="round"/><text x="80" y="101" ' + WM + ' font-size="34" fill="#0B0C0A">5</text>'; } },
+    flame: { c: '#FFAA2B', shape: function () { return '<path d="M80 10 C94 40 124 54 124 94 C124 124 104 146 80 146 C56 146 36 126 36 98 C36 72 54 62 58 42 C66 56 70 62 74 66 C76 48 74 30 80 10 Z"/>'; }, detail: function (G) { return '<path d="M80 58 C88 76 106 86 106 108 C106 126 95 136 80 136 C65 136 54 126 54 110 C54 94 65 88 69 76 C73 84 76 87 78 89 C79 79 78 70 80 58 Z" fill="#CCFF00" stroke="' + G + '" stroke-width="1.6"/><text x="80" y="124" ' + WM + ' font-size="16" fill="#0B0C0A">4W</text>'; } },
+    podium: { c: '#3BD481', shape: function () { return '<path d="M18 76 H58 V50 H102 V92 H142 V136 H18 Z"/>'; }, detail: function (G) { return '<line x1="58" y1="76" x2="58" y2="136" stroke="' + G + '" stroke-width="2.5"/><line x1="102" y1="92" x2="102" y2="136" stroke="' + G + '" stroke-width="2.5"/><text x="38" y="114" ' + WM + ' font-size="22" fill="#0B0C0A">2</text><text x="80" y="100" ' + WM + ' font-size="26" fill="#0B0C0A">1</text><text x="122" y="124" ' + WM + ' font-size="20" fill="#0B0C0A">3</text>'; }, after: function (G) { return '<polygon points="' + starPts(80, 28, 14, 6, 5) + '" fill="' + G + '" stroke="#9C7A22" stroke-width=".8"/>'; } },
+    flower: { c: '#FFFFFF', fills: true, shape: function (fills) { var t = ''; for (var k = 0; k < 5; k++) { var a = (-90 + k * 72) * Math.PI / 180; t += '<circle cx="' + (80 + 36 * Math.cos(a)).toFixed(1) + '" cy="' + (82 + 36 * Math.sin(a)).toFixed(1) + '" r="30"' + (fills ? ' fill="' + PETALS[k] + '"' : '') + '/>'; } return t + '<circle cx="80" cy="82" r="25"' + (fills ? ' fill="#0B0C0A"' : '') + '/>'; }, detail: function (G) { return '<circle cx="80" cy="82" r="20" fill="none" stroke="' + G + '" stroke-width="1" stroke-dasharray="1.5 3"/><text x="80" y="87" ' + WM + ' font-size="13" fill="#CCFF00">5/5</text>'; } }
+  };
+  function medalSVG(kind) {
+    var Md = MEDALS[kind], id = 'm' + (++uid), G = 'url(#' + id + 'au)';
+    var defs = '<defs><linearGradient id="' + id + 'au" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset=".3" stop-color="#E3C065"/><stop offset=".55" stop-color="#A07A1C"/><stop offset=".78" stop-color="#F3DB8C"/><stop offset="1" stop-color="#B8902F"/></linearGradient><linearGradient id="' + id + 'gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient><clipPath id="' + id + 'c">' + Md.shape(false) + '</clipPath></defs>';
+    return '<svg viewBox="0 0 160 160">' + defs + '<g fill="' + G + '" stroke="' + G + '" stroke-width="11" stroke-linejoin="round">' + Md.shape(false) + '</g><g fill="' + Md.c + '" stroke="#9C7A22" stroke-width="1.6" stroke-linejoin="round">' + Md.shape(!!Md.fills) + '</g>' + Md.detail(G, id) + '<g clip-path="url(#' + id + 'c)"><rect width="160" height="90" fill="url(#' + id + 'gl)"/><ellipse cx="52" cy="40" rx="36" ry="11" fill="#fff" opacity=".3" transform="rotate(-30 52 40)"/></g>' + (Md.after ? Md.after(G) : '') + '</svg>';
+  }
+  var Mdl = function (kind, style, cls) { return '<span class="medal-art ' + (cls || '') + '" style="' + (style || '') + '">' + medalSVG(kind) + '</span>'; };
+  // v1 medal set: three are up for grabs at Heat 001, the rest unlock later in the season
+  var MEDAL_LIST = [
+    { k: 'sun', name: 'Founding Runner', how: 'Run Heat 001. Never given out again.', now: true },
+    { k: 'podium', name: 'Podium', how: 'Top 3 times at a heat.', now: true },
+    { k: 'mega', name: 'Closer', how: 'Slowest time of the heat. Every pace counts.', now: true },
+    { k: 'watch', name: 'PR', how: 'Beat your best Heats time.' },
+    { k: 'token', name: 'Borough Hopper', how: 'Run heats in 3 boroughs.' },
+    { k: 'star', name: 'Five Heats', how: 'Finish five heats.' },
+    { k: 'flame', name: 'Streak', how: 'Four heats in a row.' },
+    { k: 'flower', name: 'All Five', how: 'Run a heat in every borough.' }
+  ];
+  var SPIN = [5.3, 7.9, 6.1, 9.4, 4.7, 8.3, 6.7, 7.4];
+  function medalGrid() {
+    return '<div class="medals">' + MEDAL_LIST.map(function (m, i) {
+      return '<div class="mcard' + (i === 0 ? ' feature' : '') + '">' + Mdl(m.k, '--spin:' + SPIN[i] + 's;--dl:' + (1 + i * .53).toFixed(2) + 's') + '<span class="mshadow"></span><b>' + m.name + '</b><span class="h">' + m.how + '</span><span class="mtag ' + (m.now ? 'now">Up for grabs at Heat 001' : 'later">Later this season') + '</span></div>';
+    }).join('') + '</div>';
+  }
+  function medalRow(earned) {
+    return '<div class="mrow">' + MEDAL_LIST.map(function (m) { return Mdl(m.k, '', earned.indexOf(m.k) > -1 ? '' : 'locked'); }).join('') + '</div>';
+  }
+  var S = function (style) { return '<span class="stamp" style="' + (style || '') + '">' + stamp() + '</span>'; };
+  function cover(label) {
+    return '<div class="cover">' + (label ? '<span class="ctag">HEAT 001 · 5.0 KM</span>' : '') +
+      '<svg class="course" viewBox="0 0 200 200"><g transform="rotate(-29 100 100)"><path d="M84 18 C104 14 118 16 120 30 L124 168 C124 182 110 186 98 184 C84 182 78 176 78 160 L74 44 C72 30 74 20 84 18 Z" fill="none" stroke="#0B0C0A" stroke-width="3" stroke-linejoin="round"/><circle cx="122" cy="96" r="7.5" fill="' + B + '" stroke="#0B0C0A" stroke-width="2.6"/></g></svg>' +
+      '<span class="leafc" style="right:14%;top:16%;transform:rotate(30deg)">' + leafSVG(D) + '</span><span class="leafc" style="left:12%;bottom:14%;transform:rotate(-24deg)">' + leafSVG('#E0A13A') + '</span></div>';
+  }
+  var AVC = ['#CCFF00', '#FF7A5C', '#5B8CFF', '#FFAA2B', '#A58BFF', '#3BD481', '#2ED3C6'];
+  function av(i, size) { var c = AVC[i % AVC.length]; return '<span class="av" style="background:radial-gradient(circle at 32% 30%,#fff,' + c + ' 55%);' + (size ? 'width:' + size + 'px;height:' + size + 'px' : '') + '"></span>'; }
+  function avs(n, size) { var s = ''; for (var i = 0; i < n; i++) s += av(i + 1, size); return '<span class="avs">' + s + '</span>'; }
+  var CHK = '<span class="chk"><svg width="9" height="9" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.6-5" fill="none" stroke="#CCFF00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  var PIN = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B0C0A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+  var MARK = '<svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#CCFF00"/><polygon points="32,22 46,22 38,78 24,78" fill="#0B0C0A"/><polygon points="62,22 76,22 68,78 54,78" fill="#0B0C0A"/><polygon points="37,43 67,43 65.4,55 35.4,55" fill="#0B0C0A"/></svg>';
+  var LUMA = '<span class="luma">L</span>';
+  function guilloche(colors, cx, cy) { var s = ''; for (var k = 0; k < 28; k++) s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="150" ry="58" fill="none" stroke="' + colors[k % colors.length] + '" stroke-width=".6" transform="rotate(' + (k * 6.4) + ' ' + cx + ' ' + cy + ')"/>'; return '<svg class="g" viewBox="0 0 250 350" preserveAspectRatio="xMidYMid slice">' + s + '</svg>'; }
+  function strava(distance, time, pace) {
+    return '<div class="strava"><svg class="map" viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#E4E8DF"/><path d="M-5 30 L105 6 M-5 52 L105 30" stroke="#fff" stroke-width="6"/><path d="M20 86 L80 60" stroke="#CFE6C6" stroke-width="30"/><ellipse cx="50" cy="62" rx="30" ry="14" transform="rotate(-24 50 62)" fill="none" stroke="#FC4C02" stroke-width="1.6"/><ellipse cx="50" cy="62" rx="29" ry="13" transform="rotate(-24 50 62)" fill="none" stroke="#FC4C02" stroke-width=".8"/><text x="50" y="94" font-size="5" text-anchor="middle" fill="#3B5B35">Central Park</text></svg><span class="logo">STRAVA</span><div class="sv"><b>Morning Run</b><div class="g2"><small>Distance</small><small>Time</small><em>' + distance + '</em><em>' + time + '</em></div><small>Pace</small><em>' + pace + '</em></div></div>';
+  }
+  function passport(alias, stamped, pending) {
+    var main = stamped ? S('left:10%;top:13%;width:52%;transform:rotate(-9deg)') : pending ? '<span class="slot" style="left:8%;top:14%;width:56%;border-color:' + B + ';color:' + D + '"><span><b style="color:' + D + '">In review</b>Heat 001<br>stamp lands soon</span></span>' : '<span class="slot" style="left:8%;top:14%;width:56%"><span><b>Heat 001</b>Chilly Central Park<br>Oct 10</span></span>';
+    return '<div class="passport"><div class="pcover">' + guilloche(['#CCFF00', '#7A9900'], 125, 175) + '<div class="inner"><span class="l1">CITY OF NEW YORK</span>' + MARK.replace(/width="28" height="28"/, 'width="44" height="44"') + '<span class="wm">Heats</span><span class="l2">Run Passport</span></div></div>' +
+      '<div class="page">' + guilloche(['rgba(255,138,61,.3)', 'rgba(204,255,0,.45)', 'rgba(91,140,255,.18)'], 60, 80) + '<div class="phdr"><span>STAMPS · ' + alias.toUpperCase() + '</span><span>FALL 2026</span></div>' + main +
+      '<span class="slot" style="left:54%;top:52%;width:36%"><span><b>Heat 002</b>coming soon</span></span><span class="slot" style="left:12%;top:68%;width:30%"><span><b>Heat 003</b></span></span></div></div>';
+  }
+
+  /* ───────── site chrome */
+  function nav(signed) {
+    var right = signed
+      ? '<span>Results</span><span>My passport</span><span class="avatar-btn"></span>'
+      : '<span>Sign in</span><span class="btn volt sm">' + LUMA + ' RSVP on Luma</span>';
+    return '<div class="wrap"><nav class="top"><span class="sbrand">' + MARK + '<span class="wm">Heats</span></span>' +
+      (signed ? '' : '<div class="navlinks"><span>How it works</span><span>The stamp</span><span>Results</span></div>') +
+      '<div class="navr">' + right + '</div></nav></div>';
+  }
+  var FOOT = '<div class="wrap"><footer class="foot"><span class="wm" style="font-size:20px;color:var(--ink)">Heats</span><span>Free community 5Ks · New York · Every pace</span></footer></div>';
+  var AMB = '<div class="ambient"><i></i><i></i><i></i></div>';
+  function eventCard(state) {
+    return '<div class="event">' + cover(true) + '<div class="info"><span class="eyebrow">Heat 001 · Fall</span><h3>' + H.name + '</h3>' +
+      '<div class="meta-row"><div class="calt"><b>OCT</b><span>10</span></div><div><div class="a">' + H.date + '</div><div class="b">Run it any time · post by 11:59 PM</div></div></div>' +
+      '<div class="meta-row"><div class="pinbox">' + PIN + '</div><div><div class="a">' + H.meet + '</div><div class="b">' + H.addr + '</div></div></div>' +
+      '<div class="going">' + avs(5) + '<span><b>' + H.going + '</b> going on Luma</span></div>' +
+      (state === 'over' ? '<span class="btn ghost">See the results</span>' : '<span class="btn volt">' + LUMA + ' RSVP on Luma</span>') + '</div></div>';
+  }
+  function sheet(rows) {
+    var data = [['lowkey_sprinter','17:52','went out way too fast. held on.'],['mile_kat','18:31','PR!!!'],['jt.runs','19:07','that hill was evil'],['rbrunch','20:44','running for the bagels after'],['ada.o','22:48','first race ever, will be back'],['slowandsteady','31:05','walked the hills, no regrets']].slice(0, rows);
+    return '<div class="sheet"><div class="sheet-head"><h3>Heat sheet · 001</h3><span class="eyebrow">' + rows + ' stamped · Strava screenshot proof</span></div>' +
+      data.map(function (r, i) { return '<div class="rowr"><span class="pl' + (i === 0 ? ' first' : '') + '">0' + (i + 1) + '</span>' + av(i + 2, 32) + '<div class="who"><div class="nm">' + r[0] + '</div><div class="cm">' + r[2] + '</div></div><span class="tm">' + r[1] + CHK + '</span></div>'; }).join('') + '</div>';
+  }
+  function bigClaim(eyebrow, title, sub, actions, lock) {
+    return AMB + nav(false) + '<div class="wrap"><section class="s first"><div class="claim"><div style="display:grid;gap:20px;justify-items:start"><span class="eyebrow">' + eyebrow + '</span><h2>' + title + '</h2><p class="muted" style="font-size:17px;max-width:40ch">' + sub + '</p>' + actions + '</div><div class="art">' + S() + '<span class="lock">' + lock + '</span></div></div></section></div>' + FOOT;
+  }
+
+  /* ───────── pages */
+  var PAGES = [
+    { group: 'Public', id: 'landing', name: 'Landing', route: '/', access: 'public',
+      states: { before: 'Before race', over: 'After race' },
+      render: function (st) {
+        var over = st === 'over';
+        return AMB + nav(false) +
+        '<div class="wrap"><header class="hero"><div>' +
+          '<span class="kicker"><span class="date">' + (over ? 'RAN OCT 10' : 'SAT OCT 10 · ALL DAY') + '</span>Heat 001 · Chilly Central Park 5K</span>' +
+          '<h1 class="wm">Heats</h1><p class="sub">Free community 5Ks across New York. Show up, run, get stamped.</p>' +
+          '<div class="hero-cta">' + (over ? '<span class="btn lg">See the results</span><span class="btn ghost lg">Get notified for Heat 002</span>' : '<span class="btn volt lg">' + LUMA + ' RSVP on Luma</span><span class="mono muted" style="font-size:14px">Opens in 4d 09:22:09</span>') + '</div>' +
+          '<p class="fine">' + (over ? '29 runners got the Chilly Central Park stamp.' : 'Run it any time on Saturday. Free, no account needed to RSVP. You claim your stamp on Heats after your run.') + '</p></div>' +
+          '<div class="hero-art">' + S() + Mdl('sun', '', 'pin') + '<span class="leaf" style="left:8%;top:0">' + leafSVG(B) + '</span><span class="leaf" style="right:12%;top:6%">' + leafSVG('#E0A13A') + '</span><span class="leaf" style="left:44%;top:-4%">' + leafSVG(D) + '</span><span class="leaf" style="right:2%;top:40%">' + leafSVG('#C9761E') + '</span></div></header>' +
+
+        '<section class="s"><div class="head"><span class="eyebrow">How it works</span><h2>RSVP, run, get stamped.</h2></div><div class="steps">' +
+          '<div class="step"><div class="ic"><span class="btn volt sm">' + LUMA + ' RSVP on Luma</span></div><div class="n"><span>01</span><span class="where luma-w">on Luma</span></div><h3>RSVP</h3><p>Grab a spot on Luma. No account, no fee. You get a reminder the night before.</p></div>' +
+          '<div class="step"><div class="ic"><span class="mono" style="font-size:20px;font-weight:500;letter-spacing:-.02em;text-align:center;line-height:1.2">SAT OCT 10<br><span style="font-size:13px;color:var(--text2)">any time, all day</span></span></div><div class="n"><span>02</span><span class="where">in the park</span></div><h3>Run it any time Saturday</h3><p>Morning, lunch or after dark. Run 5K on the Central Park loop and track it on Strava.</p></div>' +
+          '<div class="step"><div class="ic">' + strava('3.12 mi', '22m 48s', '7:18 /mi').replace('class="strava"', 'class="strava" style="width:58px;border-radius:8px"') + '</div><div class="n"><span>03</span><span class="where heats-w">on Heats</span></div><h3>Post your screenshot</h3><p>Sign up on Heats and upload your Strava share card. We read your time.</p></div>' +
+          '<div class="step"><div class="ic">' + S('width:96px;transform:rotate(-8deg)') + '</div><div class="n"><span>04</span><span class="where heats-w">on Heats</span></div><h3>Get stamped</h3><p>The Chilly Central Park stamp and the Founding Runner medal land in your passport.</p></div>' +
+        '</div><div class="note-strip"><span class="luma">L</span><span><b>RSVP happens on Luma.</b> Your Heats account comes after the run, when you claim your stamp.</span></div></section>' +
+
+        '<section class="s"><div class="stampsec"><div style="display:grid;gap:22px"><div class="head"><span class="eyebrow">The stamp</span><h2>Only the people who run it get it.</h2><p>Every heat has its own stamp, designed for that race. Heat 001 is the first cold morning of fall: falling leaves, Central Park, October 10.</p></div>' +
+          '<div class="facts"><div class="fact"><span class="k">1</span><span><b>It goes in your run passport.</b> Your passport fills up as you run more heats.</span></div><div class="fact"><span class="k">2</span><span><b>It can\'t be earned later.</b> Miss Oct 10 and that stamp is gone.</span></div><div class="fact"><span class="k">3</span><span><b>It\'s made to share.</b> Post your stamp and time straight to your story.</span></div></div></div>' +
+          passport('you', true) + '</div></section>' +
+
+        '<section class="s"><div class="head"><span class="eyebrow">Medals</span><h2>Plus medals for the moments that count.</h2><p>Medals unlock on their own as you run. Nothing extra to do. Three are up for grabs at Heat 001, including one that will never be given out again.</p></div>' + medalGrid() + '</section>' +
+
+        '<section class="s"><div class="ctarow"><div class="left"><span class="eyebrow">' + (over ? 'Heat 002' : 'This Saturday') + '</span><h2>' + (over ? 'The next one is coming.' : 'Sign up for your first race.') + '</h2><p class="muted" style="font-size:17px;max-width:42ch">' + (over ? 'Follow Heats on Luma and you\'ll hear about Heat 002 first.' : 'Free, every pace, 5K, any time on Saturday. Walk it if you want. RSVP on Luma so we know you\'re in.') + '</p>' +
+          (over ? '<span class="btn volt lg">' + LUMA + ' Follow Heats on Luma</span>' : '<span class="btn volt lg">' + LUMA + ' RSVP on Luma</span>') + '</div>' + eventCard(st) + '</div></section></div>' + FOOT;
+      },
+      notes: { render: 'Static/ISR page. Every action links out to the Luma event. Signed-in visitors see the same page (nav switches to My passport).', data: ['Heat 001 config (one row in heats)', 'Going count: typed in from Luma, or hidden (Luma API needs a paid plan)'], api: ['none'], actions: ['RSVP on Luma → lu.ma/heats-001 (new tab)', 'Sign in → /sign-in', 'After race: hero switches to results + follow Heats on Luma'], states: ['Before race: RSVP', 'After race: results + Heat 002 follow'] } },
+
+    { group: 'Public', id: 'luma', name: 'Luma event', route: 'lu.ma/heats-001', access: 'external',
+      states: { default: 'Event page' },
+      render: function () {
+        return '<div class="lumapage"><div class="lumanav"><b>luma</b><span>·</span><span>Discover</span><span>Calendars</span></div><div class="lumabody"><div style="display:grid;gap:14px;align-content:start">' + cover(false) +
+          '<div class="lumacard"><h4>Hosted by</h4><div style="display:flex;gap:10px;align-items:center">' + MARK + '<b>Heats NYC</b></div><span style="font-size:13px;color:#6B7280">Follow the calendar to hear about Heat 002.</span></div>' +
+          '<div class="lumacard"><h4>34 Going</h4>' + avs(8, 28) + '</div></div>' +
+          '<div style="display:grid;gap:16px;align-content:start"><h1>' + H.name + '</h1><div style="display:grid;gap:8px;font-size:15px"><div><b>Saturday, October 10</b> · All day</div><div><b>Central Park</b> · anywhere on the loop, New York</div></div>' +
+          '<div class="lumacard"><h4>Registration</h4><span style="font-size:14px">Free · Approval not required</span><div class="lumabtn">Register</div></div>' +
+          '<div class="lumacard"><h4>About Event</h4><div class="desc"><p>The first cold weekend of fall. Run 5K on the Central Park loop any time on Saturday, Oct 10: sunrise, lunch or after work. Free, every pace. Walk it if you want.</p><p><b>Track it on Strava</b> so you can post your time.</p><p><mark><b>After the run:</b> post your Strava screenshot at heats.run/post to get the Chilly Central Park stamp in your run passport.</mark></p><p>Everyone who runs Heat 001 also gets the Founding Runner medal. It will never be given out again.</p></div></div>' +
+          '<div class="lumacard"><h4>Comments</h4><div class="cmt">' + av(2, 28) + '<div><b>mile_kat</b><div>bringing 3 friends, first 5k for two of them</div></div></div><div class="cmt">' + av(4, 28) + '<div><b>jt.runs</b><div>doing a sunrise lap at 7 if anyone wants company</div></div></div></div></div></div></div>';
+      },
+      notes: { render: 'Hosted on Luma, not built by us. This mock shows what we put in the event description.', data: ['The guest list lives in Luma'], api: ['None in v1. CSV export after the race → import to measure show-up rate', 'Later: Luma API/webhooks (paid plan) → rsvps table'], actions: ['Event description links to heats.run/post', 'Luma message Saturday morning and evening: "Post your time at heats.run/post"', 'Heats NYC Luma calendar = Heat 002 announcement channel'], states: ['Event page'] } },
+
+    { group: 'Public', id: 'results', name: 'Results', route: '/results', access: 'public',
+      states: { before: 'Before race day', live: 'Race day (live)', final: 'Final' },
+      render: function (st) {
+        var body = st === 'before'
+          ? '<div class="sheet"><div class="sheet-head"><h3>Heat sheet · 001</h3><span class="eyebrow">Opens on race day</span></div><div class="empty"><b style="color:var(--ink)">Results open on Saturday, Oct 10.</b><span>Run it, post your screenshot, and you\'ll show up here with the stamp.</span><span class="btn volt sm" style="margin-top:6px">' + LUMA + ' RSVP on Luma</span></div></div>'
+          : sheet(st === 'live' ? 4 : 6);
+        var side = '<div class="statcard"><div class="stat"><b>' + (st === 'before' ? '34' : st === 'live' ? '18' : '29') + '</b><small>' + (st === 'before' ? 'going on Luma' : 'stamped') + '</small></div>' +
+          (st === 'before' ? '' : '<div class="stat"><b>' + (st === 'live' ? '7h 12m' : '60%') + '</b><small>' + (st === 'live' ? 'until posting closes (11:59 PM)' : 'of Luma RSVPs ran and posted') + '</small></div>') +
+          '<div class="panel" style="justify-items:center;text-align:center">' + S('width:150px;transform:rotate(-8deg)') + '<b>The Chilly Central Park stamp</b><span class="muted" style="font-size:13.5px">Ran it? Post your screenshot to get it.</span><span class="btn sm">Get my stamp</span></div></div>';
+        return AMB + nav(false) + '<div class="wrap"><section class="s first"><div class="head"><span class="eyebrow">Heat 001 · Oct 10 · Central Park</span><h2>' + (st === 'final' ? 'Final results' : st === 'live' ? 'Results are coming in' : 'Results') + '</h2><p>Every runner who posted a Strava screenshot, by time. Every pace counts.</p></div><div class="resgrid">' + body + side + '</div></section></div>' + FOOT;
+      },
+      notes: { render: 'Server component, public (it\'s the social proof people share). Revalidates every 30s on race day.', data: ['heat_sheet view: submissions where status in (auto_verified, verified), ranked by time_seconds', 'users: alias, avatar'], api: ['GET /api/results'], actions: ['Get my stamp → /post', 'Row → /p/[alias] (signed in only)'], states: ['Before race day: empty + RSVP', 'Race day: live, filling up', 'Final: locked at 11:59 PM']  } },
+
+    { group: 'Claim (race day)', id: 'post', name: 'Post your time', route: '/post', access: 'public → auth',
+      states: { closed: 'Before race day', claim: 'Signed out', upload: 'Upload', reading: 'Reading', stamped: 'Stamped', share: 'Share sheet', review: 'In review', ended: 'Window closed' },
+      render: function (st) {
+        if (st === 'closed') return bigClaim('Heat 001 · Chilly Central Park 5K', 'Posting opens on race day.', 'Run the Central Park loop any time on Saturday, Oct 10, then come back here to post.', '<span class="btn volt lg">' + LUMA + ' RSVP on Luma</span>', 'Opens Sat Oct 10');
+        if (st === 'ended') return bigClaim('Heat 001 · Chilly Central Park 5K', 'Posting is closed.', 'The window was all of Saturday, Oct 10, until 11:59 PM. 29 runners got the stamp.', '<div style="display:flex;gap:12px"><span class="btn lg">See the results</span><span class="btn ghost lg">Follow for Heat 002</span></div>', 'Closed');
+        if (st === 'claim') return bigClaim('Heat 001 · posting open until 11:59 PM', 'You ran it. Claim your stamp.', 'Sign up with Google or Apple, pick your alias, and upload your Strava share card. About a minute.', '<span class="btn lg">Get my stamp</span><span class="muted" style="font-size:13.5px">Already have an account? Sign in</span>', 'Waiting for you');
+        var left;
+        if (st === 'upload') left = '<div class="drop">' + strava('3.12 mi', '22m 48s', '7:18 /mi') + '<b style="font-size:18px">Add your Strava share card</b><p class="muted" style="max-width:44ch">In Strava: open your run → Share → pick the card with the map behind it → Save image. Then add it here.</p><span class="btn">Choose screenshot</span><div class="field" style="max-width:420px"><label>Note (optional) · shows next to your time</label><input class="input" placeholder="that hill was evil" aria-label="Note"></div></div>';
+        else if (st === 'reading') left = '<div class="panel" style="grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px">' + strava('3.12 mi', '22m 48s', '7:18 /mi') + '<div style="display:grid;gap:18px"><h3 style="font-size:26px;letter-spacing:-.03em">Reading your screenshot…</h3><div class="readlist"><div><span class="c">✓</span>Uploaded</div><div><span class="c">✓</span>Distance 3.12 mi (5.02 km)</div><div><span class="c">✓</span>Time 22:48 · pace 7:18 /mi</div><div><span class="c wait"></span>Checking the map shows Central Park</div></div></div></div>';
+        else if (st === 'stamped' || st === 'share') left = '<div style="display:grid;gap:16px"><div class="won">' + S() + Mdl('sun') + '<div style="display:grid;gap:8px"><span class="eyebrow">Heat 001 · Chilly Central Park 5K</span><h3>Stamped.</h3><p class="muted">The stamp and the Founding Runner medal are in your passport. You\'re on the heat sheet.</p></div></div><div class="result"><div class="r"><small>Distance</small><b>5.02 km</b></div><div class="r"><small>Time</small><b>22:48</b></div><div class="r"><small>Place so far</small><b>4th</b></div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="btn theme">Share to your story</span><span class="btn ghost">See the results</span><span class="muted" style="font-size:13px;text-decoration:underline">Numbers wrong? Ask for a review</span></div></div>';
+        else left = '<div class="panel" style="padding:26px;gap:14px"><span class="tag" style="justify-self:start;background:#FFEECF;color:#B35A00">In review</span><h3 style="font-size:28px;letter-spacing:-.03em">Got it. We\'re taking a quick look.</h3><p class="muted">We couldn\'t confirm Central Park from the map. A person checks it, usually within a few hours on race day. Your stamp lands as soon as it\'s approved.</p><div class="result"><div class="r"><small>Distance</small><b>5.02 km</b></div><div class="r"><small>Time</small><b>22:48</b></div><div class="r"><small>Status</small><b style="font-size:18px">Reviewing</b></div></div></div>';
+        var html = AMB + nav(true) + '<div class="wrap"><section class="s first"><div class="head"><span class="eyebrow">Heat 001 · Chilly Central Park 5K · posting open until 11:59 PM</span><h2>Post your time</h2></div><div class="post">' + left +
+          '<div class="panel"><h3>What we check</h3><div class="readlist" style="font-size:14px;color:var(--text2)"><div><span class="c">1</span>It\'s a Strava share card</div><div><span class="c">2</span>Distance is 4.9 km or more</div><div><span class="c">3</span>The map shows Central Park</div><div><span class="c">4</span>Posted on race day</div><div><span class="c">5</span>Nobody posted this image before</div></div><p class="muted" style="font-size:13px">All five pass → stamped instantly. Anything else → a person reviews it.</p></div></div></section></div>' + FOOT;
+        if (st === 'share') html += '<div class="overlay"><div class="share-panel"><div style="display:flex;justify-content:space-between;align-items:center"><b>Share to your story</b><span class="btn ghost sm" style="border-radius:50%;width:34px;height:34px;padding:0">×</span></div><div class="story"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600"><span class="wm" style="font-size:16px">Heats</span><span class="mono">heats.run</span></div><div><span class="mono" style="font-size:11px;letter-spacing:.2em">STAMPED</span><div style="font-weight:600;font-size:18px;letter-spacing:-.02em;margin-top:6px">Chilly Central Park 5K</div><div class="bt" style="margin-top:12px">22:48</div><div style="font-weight:600;margin-top:6px">4th of 29</div><div style="font-size:13px;opacity:.7;margin-top:4px">"that hill was evil"</div></div>' + S() + Mdl('sun') + '<div class="mono" style="font-size:11px">heats.run · Heat 001</div></div><span class="btn theme block">Share</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><span class="btn ghost">Save image</span><span class="btn ghost">Copy link</span></div></div></div>';
+        return html;
+      },
+      notes: { render: 'The one page with real logic. Signed out → "Get my stamp" → /sign-up?next=/post → alias → back here.', data: ['Heat 001 window: Sat 00:00 → 23:59 America/New_York', 'my submission (if any)'], api: ['POST /api/submissions (multipart: image + note) → { distance_km, time_s, pace_s, location_ok, status }', 'POST /api/submissions/:id/review-request', 'GET /api/story/result?alias='], actions: ['Pipeline: sha256 + dHash (dupes) → Tesseract on the stats band (distance, time, pace) → Haiku via OpenRouter on the map crop (is_strava_card, location_ok) → status', 'auto_verified → stamped + share sheet', 'needs_review → admin queue'], states: ['Before race day', 'Signed out: claim', 'Upload', 'Reading (~3–6s)', 'Stamped', 'Share sheet', 'In review', 'Window closed'] } },
+
+    { group: 'Claim (race day)', id: 'signup', name: 'Sign up', route: '/sign-up?next=/post', access: 'public',
+      states: { default: 'Default' },
+      render: function () { return authPage('Claim your stamp', 'Create your Heats account. Takes 20 seconds.', 'Already have an account? <b>Sign in</b>', true); },
+      notes: { render: 'Clerk <code>&lt;SignUp/&gt;</code> with brand styling. Framed as claiming the stamp, since that\'s why people are here.', data: ['none'], api: ['Clerk hosted'], actions: ['Success → /onboarding?next=/post', 'Email hint: use the same email as Luma (lets us match RSVPs)'], states: ['Google, Apple, email code'] } },
+    { group: 'Claim (race day)', id: 'onboarding', name: 'Pick alias', route: '/onboarding', access: 'auth',
+      states: { default: 'Default', taken: 'Alias taken' },
+      render: function (st) {
+        var a = st === 'taken' ? 'mile_kat' : 'rbrunch';
+        return AMB + nav(true) + '<div class="wrap"><section class="s first" style="grid-template-columns:1fr 1fr;align-items:center;gap:56px"><div style="display:grid;gap:22px"><div class="head"><span class="eyebrow">Almost there</span><h2>Pick the name on your passport.</h2><p>It shows on the heat sheet next to your time.</p></div>' +
+        '<div class="panel"><div class="field"><label>Alias</label><input class="input" value="' + a + '" aria-label="Alias">' + (st === 'taken' ? '<span style="color:#D93B3B;font-size:13px">mile_kat is taken. Try another.</span>' : '<span class="eyebrow">3–20 characters: letters, numbers, dots or underscores.</span>') + '</div><span class="btn volt block">Continue to my stamp</span></div></div>' +
+        '<div style="max-width:440px;justify-self:center;width:100%">' + passport(a, false) + '</div></section></div>' + FOOT;
+      },
+      notes: { render: 'Client form. Shown once, when a Clerk user has no users row yet.', data: ['Clerk user (email, photo)'], api: ['POST /api/me/profile { alias } → 201 | 409 taken'], actions: ['Success → next (usually /post)'], states: ['Default', 'Alias taken'] } },
+    { group: 'Claim (race day)', id: 'signin', name: 'Sign in', route: '/sign-in', access: 'public',
+      states: { default: 'Default' },
+      render: function () { return authPage('Welcome back', 'Sign in to see your passport.', 'New here? <b>Claim your stamp</b>', false); },
+      notes: { render: 'Clerk <code>&lt;SignIn/&gt;</code>. Mostly for people coming back to their passport.', data: ['none'], api: ['Clerk hosted'], actions: ['Success → next or /p/[my alias]'], states: ['Google, Apple, email code'] } },
+
+    { group: 'Signed in', id: 'passport', name: 'Passport', route: '/p/rbrunch', access: 'auth',
+      states: { stamped: 'Stamped', review: 'In review', none: 'No stamp yet', other: 'Someone else\'s' },
+      render: function (st) {
+        var a = st === 'other' ? 'mile_kat' : 'rbrunch', own = st !== 'other';
+        var sub = st === 'none' ? 'No stamp yet. Ran Heat 001? Post your screenshot to get it.' : st === 'review' ? 'Your Heat 001 time is being checked.' : st === 'other' ? '1 stamp · Heat 001 · 18:31' : '1 stamp · Heat 001 · 22:48 · 4th of 29';
+        return AMB + nav(true) + '<div class="wrap"><section class="s first"><div style="display:flex;justify-content:space-between;align-items:end;gap:20px"><div class="head"><span class="eyebrow">Run passport</span><h2>' + a + '</h2><p>' + sub + '</p></div>' +
+          (own && st === 'stamped' ? '<span class="btn theme">Share my stamp</span>' : own && st === 'none' ? '<span class="btn">Post your screenshot</span>' : '') + '</div>' +
+          '<div style="max-width:760px">' + passport(a, st === 'stamped' || st === 'other', st === 'review') + '</div>' +
+          '<div style="display:grid;gap:10px;max-width:760px"><span class="eyebrow">Medals · ' + (st === 'stamped' || st === 'other' ? (st === 'other' ? '2' : '1') : '0') + ' of 8</span>' + medalRow(st === 'stamped' ? ['sun'] : st === 'other' ? ['sun', 'podium'] : []) + '</div>' +
+          '<div class="note-strip" style="max-width:760px"><span class="luma">L</span><span><b>Heat 002 is coming.</b> Follow Heats on Luma to hear about it first.</span></div></section></div>' + FOOT;
+      },
+      notes: { render: 'Server component, signed in only. Where the stamp lives, and the reason to come back.', data: ['users by alias', 'their verified submissions + heats'], api: ['GET /api/runners/:alias', 'GET /api/story/result?alias='], actions: ['Share my stamp (own, stamped)', 'Post your screenshot (own, none, window open)'], states: ['Stamped', 'In review', 'No stamp yet', 'Someone else\'s (read-only)'] } },
+
+    { group: 'Admin', id: 'admin', name: 'Review queue', route: '/admin', access: 'admin',
+      states: { queue: 'Queue', empty: 'All caught up' },
+      render: function (st) {
+        var items = st === 'empty' ? '<div class="panel"><b>Nothing waiting.</b><span class="muted">Submissions that fail a check show up here.</span></div>' : [['jt.runs', '3.10 mi', '19m 07s', 'Location: map shows "Harlem Meer"'], ['ada.o', '3.14 mi', '22m 48s', 'Duplicate of mile_kat\'s image'], ['slowandsteady', '3.12 mi', '31m 05s', 'Couldn\'t read the time']].map(function (r) {
+          return '<div class="review">' + strava(r[1], r[2], '—') + '<div style="display:grid;gap:8px"><div><b style="font-size:17px">' + r[0] + '</b> <span class="muted">· posted 11:42 AM</span></div><div class="mono" style="font-size:28px;letter-spacing:-.02em">' + r[2] + ' · ' + r[1] + '</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="ok">Strava card</span><span class="ok">≥ 4.9 km</span><span class="flag">' + r[3] + '</span></div></div><div style="display:grid;gap:8px"><span class="btn volt sm">Approve and stamp</span><span class="btn ghost sm">Reject</span></div></div>';
+        }).join('');
+        return nav(true) + '<div class="wrap"><section class="s first"><div class="head"><span class="eyebrow">Admin · Heat 001</span><h2>' + (st === 'empty' ? 'All caught up.' : '3 to review') + '</h2><p>26 stamped automatically · ' + (st === 'empty' ? '0' : '3') + ' need a look · 48 RSVPs on Luma</p></div>' +
+          '<div class="toolrow"><span class="btn ghost sm">Import Luma CSV</span><span class="btn ghost sm">Export results</span><span class="muted" style="font-size:13px">Show-up rate: 29 of 48 RSVPs posted (60%)</span></div><div class="queue">' + items + '</div></section></div>' + FOOT;
+      },
+      notes: { render: 'Server component. Clerk <code>publicMetadata.role === "admin"</code>, otherwise 404.', data: ['submissions where status = needs_review (+ signed image URLs)', 'counts by status', 'rsvps (imported Luma CSV)'], api: ['GET /api/admin/submissions?status=needs_review', 'POST /api/admin/submissions/:id/decision { verify | reject, reason }', 'POST /api/admin/rsvps/import (CSV)'], actions: ['Approve → stamped', 'Reject → runner sees the reason and can re-post'], states: ['Queue', 'All caught up'] } }
+  ];
+
+  function authPage(title, sub, foot, claim) {
+    return '<div class="auth"><div class="left">' + AMB + '<div style="position:relative;z-index:1;display:grid;gap:22px;justify-items:start;padding:48px;max-width:460px"><span class="sbrand">' + MARK + '<span class="wm">Heats</span></span><div style="width:300px">' + S('transform:rotate(-8deg)') + '</div><p style="font-size:22px;font-weight:500;letter-spacing:-.02em;line-height:1.25">' + (claim ? 'One step from the Chilly Central Park stamp.' : 'Free community 5Ks across New York. Show up, run, get stamped.') + '</p></div></div>' +
+      '<div class="right"><div class="clerk"><h2>' + title + '</h2><p class="csub">' + sub + '</p>' + (claim ? '<div class="claimbar">' + S() + '<span>You\'re claiming the <b>Heat 001</b> stamp.</span></div>' : '') + '<div class="sso"><div>Continue with Apple</div><div>Continue with Google</div></div><div class="or">or</div><div class="field"><label>Email address</label><input class="input" placeholder="the email you used on Luma" aria-label="Email"></div><span class="btn block">Continue</span><div class="foot3">' + foot + '</div></div></div></div>';
+  }
+
+  /* ───────── router */
+  var current = { page: 'landing', state: null };
+  function go(id, state) {
+    var p = PAGES.filter(function (x) { return x.id === id; })[0] || PAGES[0];
+    var keys = Object.keys(p.states);
+    current = { page: p.id, state: state && p.states[state] ? state : keys[0] };
+    render();
+  }
+  function render() {
+    var p = PAGES.filter(function (x) { return x.id === current.page; })[0];
+    document.querySelectorAll('.nav-item').forEach(function (b) { b.setAttribute('aria-current', b.dataset.id === p.id ? 'true' : 'false'); });
+    document.getElementById('ttl').innerHTML = p.name + ' <span class="access">' + p.access + '</span>';
+    document.getElementById('url').textContent = (p.access === 'external' ? '' : 'heats.run') + p.route;
+    var st = document.getElementById('states');
+    st.innerHTML = Object.keys(p.states).map(function (k) { return '<button type="button" data-s="' + k + '" aria-pressed="' + (k === current.state) + '">' + p.states[k] + '</button>'; }).join('');
+    st.hidden = Object.keys(p.states).length < 2;
+    uid = 0;
+    document.getElementById('site').innerHTML = p.render(current.state);
+    var n = p.notes, list = function (a) { return '<ul>' + a.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>'; };
+    document.getElementById('notes').innerHTML =
+      '<div class="blk"><h3>Route</h3><div class="kv"><span>Path</span><span><code>' + p.route.replace('rbrunch', '[alias]') + '</code></span><span>Access</span><span>' + p.access + '</span></div><p>' + n.render + '</p></div>' +
+      '<div class="blk"><h3>Data</h3>' + list(n.data) + '</div><div class="blk"><h3>API</h3>' + list(n.api) + '</div><div class="blk"><h3>Actions</h3>' + list(n.actions) + '</div><div class="blk"><h3>States</h3>' + list(n.states) + '</div>';
+    document.querySelector('.scroll').scrollTop = 0;
+    fit();
+  }
+  // Show the 1240px desktop page scaled to the space available
+  function fit() {
+    var box = document.querySelector('.scroll'), fr = document.getElementById('frame'), wrap = document.getElementById('fit');
+    var k = Math.min(1, (box.clientWidth - 36) / 1240);
+    fr.style.transform = 'scale(' + k + ')';
+    wrap.style.height = Math.ceil(fr.offsetHeight * k) + 'px';
+    wrap.style.width = Math.ceil(1240 * k) + 'px';
+  }
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
+  var groups = ['Public', 'Claim (race day)', 'Signed in', 'Admin'], dot = { Public: '#CCFF00', 'Claim (race day)': '#FF8A3D', 'Signed in': '#5B8CFF', Admin: '#0B0C0A' };
+  document.getElementById('sitemap').innerHTML = groups.map(function (g) {
+    return '<div class="grp"><h4><i style="background:' + dot[g] + '"></i>' + g + '</h4>' + PAGES.filter(function (p) { return p.group === g; }).map(function (p) { return '<button type="button" class="nav-item" data-id="' + p.id + '"><b>' + p.name + '</b><span class="r">' + p.route + '</span></button>'; }).join('') + '</div>';
+  }).join('');
+  document.getElementById('sitemap').addEventListener('click', function (e) { var b = e.target.closest('.nav-item'); if (b) go(b.dataset.id); });
+  document.getElementById('states').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) go(current.page, b.dataset.s); });
+  go('landing');
+})();
+</script>
+</body>
+</html>

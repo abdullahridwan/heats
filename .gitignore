@@ -1,0 +1,8 @@
+.DS_Store
+# separate projects that live in this folder
+/postal-route/
+/postal-route-ad/
+# local scratch
+/web/.tmp/
+# tesseract language-data cache (downloaded at runtime)
+*.traineddata
