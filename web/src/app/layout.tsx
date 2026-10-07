@@ -30,12 +30,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <ClerkProvider
       appearance={{ variables: { colorPrimary: '#0B0C0A', colorForeground: '#0B0C0A', borderRadius: '12px', fontFamily: 'var(--f-ui), sans-serif' } }}
     >
-      <html lang="en" className={`${wm.variable} ${ui.variable} ${mono.variable}`} suppressHydrationWarning>
-        <head>
-          {/* Lets CSS hide entrance-animation start states only when JS will reveal them */}
-          <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
-        </head>
+      <html lang="en" className={`js ${wm.variable} ${ui.variable} ${mono.variable}`} suppressHydrationWarning>
         <body>
+          {/* Entrance animations start hidden (html.js) and are revealed by RevealObserver. Without
+              JavaScript nothing would ever reveal them, so un-hide everything. */}
+          <noscript><style>{'[data-reveal]:not([data-in]), [data-reveal]:not([data-in]) * { opacity: 1 !important; transform: none !important; }'}</style></noscript>
           <RevealObserver />
           <InkFilter />
           <div className="wrap">
@@ -45,15 +44,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="wm">Heats</span>
               </Link>
               <div className="navr">
-                <Link className="chip-link hide-sm" href="/results">Results</Link>
-                <Link className="chip-link" href="/post">Post a time</Link>
+                <Link className="navlink hide-sm" href="/results">Results</Link>
+                <Link className="btn volt sm" href="/post">Post a time</Link>
                 <Show when="signed-out">
-                  <SignInButton mode="modal"><button className="chip-link" type="button">Sign in</button></SignInButton>
+                  <SignInButton mode="modal"><button className="navlink" type="button">Sign in</button></SignInButton>
                 </Show>
                 <Show when="signed-in">
                   {me
-                    ? <Link className="chip-link" href={`/p/${me.alias}`}>Passport</Link>
-                    : <Link className="chip-link" href="/onboarding">Get your passport</Link>}
+                    ? <Link className="navlink" href={`/p/${me.alias}`}>Passport</Link>
+                    : <Link className="navlink" href="/onboarding">Get your passport</Link>}
                   <UserButton />
                 </Show>
               </div>
