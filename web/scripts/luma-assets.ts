@@ -126,10 +126,36 @@ const coverFlat = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="
   <text x="1010" y="1040" text-anchor="end" class="m5" font-size="26" fill="${BLACK}">ENGINEERS' GATE · SAT OCT 10</text>
 </svg>`
 
+// ───────── type banner: white, one readable headline, the wordmark bleeding off the bottom.
+// Text is measured with resvg so the highlight hugs its word exactly.
+function measure(text: string, cls: string, size: number, spacing: number) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="1000">${STYLE}<text x="0" y="700" class="${cls}" font-size="${size}" letter-spacing="${spacing}">${text}</text></svg>`
+  const bb = new Resvg(svg, { font: { loadSystemFonts: false, fontFiles: FONTS, defaultFontFamily: 'Geist' } }).getBBox()
+  return bb ? { x: bb.x, w: bb.width, top: bb.y, h: bb.height } : { x: 0, w: 0, top: 0, h: 0 }
+}
+const M = 130                      // left margin, shared by every element
+const HS = 230, HL = -8            // headline size + tracking
+const free = measure('FREE', 't-wm', HS, HL)
+const space = measure('FREE 5KS', 't-wm', HS, HL).w - measure('FREE', 't-wm', HS, HL).w - measure('5KS', 't-wm', HS, HL).w
+const fiveK = measure('5KS', 't-wm', HS, HL)
+const kX = M + free.w + space
+const L1 = 400, L2 = 640           // headline baselines
+const pad = 22
+const bannerType = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}">${STYLE}<defs>${INK}</defs>
+  <rect width="${BW}" height="${BH}" fill="#FFFFFF"/>
+  <text x="${M}" y="130" class="t-mono" font-size="30" letter-spacing="5" fill="${BLACK}">HEATS NYC</text>
+  <text x="${BW - M}" y="130" text-anchor="end" class="t-mono" font-size="30" letter-spacing="5" fill="${BLACK}">COMMUNITY 5KS · EVERY PACE</text>
+  <rect x="${kX - fiveK.x - pad}" y="${L1 - (700 - fiveK.top) - pad}" width="${fiveK.w + pad * 2}" height="${fiveK.h + pad * 2}" fill="${VOLT}"/>
+  <text x="${M - free.x}" y="${L1}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">FREE <tspan>5KS</tspan></text>
+  <text x="${M - free.x}" y="${L2}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">NYC ONLY.</text>
+  ${nest(inkStamp('btype'), 200, BW - M - 420, 190, 420, -9)}
+  <text x="${M - 10}" y="1185" class="t-wm" font-size="560" letter-spacing="-22" fill="${BLACK}">HEATS</text>
+</svg>`
+
 mkdirSync(OUT, { recursive: true })
 writeFileSync(path.join(OUT, 'heats-logo.png'), render(logo, 1000))
 writeFileSync(path.join(OUT, 'heat-001-cover.png'), render(cover, S))
 writeFileSync(path.join(OUT, 'heat-001-cover-clouds.png'), render(clouds, S))
-writeFileSync(path.join(OUT, 'calendar-cover.png'), render(bannerFlat, BW))
+writeFileSync(path.join(OUT, 'calendar-cover.png'), render(bannerType, BW))
 writeFileSync(path.join(OUT, 'heat-001-cover-flat.png'), render(coverFlat, S))
 console.log('wrote', OUT)
