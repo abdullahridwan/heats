@@ -29,6 +29,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <ClerkProvider
       appearance={{ variables: { colorPrimary: '#0B0C0A', colorForeground: '#0B0C0A', borderRadius: '12px', fontFamily: 'var(--f-ui), sans-serif' } }}
+      localization={{
+        signIn: { start: { title: 'Sign in to Heats', subtitle: 'Welcome back. Your run passport is waiting.' } },
+        signUp: { start: { title: 'Claim your stamp', subtitle: 'Create your Heats passport. No password needed.' } },
+      }}
     >
       <html lang="en" className={`js ${wm.variable} ${ui.variable} ${mono.variable}`} suppressHydrationWarning>
         <body>
