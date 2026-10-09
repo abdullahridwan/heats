@@ -18,7 +18,9 @@ export default async function PostPage() {
 
   const mine = me ? await getMySubmission(me.id, heat.id) : null
   const now = await serverNow()
-  const open = now >= new Date(heat.opens_at).getTime() && now <= new Date(heat.closes_at).getTime()
+  const before = now < new Date(heat.opens_at).getTime()
+  const after = now > new Date(heat.closes_at).getTime()
+  const luma = process.env.NEXT_PUBLIC_LUMA_URL
   const stamped = mine?.status === 'verified' || mine?.status === 'auto_verified'
 
   return (
@@ -30,8 +32,14 @@ export default async function PostPage() {
           <p>Screenshot your run from Strava, Garmin, Apple Watch, Nike or Coros. It must show a map, the distance and the time. A 5K anywhere in {heat.location_terms[0]} counts.</p>
         </div>
 
-        {!open ? (
-          <div className="panel"><b>The window is closed.</b><span className="muted">Heat {heatNo(heat.number)} takes submissions between {longDate(heat.opens_at)} and the end of that day.</span></div>
+        {before ? (
+          <div className="panel">
+            <b>Submissions open on race day.</b>
+            <span className="muted">Run 5K any time on {longDate(heat.opens_at)}, then come back here and submit your run. Submissions close at 11:59 PM that night.</span>
+            {luma && <div className="row-actions"><a className="btn volt" href={luma} target="_blank" rel="noopener noreferrer">RSVP on Luma</a></div>}
+          </div>
+        ) : after ? (
+          <div className="panel"><b>The window is closed.</b><span className="muted">Heat {heatNo(heat.number)} took submissions on {longDate(heat.opens_at)}. See the <a href="/results" style={{ textDecoration: 'underline' }}>results</a>.</span></div>
         ) : !userId ? (
           <div className="panel">
             <b>You ran it. Claim your stamp.</b>
