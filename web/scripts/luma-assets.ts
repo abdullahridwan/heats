@@ -149,10 +149,29 @@ const bannerType = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height
   <text x="${M - whole.x}" y="${L2}" class="g6" font-size="${HS}" letter-spacing="${HT}" fill="${BLACK}">Get stamped.</text>
 </svg>`
 
+// ───────── social preview (1.91:1): the link card on Twitter/iMessage/Slack. No Luma UI around it,
+// so it carries the name AND the hook.
+const SW = 2400, SH = 1256
+const sword = measure('stamped.', 'g6', HS, HT)
+const swhole = measure('Get stamped.', 'g6', HS, HT)
+const SL1 = 610, SL2 = 880
+const shx = M + (swhole.x + swhole.w - sword.w) - swhole.x - padX
+const social = `<svg xmlns="http://www.w3.org/2000/svg" width="${SW}" height="${SH}" viewBox="0 0 ${SW} ${SH}">${STYLE}
+  <rect width="${SW}" height="${SH}" fill="#FFFFFF"/>
+  <g transform="translate(${M} 120)"><rect width="104" height="104" rx="25" fill="${VOLT}"/>
+    <g transform="scale(1.04)"><polygon points="32,22 46,22 38,78 24,78" fill="${BLACK}"/><polygon points="62,22 76,22 68,78 54,78" fill="${BLACK}"/><polygon points="37,43 67,43 65.4,55 35.4,55" fill="${BLACK}"/></g></g>
+  <text x="${M + 104 + 30}" y="195" class="t-wm" font-size="68" letter-spacing="-2" fill="${BLACK}">HEATS</text>
+  <rect x="${shx}" y="${SL2 - (700 - sword.top) - padY}" width="${sword.w + padX * 2}" height="${sword.h + padY * 2}" fill="${VOLT}"/>
+  <text x="${M - swhole.x}" y="${SL1}" class="g6" font-size="${HS}" letter-spacing="${HT}" fill="${BLACK}">Run it.</text>
+  <text x="${M - swhole.x}" y="${SL2}" class="g6" font-size="${HS}" letter-spacing="${HT}" fill="${BLACK}">Get stamped.</text>
+  <text x="${M}" y="${SH - M + 20}" class="t-mono" font-size="34" letter-spacing="5" fill="${BLACK}">FREE 5KS IN NEW YORK · EVERY PACE</text>
+</svg>`
+
 mkdirSync(OUT, { recursive: true })
 writeFileSync(path.join(OUT, 'heats-logo.png'), render(logo, 1000))
 writeFileSync(path.join(OUT, 'heat-001-cover.png'), render(cover, S))
 writeFileSync(path.join(OUT, 'heat-001-cover-clouds.png'), render(clouds, S))
 writeFileSync(path.join(OUT, 'calendar-cover.png'), render(bannerType, BW))
+writeFileSync(path.join(OUT, 'social-preview.png'), render(social, SW))
 writeFileSync(path.join(OUT, 'heat-001-cover-flat.png'), render(coverFlat, S))
 console.log('wrote', OUT)
