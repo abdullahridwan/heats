@@ -24,10 +24,10 @@ export function visionPrompt(locationTerms: string[], locationNote: string) {
     'The event location is described by: ' + locationTerms.join(', ') + '.',
     `Additional location context: ${locationNote || 'none'}.`,
     '',
-    'Look at the map and the stats band in the image and answer strictly as JSON, nothing else:',
+    'The image is only the top part of the card: the map area, not the stats. Answer strictly as JSON, nothing else:',
     '{"is_strava_card": boolean, "location_ok": boolean, "place_labels": string[]}',
     '',
-    '- is_strava_card: true only if this looks like a running-app activity card (Strava, Garmin, Apple Fitness, Nike, Coros) with a map and distance/time stats.',
+    '- is_strava_card: true if this looks like the map area of a running-app activity card (Strava, Garmin, Apple Fitness, Nike, Coros): a street map with a coloured GPS route line drawn on it, possibly with an app logo or title. False for photos, plain screenshots and anything that is not a map with a route. Do not require stats; they are not in the image.',
     '- location_ok: true if the map or any place name overlaps the event location above. Text anywhere on the card naming a different, clearly distant place means false. Prefer true only when you can read a matching place name or the route clearly follows that location; do not guess from a generic green area.',
     '- place_labels: the street, park or landmark names you can actually read on the map (empty if none are legible).',
   ].join('\n')
