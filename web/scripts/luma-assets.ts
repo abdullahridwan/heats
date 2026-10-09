@@ -126,29 +126,27 @@ const coverFlat = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="
   <text x="1010" y="1040" text-anchor="end" class="m5" font-size="26" fill="${BLACK}">ENGINEERS' GATE · SAT OCT 10</text>
 </svg>`
 
-// ───────── type banner: white, one readable headline, the wordmark bleeding off the bottom.
-// Text is measured with resvg so the highlight hugs its word exactly.
+// ───────── calendar cover: one idea. Luma already shows the name, logo and description under the
+// cover, so the cover carries only the hook. Text is measured so the highlight hugs its word.
 function measure(text: string, cls: string, size: number, spacing: number) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="4000" height="1000">${STYLE}<text x="0" y="700" class="${cls}" font-size="${size}" letter-spacing="${spacing}">${text}</text></svg>`
   const bb = new Resvg(svg, { font: { loadSystemFonts: false, fontFiles: FONTS, defaultFontFamily: 'Geist' } }).getBBox()
   return bb ? { x: bb.x, w: bb.width, top: bb.y, h: bb.height } : { x: 0, w: 0, top: 0, h: 0 }
 }
-const M = 130                      // left margin, shared by every element
-const HS = 230, HL = -8            // headline size + tracking
-const free = measure('FREE', 't-wm', HS, HL)
-const space = measure('FREE 5KS', 't-wm', HS, HL).w - measure('FREE', 't-wm', HS, HL).w - measure('5KS', 't-wm', HS, HL).w
-const fiveK = measure('5KS', 't-wm', HS, HL)
-const kX = M + free.w + space
-const L1 = 400, L2 = 640           // headline baselines
-const pad = 22
-const bannerType = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}">${STYLE}<defs>${INK}</defs>
+const M = 150                 // one margin for everything
+const HS = 270, HT = -11      // headline size, tracking
+const L1 = 600, L2 = 870      // baselines
+const whole = measure('Get stamped.', 'g6', HS, HT)
+const word = measure('stamped.', 'g6', HS, HT)
+const padX = 26, padY = 18
+const hx = M + (whole.x + whole.w - word.w) - whole.x - padX            // highlight left edge
+const bannerType = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}">${STYLE}
   <rect width="${BW}" height="${BH}" fill="#FFFFFF"/>
-  <text x="${M}" y="130" class="t-mono" font-size="30" letter-spacing="5" fill="${BLACK}">HEATS NYC</text>
-  <text x="${BW - M}" y="130" text-anchor="end" class="t-mono" font-size="30" letter-spacing="5" fill="${BLACK}">COMMUNITY 5KS · EVERY PACE</text>
-  <rect x="${kX - fiveK.x - pad}" y="${L1 - (700 - fiveK.top) - pad}" width="${fiveK.w + pad * 2}" height="${fiveK.h + pad * 2}" fill="${VOLT}"/>
-  <text x="${M - free.x}" y="${L1}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">FREE <tspan>5KS</tspan></text>
-  <text x="${M - free.x}" y="${L2}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">NYC ONLY.</text>
-  <text x="${M - 10}" y="1185" class="t-wm" font-size="560" letter-spacing="-22" fill="${BLACK}">HEATS</text>
+  <g transform="translate(${M} 120) scale(1.0)"><rect width="104" height="104" rx="25" fill="${VOLT}"/>
+    <g transform="scale(1.04)"><polygon points="32,22 46,22 38,78 24,78" fill="${BLACK}"/><polygon points="62,22 76,22 68,78 54,78" fill="${BLACK}"/><polygon points="37,43 67,43 65.4,55 35.4,55" fill="${BLACK}"/></g></g>
+  <rect x="${hx}" y="${L2 - (700 - word.top) - padY}" width="${word.w + padX * 2}" height="${word.h + padY * 2}" fill="${VOLT}"/>
+  <text x="${M - whole.x}" y="${L1}" class="g6" font-size="${HS}" letter-spacing="${HT}" fill="${BLACK}">Run it.</text>
+  <text x="${M - whole.x}" y="${L2}" class="g6" font-size="${HS}" letter-spacing="${HT}" fill="${BLACK}">Get stamped.</text>
 </svg>`
 
 mkdirSync(OUT, { recursive: true })
