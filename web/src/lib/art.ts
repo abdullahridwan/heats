@@ -4,34 +4,56 @@ import { heatNo, stampDate } from './time'
 
 export type MedalKind = 'founding' | 'podium' | 'closer'
 
-// Stamp art. v1 keeps the single Central Park palette (PARKS.volt) and the circle shape; the
-// stamps still read heat number, park and date off the heat row.
+// Stamp art. Each heat has its own stamp: the race name on the rim, its own ink and a motif
+// that carries the race's theme. Add an entry to STAMP_THEMES when a new heat is created;
+// heats without one fall back to the race name in the default ink.
 
 const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
+type Motif = 'leaf' | 'none'
+type StampTheme = { rim?: string; ink: string; motif: Motif }
+
+export const STAMP_THEMES: Record<number, StampTheme> = {
+  // Chilly Central Park 5K: the first cold weekend of fall.
+  1: { rim: 'CHILLY CENTRAL PARK', ink: '#B4471B', motif: 'leaf' },
+}
+
+const LEAF = 'M0,-10 L2,-5.2 L5.4,-6.6 L4.2,-2.2 L8.6,-3.2 L6.2,0.8 L9.6,2.2 L4.4,4.2 L5.2,7.4 L1.2,5.6 L0.9,10.4 L-0.9,10.4 L-1.2,5.6 L-5.2,7.4 L-4.4,4.2 L-9.6,2.2 L-6.2,0.8 L-8.6,-3.2 L-4.2,-2.2 L-5.4,-6.6 L-2,-5.2 Z'
+const leaf = (x: number, y: number, r: number, k: number, c: string) => `<path d="${LEAF}" transform="translate(${x} ${y}) rotate(${r}) scale(${k})" fill="${c}"/>`
+
 export function stampName(p: string) {
-  const short = p.toUpperCase().replace(' GREENWAY', '').replace('BROOKLYN BRIDGE PARK', 'BKLYN BRIDGE')
-  return short.length > 17 ? short.slice(0, 16) + '.' : short
+  return p.toUpperCase().replace(/\s+5K$/, '').replace(' GREENWAY', '').replace('BROOKLYN BRIDGE PARK', 'BKLYN BRIDGE')
 }
 
 type StampHeat = Pick<Heat, 'number' | 'name' | 'opens_at' | 'location_terms'>
 
+export function stampTheme(h: Pick<Heat, 'number' | 'name'>): Required<StampTheme> {
+  const t = STAMP_THEMES[h.number]
+  return { rim: t?.rim ?? stampName(h.name), ink: t?.ink ?? PARKS.volt.d, motif: t?.motif ?? 'none' }
+}
+
 export function stampSVG(h: StampHeat, salt = 'a') {
-  const c = PARKS.volt.d
+  const { rim, ink: c, motif } = stampTheme(h)
   const id = `st${h.number}${salt}`
   const n = heatNo(h.number)
   const date = stampDate(h.opens_at)
-  const name = esc(stampName(h.location_terms[0] ?? h.name))
+  // Longer race names get a smaller rim so they still fit the top arc.
+  const size = rim.length > 22 ? 9.6 : rim.length > 16 ? 11.2 : 12.5
+  const spacing = rim.length > 16 ? 1.5 : 2.4
   const mono = `class="t-mono" fill="${c}"`
+  const side = motif === 'leaf' ? leaf(33, 100, -40, 0.56, c) + leaf(167, 100, 40, 0.56, c)
+    : `<circle cx="40" cy="100" r="2.6" fill="${c}"/><circle cx="160" cy="100" r="2.6" fill="${c}"/>`
+  const under = motif === 'leaf' ? leaf(74, 144, -24, 0.78, c) + leaf(100, 149, 6, 0.92, c) + leaf(126, 144, 28, 0.78, c) : ''
   const body =
     `<circle cx="100" cy="100" r="92" fill="none" stroke="${c}" stroke-width="5"/><circle cx="100" cy="100" r="80" fill="none" stroke="${c}" stroke-width="1.6"/>` +
-    `<path id="${id}t" d="M 34 100 A 66 66 0 0 1 166 100" fill="none"/><path id="${id}b" d="M 26 100 A 74 74 0 0 0 174 100" fill="none"/>` +
-    `<text ${mono} font-size="12.5" letter-spacing="2.4" text-anchor="middle"><textPath href="#${id}t" startOffset="50%">${name}</textPath></text>` +
-    `<text ${mono} font-size="11" letter-spacing="2.4" text-anchor="middle"><textPath href="#${id}b" startOffset="50%">${date} · 5K</textPath></text>` +
-    `<circle cx="40" cy="100" r="2.6" fill="${c}"/><circle cx="160" cy="100" r="2.6" fill="${c}"/>` +
-    `<text x="100" y="80" text-anchor="middle" class="t-mono" font-size="10" letter-spacing="4" fill="${c}">HEAT</text>` +
-    `<text x="100" y="124" text-anchor="middle" class="t-wm" font-size="52" letter-spacing="-2" fill="${c}">${n}</text>`
-  return `<svg viewBox="0 0 200 200" role="img" aria-label="Heat ${n} stamp"><g filter="url(#ink)" opacity=".93">${body}</g></svg>`
+    `<path id="${id}t" d="M 33 100 A 67 67 0 0 1 167 100" fill="none"/><path id="${id}b" d="M 25 100 A 75 75 0 0 0 175 100" fill="none"/>` +
+    `<text ${mono} font-size="${size}" letter-spacing="${spacing}" text-anchor="middle"><textPath href="#${id}t" startOffset="50%">${esc(rim)}</textPath></text>` +
+    `<text ${mono} font-size="10.5" letter-spacing="2.2" text-anchor="middle"><textPath href="#${id}b" startOffset="50%">${date} · 5K · NYC</textPath></text>` +
+    side +
+    `<text x="100" y="${motif === 'leaf' ? 78 : 80}" text-anchor="middle" class="t-mono" font-size="10" letter-spacing="4" fill="${c}">HEAT</text>` +
+    `<text x="100" y="${motif === 'leaf' ? 122 : 124}" text-anchor="middle" class="t-wm" font-size="50" letter-spacing="-2" fill="${c}">${n}</text>` +
+    under
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="Heat ${n} stamp: ${esc(h.name)}"><g filter="url(#ink)" opacity=".93">${body}</g></svg>`
 }
 
 // ───────────── medals: three enamel pins for v1

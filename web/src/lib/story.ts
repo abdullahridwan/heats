@@ -3,7 +3,7 @@ import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import { medalSVG, stampSVG, type MedalKind } from './art'
 import { PARKS } from './themes'
-import { clock, formatTime, heatNo, longDate, ordinal } from './time'
+import { formatTime, heatNo, longDate, ordinal } from './time'
 import type { Heat, Stamp } from './types'
 
 // 1080×1920 Instagram-story images, drawn as one SVG with the real stamp/medal art and rendered
@@ -89,7 +89,7 @@ export function heatStory(heat: Heat, opts: { alias?: string }) {
     `<text x="140" y="279" class="t-mono" font-size="28" letter-spacing="3" fill="#0B0C0A">${opts.alias ? "I'M RUNNING" : 'JOIN ME'}</text>` +
     name +
     `<text x="80" y="${after}" class="g4" font-size="42" fill="#0B0C0A" opacity=".8">Heat ${n} · ${esc(longDate(dateIso))}</text>` +
-    `<text x="80" y="${after + 58}" class="g4" font-size="42" fill="#0B0C0A" opacity=".8">${esc(clock(dateIso))} · Free · every pace</text>` +
+    `<text x="80" y="${after + 58}" class="g4" font-size="42" fill="#0B0C0A" opacity=".8">All day · Free · every pace</text>` +
     nest(stampSVG(heat, 'story'), 200, 400, Math.max(after + 110, 900), 600, -10) +
     `<g filter="url(#lift)"><rect x="60" y="1500" width="960" height="330" rx="48" fill="#FFFFFF"/></g>` +
     `<text x="80" y="1600" class="g6" font-size="44" letter-spacing="-1" fill="#0B0C0A">${opts.alias ? `${esc(opts.alias)} is in` : `Heat ${n} is open`}</text>` +
