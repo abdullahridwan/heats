@@ -7,7 +7,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
-import { stampSVG } from '../src/lib/art'
+import { medalSVG, stampSVG } from '../src/lib/art'
 import { COURSE, CENTRAL } from '../src/lib/themes'
 
 const OUT = path.join(process.cwd(), '..', 'brand', 'luma')
@@ -84,8 +84,24 @@ const clouds = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S
   <text x="1010" y="1040" text-anchor="end" class="m5" font-size="26" fill="#0B0C0A" opacity=".75">ENGINEERS' GATE · SAT OCT 10</text>
 </svg>`
 
+// ───────── calendar banner: Heats as a whole. Content sits in the middle band so any crop works.
+const BW = 2400, BH = 1000
+const bblob = (cx: number, cy: number, r: number, c: string, o: number, id: string) =>
+  `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${c}" stop-opacity="${o}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient><rect width="${BW}" height="${BH}" fill="url(#${id})"/>`
+const banner = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}">${STYLE}<defs>${INK}</defs>
+  <rect width="${BW}" height="${BH}" fill="#FFFFFF"/>
+  ${bblob(380, 160, 900, CENTRAL.b, 0.55, 'ba')}${bblob(2050, 220, 900, '#B8CCFF', 0.75, 'bb')}${bblob(1250, 1050, 800, CENTRAL.g, 0.6, 'bc')}
+  <rect width="${BW}" height="${BH}" filter="url(#grain)" opacity=".14"/>
+  <text x="300" y="520" class="t-wm" font-size="250" letter-spacing="-10" fill="#0B0C0A">HEATS</text>
+  <text x="306" y="625" class="g6" font-size="62" letter-spacing="-2" fill="#0B0C0A">Free community 5Ks across New York.</text>
+  <text x="306" y="700" class="g4" font-size="44" fill="#3B3E38">Run it. Post your Strava screenshot. Get stamped.</text>
+  ${nest(stampSVG(HEAT, 'banner'), 200, 1560, 250, 500, -9)}
+  <g transform="translate(1930 520) rotate(10 110 110)">${medalSVG('founding', 'banner').replace('<svg viewBox', '<svg width="220" height="220" viewBox')}</g>
+</svg>`
+
 mkdirSync(OUT, { recursive: true })
 writeFileSync(path.join(OUT, 'heats-logo.png'), render(logo, 1000))
 writeFileSync(path.join(OUT, 'heat-001-cover.png'), render(cover, S))
 writeFileSync(path.join(OUT, 'heat-001-cover-clouds.png'), render(clouds, S))
+writeFileSync(path.join(OUT, 'calendar-cover.png'), render(banner, BW))
 console.log('wrote', OUT)
