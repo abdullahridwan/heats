@@ -515,3 +515,38 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 }
 @keyframes fade { from { opacity: 0; } }
 @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+
+/* ───────── landing (v1): one message, one action */
+.lp-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 56px; align-items: center; padding-block: 48px 96px; }
+.lp-copy { display: grid; gap: 22px; justify-items: start; }
+.lp-kicker { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: #3B3E38; padding: 6px 14px 6px 10px; border: 1px solid var(--hair); border-radius: 999px; background: #fff; }
+.lp-kicker .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--volt); box-shadow: 0 0 0 3px #F2FFC4; }
+.lp-h1 { margin: 0; font-size: clamp(40px, 5.2vw, 64px); font-weight: 600; letter-spacing: -.045em; line-height: 1.02; text-wrap: balance; }
+.lp-sub { margin: 0; font-size: clamp(17px, 1.6vw, 20px); color: var(--text2); line-height: 1.45; max-width: 34ch; }
+.lp-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.lp-fine { margin: 0; font-size: 14px; color: var(--text3); }
+.lp-video { border-radius: 28px; overflow: hidden; border: 1px solid var(--hair); box-shadow: var(--shadow-lg); background: #FBFCF8; }
+.lp-sec { padding-block: 88px; border-top: 1px solid var(--hair); display: grid; gap: 40px; }
+.lp-head { display: grid; gap: 12px; max-width: 620px; }
+.lp-head h2 { margin: 0; font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: -.04em; line-height: 1.05; text-wrap: balance; }
+.lp-head p { margin: 0; font-size: 18px; color: var(--text2); }
+.lp-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.lp-step { border: 1px solid var(--hair); border-radius: 22px; overflow: hidden; background: #fff; display: grid; }
+.lp-clip { border-bottom: 1px solid var(--hair); }
+.lp-step-txt { padding: 18px 20px 22px; display: grid; gap: 6px; }
+.lp-step-txt h3 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+.lp-step-txt p { margin: 0; font-size: 15px; color: var(--text2); }
+.lp-n { font-family: var(--f-mono), monospace; font-size: 12px; color: var(--text3); }
+.lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+.lp-art { position: relative; aspect-ratio: 1.3; max-width: 460px; width: 100%; justify-self: center; }
+.lp-art .lp-stamp { position: absolute; left: 4%; top: 4%; width: 64%; transform: rotate(-9deg); }
+.lp-art .lp-medal { position: absolute; right: 4%; bottom: 0; width: 36%; transform: rotate(9deg); filter: drop-shadow(0 16px 20px rgba(11,12,10,.2)); }
+.lp-final { margin-block: 24px 64px; padding: clamp(48px, 7vw, 88px) 24px; border-radius: 32px; background: var(--ink); color: #fff; display: grid; justify-items: center; text-align: center; gap: 16px; }
+.lp-final h2 { margin: 0; font-size: clamp(34px, 5vw, 58px); font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.lp-final p { margin: 0 0 10px; font-size: 18px; color: #B9BCB3; }
+@media (max-width: 900px) {
+  .lp-hero, .lp-split { grid-template-columns: 1fr; gap: 36px; }
+  .lp-hero { padding-block: 24px 64px; }
+  .lp-steps { grid-template-columns: 1fr; }
+  .lp-sec { padding-block: 64px; }
+}
