@@ -9,7 +9,7 @@ export const W = 800
 export const H = 600
 export const FPS = 30
 export const SCENE = 105 // 3.5 s per scene
-export const LOOP = SCENE * 3
+export const LOOP = SCENE * 4
 
 const HEAT = { number: 1, name: 'Chilly Central Park 5K', opens_at: '2026-10-10T04:00:00Z', location_terms: ['Central Park'] }
 const ink = '#0B0C0A'
@@ -33,7 +33,46 @@ function Caption({ step, text }: { step: string; text: string }) {
   )
 }
 
-// ───────── 1 · Run: the loop draws itself, a runner follows, distance counts up
+// ───────── 1 · RSVP: the Luma event card, a click on Register, "You're in"
+export function RsvpScene({ standalone = true }: { standalone?: boolean }) {
+  const f = useCurrentFrame()
+  const { fps } = useVideoConfig()
+  const click = 54
+  const rise = spring({ frame: f - 2, fps, config: { damping: 16, stiffness: 120 } })
+  const pop = spring({ frame: f - click, fps, config: { damping: 11, stiffness: 180 } })
+  const t = interpolate(f, [16, 50], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic) })
+  const cx = 640 + (440 - 640) * t, cy = 560 + (448 - 560) * t
+  const press = f >= click && f < click + 5 ? 0.88 : 1
+  const done = f >= click
+  return (
+    <AbsoluteFill style={{ opacity: standalone ? 1 : fadeInOut(f, SCENE) }}>
+      <Backdrop tint="#EAF1FF" />
+      <Caption step="01" text="RSVP on Luma" />
+      <div style={{ position: 'absolute', left: 200, top: 112, width: 400, height: 390, borderRadius: 24, background: '#fff', boxShadow: '0 30px 60px -24px rgba(11,12,10,.3)', opacity: rise, transform: `translateY(${(1 - rise) * 40}px)`, fontFamily: 'var(--f-ui), sans-serif', padding: 24 }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div style={{ width: 84, height: 84, borderRadius: 16, background: volt, display: 'grid', placeItems: 'center', flex: 'none' }}>
+            <svg width="46" height="46" viewBox="0 0 100 100"><polygon points="32,22 46,22 38,78 24,78" fill={ink} /><polygon points="62,22 76,22 68,78 54,78" fill={ink} /><polygon points="37,43 67,43 65.4,55 35.4,55" fill={ink} /></svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-.025em', color: ink, lineHeight: 1.1 }}>Chilly Central Park 5K</div>
+            <div style={{ fontSize: 14, color: '#5E625B', marginTop: 4 }}>Heat 001 · Free</div>
+          </div>
+        </div>
+        <div style={{ marginTop: 20, display: 'grid', gap: 10, fontSize: 16, color: '#33362F' }}>
+          <div><b>Sat, Oct 10</b> · any time, all day</div>
+          <div><b>Engineers&apos; Gate</b> · 5th Ave &amp; E 90th St</div>
+        </div>
+        <div style={{ position: 'absolute', left: 24, right: 24, bottom: 24, height: 54, borderRadius: 14, background: done ? volt : ink, color: done ? ink : '#fff', display: 'grid', placeItems: 'center', fontSize: 18, fontWeight: 600, transform: `scale(${press})` }}>
+          {done ? "You're in ✓" : 'Register'}
+        </div>
+      </div>
+      <svg width="30" height="30" viewBox="0 0 24 24" style={{ position: 'absolute', left: cx, top: cy, opacity: f > 10 ? 1 : 0, filter: 'drop-shadow(0 3px 4px rgba(0,0,0,.25))' }}><path d="M4 2 L4 19 L8.5 14.8 L11.6 21.5 L14.4 20.2 L11.4 13.6 L17.5 13.6 Z" fill={ink} stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" /></svg>
+      <div style={{ position: 'absolute', left: 630, top: 250, opacity: pop, transform: `scale(${0.8 + pop * 0.2})`, transformOrigin: 'left center', fontFamily: 'var(--f-ui), sans-serif', fontSize: 30, fontWeight: 600, letterSpacing: '-.03em', color: ink }}>See<br />you<br />there.</div>
+    </AbsoluteFill>
+  )
+}
+
+// ───────── 2 · Run: the loop draws itself, a runner follows, distance counts up
 export function RunScene({ standalone = true }: { standalone?: boolean }) {
   const f = useCurrentFrame()
   const p = interpolate(f, [10, SCENE - 20], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.quad) })
@@ -43,7 +82,7 @@ export function RunScene({ standalone = true }: { standalone?: boolean }) {
   return (
     <AbsoluteFill style={{ opacity: standalone ? 1 : fadeInOut(f, SCENE) }}>
       <Backdrop tint="#F2FFC4" />
-      <Caption step="01" text="Start at Engineers' Gate" />
+      <Caption step="02" text="Start at Engineers' Gate" />
       <svg viewBox="0 0 200 200" style={{ position: 'absolute', left: 230, top: 90, width: 400, height: 400, overflow: 'visible' }}>
         <g transform={COURSE.t}>
           <path d={COURSE.d} fill="none" stroke="#DADDD3" strokeWidth={4} strokeLinejoin="round" />
@@ -103,7 +142,7 @@ export function PostScene({ standalone = true }: { standalone?: boolean }) {
   return (
     <AbsoluteFill style={{ opacity: standalone ? 1 : fadeInOut(f, SCENE) }}>
       <Backdrop tint="#FFE9D6" />
-      <Caption step="02" text="Post your Strava screenshot" />
+      <Caption step="03" text="Post your Strava screenshot" />
       <div style={{ position: 'absolute', left: 120, top: 120, transform: `translateY(${(1 - up) * 460}px) rotate(${(1 - up) * -6}deg)` }}>
         <StravaCard />
         <div style={{ position: 'absolute', left: 0, right: 0, top: `${scan * 100}%`, height: 3, background: volt, boxShadow: `0 0 18px ${volt}`, opacity: scan > 0 && scan < 1 ? 1 : 0 }} />
@@ -131,7 +170,7 @@ export function StampScene({ standalone = true }: { standalone?: boolean }) {
   return (
     <AbsoluteFill style={{ opacity: standalone ? 1 : fadeInOut(f, SCENE) }}>
       <Backdrop tint="#F2FFC4" />
-      <Caption step="03" text="Get stamped" />
+      <Caption step="04" text="Get stamped" />
       <div style={{ position: 'absolute', left: 200, top: 100, width: 300, height: 420, borderRadius: '10px 22px 22px 10px', background: '#fff', boxShadow: '0 30px 70px -24px rgba(11,12,10,.3)', transform: `translateY(${shake}px)`, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', left: 20, top: 16, right: 20, display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--f-mono), monospace', fontSize: 12, letterSpacing: '.14em', color: '#5E625B' }}><span>STAMPS</span><span>FALL 2026</span></div>
         <div style={{ position: 'absolute', left: 36, top: 70, width: 228, opacity: drop > 0 ? 1 : 0, transform: `scale(${scale}) rotate(${interpolate(drop, [0, 1], [-22, -8])}deg)`, transformOrigin: 'center' }}>
@@ -154,9 +193,10 @@ export function StampScene({ standalone = true }: { standalone?: boolean }) {
 export function LoopScene() {
   return (
     <AbsoluteFill style={{ background: '#FBFCF8' }}>
-      <Sequence durationInFrames={SCENE}><RunScene standalone={false} /></Sequence>
-      <Sequence from={SCENE} durationInFrames={SCENE}><PostScene standalone={false} /></Sequence>
-      <Sequence from={SCENE * 2} durationInFrames={SCENE}><StampScene standalone={false} /></Sequence>
+      <Sequence durationInFrames={SCENE}><RsvpScene standalone={false} /></Sequence>
+      <Sequence from={SCENE} durationInFrames={SCENE}><RunScene standalone={false} /></Sequence>
+      <Sequence from={SCENE * 2} durationInFrames={SCENE}><PostScene standalone={false} /></Sequence>
+      <Sequence from={SCENE * 3} durationInFrames={SCENE}><StampScene standalone={false} /></Sequence>
     </AbsoluteFill>
   )
 }

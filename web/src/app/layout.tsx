@@ -17,7 +17,7 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   title: { default: 'Heats · Chilly Central Park 5K', template: '%s · Heats' },
-  description: 'Free community 5Ks across New York. Show up, run, get stamped.',
+  description: 'Free community 5Ks across New York. Run it, post your Strava screenshot, get stamped.',
   openGraph: { siteName: 'Heats', type: 'website' },
 }
 
@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </Link>
               <div className="navr">
                 <Link className="navlink hide-sm" href="/results">Results</Link>
-                <Link className="btn volt sm" href="/post">Post a time</Link>
+                <Link className="btn volt sm" href="/post">Submit my run</Link>
                 <Show when="signed-out">
                   <SignInButton mode="modal"><button className="navlink" type="button">Sign in</button></SignInButton>
                 </Show>

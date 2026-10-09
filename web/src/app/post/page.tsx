@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
+import { SignInButton, SignUpButton } from '@clerk/nextjs'
 import { getHeats, getMe, getMySubmission, serverNow } from '@/lib/data'
 import { PostForm } from './post-form'
 import { heatNo, longDate } from '@/lib/time'
 
-export const metadata = { title: 'Post your time' }
+export const metadata = { title: 'Submit my run' }
 
 export default async function PostPage() {
   const heats = await getHeats()
@@ -25,14 +26,21 @@ export default async function PostPage() {
       <section className="s first">
         <div className="head">
           <span className="eyebrow">Heat {heatNo(heat.number)} · {longDate(heat.opens_at)}</span>
-          <h2>Post your time</h2>
+          <h2>Submit my run</h2>
           <p>Screenshot your run from Strava, Garmin, Apple Watch, Nike or Coros. It must show a map, the distance and the time. A 5K anywhere in {heat.location_terms[0]} counts.</p>
         </div>
 
         {!open ? (
           <div className="panel"><b>The window is closed.</b><span className="muted">Heat {heatNo(heat.number)} takes submissions between {longDate(heat.opens_at)} and the end of that day.</span></div>
         ) : !userId ? (
-          <div className="panel"><b>Sign in to claim your stamp.</b><span className="muted">You need a passport to post a time. It takes ten seconds.</span></div>
+          <div className="panel">
+            <b>You ran it. Claim your stamp.</b>
+            <span className="muted">Make your free Heats passport, then upload your Strava screenshot. It takes about a minute.</span>
+            <div className="row-actions">
+              <SignUpButton mode="modal" forceRedirectUrl="/post"><button className="btn volt" type="button">Get my stamp</button></SignUpButton>
+              <SignInButton mode="modal" forceRedirectUrl="/post"><button className="btn ghost" type="button">I already have a passport</button></SignInButton>
+            </div>
+          </div>
         ) : stamped ? (
           <div className="panel"><b>You&apos;re stamped.</b><span className="muted">Heat {heatNo(heat.number)} is in your passport.</span></div>
         ) : (

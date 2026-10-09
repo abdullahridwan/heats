@@ -80,7 +80,7 @@ export default async function Passport({ params }: Props) {
         ) : (
           <section className="s">
             <div className="sheet"><div className="empty"><b style={{ color: 'var(--ink)' }}>Nothing stamped yet.</b><span>Race it, post a screenshot, and your stamp lands here.</span></div></div>
-            <div className="row-actions"><Link className="btn theme" href="/post">Post a time</Link></div>
+            <div className="row-actions"><Link className="btn theme" href="/post">Submit my run</Link></div>
           </section>
         )}
       </main>

@@ -169,7 +169,7 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
       {phase === 'error' && <p className="error" role="alert">{message}</p>}
       {busy && <p className="eyebrow" role="status">{phase === 'uploading' ? 'Uploading…' : 'Reading your card… this takes a few seconds.'}</p>}
 
-      <button className="btn theme block" type="submit" disabled={busy || !preview}>{busy ? 'Working…' : 'Post my time'}</button>
+      <button className="btn theme block" type="submit" disabled={busy || !preview}>{busy ? 'Working…' : 'Submit my run'}</button>
     </form>
   )
 }

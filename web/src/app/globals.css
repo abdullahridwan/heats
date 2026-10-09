@@ -530,7 +530,8 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 .lp-head { display: grid; gap: 12px; max-width: 620px; }
 .lp-head h2 { margin: 0; font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: -.04em; line-height: 1.05; text-wrap: balance; }
 .lp-head p { margin: 0; font-size: 18px; color: var(--text2); }
-.lp-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.lp-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .lp-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .lp-step { border: 1px solid var(--hair); border-radius: 22px; overflow: hidden; background: #fff; display: grid; }
 .lp-clip { border-bottom: 1px solid var(--hair); }
 .lp-step-txt { padding: 18px 20px 22px; display: grid; gap: 6px; }
@@ -547,6 +548,11 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 @media (max-width: 900px) {
   .lp-hero, .lp-split { grid-template-columns: 1fr; gap: 36px; }
   .lp-hero { padding-block: 24px 64px; }
-  .lp-steps { grid-template-columns: 1fr; }
   .lp-sec { padding-block: 64px; }
 }
+
+@media (max-width: 640px) { .lp-steps { grid-template-columns: 1fr; } }
+.lp-link { font-size: 15px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; justify-self: start; }
+.lp-embed { justify-self: end; width: 100%; max-width: 600px; }
+.lp-embed iframe { display: block; width: 100%; height: 740px; border: 1px solid var(--hair); border-radius: 18px; background: #fff; box-shadow: var(--shadow); }
+@media (max-width: 900px) { .lp-embed { justify-self: stretch; } }

@@ -42,7 +42,7 @@ export default async function Results() {
         </div>
 
         <div className="row-actions">
-          <Link className="btn theme" href="/post">Post your time</Link>
+          <Link className="btn theme" href="/post">Submit my run</Link>
           <span className="eyebrow"><span className="dot" style={{ background: parkDot() }} /> Every pace, no cutoff</span>
         </div>
       </section>
