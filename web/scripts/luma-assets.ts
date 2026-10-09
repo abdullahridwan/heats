@@ -148,7 +148,6 @@ const bannerType = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height
   <rect x="${kX - fiveK.x - pad}" y="${L1 - (700 - fiveK.top) - pad}" width="${fiveK.w + pad * 2}" height="${fiveK.h + pad * 2}" fill="${VOLT}"/>
   <text x="${M - free.x}" y="${L1}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">FREE <tspan>5KS</tspan></text>
   <text x="${M - free.x}" y="${L2}" class="t-wm" font-size="${HS}" letter-spacing="${HL}" fill="${BLACK}">NYC ONLY.</text>
-  ${nest(inkStamp('btype'), 200, BW - M - 420, 190, 420, -9)}
   <text x="${M - 10}" y="1185" class="t-wm" font-size="560" letter-spacing="-22" fill="${BLACK}">HEATS</text>
 </svg>`
 
