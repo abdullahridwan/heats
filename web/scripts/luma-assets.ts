@@ -99,9 +99,37 @@ const banner = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${
   <g transform="translate(1930 520) rotate(10 110 110)">${medalSVG('founding', 'banner').replace('<svg viewBox', '<svg width="220" height="220" viewBox')}</g>
 </svg>`
 
+// ───────── flat system: solid volt + black only. No gradients, glow or grain.
+const VOLT = '#CCFF00', BLACK = '#0B0C0A'
+const inkStamp = (salt: string) => stampSVG(HEAT, salt).replaceAll('#B4471B', BLACK)
+
+const bannerFlat = `<svg xmlns="http://www.w3.org/2000/svg" width="${BW}" height="${BH}" viewBox="0 0 ${BW} ${BH}">${STYLE}<defs>${INK}</defs>
+  <rect width="${BW}" height="${BH}" fill="${VOLT}"/>
+  <text x="300" y="540" class="t-wm" font-size="280" letter-spacing="-12" fill="${BLACK}">HEATS</text>
+  <text x="308" y="650" class="g6" font-size="64" letter-spacing="-2" fill="${BLACK}">Free community 5Ks across New York.</text>
+  <text x="308" y="724" class="g4" font-size="44" fill="${BLACK}" opacity=".7">Run it. Post your Strava screenshot. Get stamped.</text>
+  ${nest(inkStamp('bflat'), 200, 1600, 240, 520, -9)}
+</svg>`
+
+const coverFlat = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${STYLE}<defs>${INK}</defs>
+  <rect width="${S}" height="${S}" fill="${VOLT}"/>
+  <text x="70" y="104" class="t-mono" font-size="30" letter-spacing="3" fill="${BLACK}">HEAT 001</text>
+  <text x="1010" y="104" text-anchor="end" class="t-mono" font-size="30" letter-spacing="3" fill="${BLACK}">5.0 KM</text>
+  <g transform="translate(150 150) scale(3.6)"><g transform="${COURSE.t ?? ''}">
+    <path d="${COURSE.d}" fill="none" stroke="${BLACK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${COURSE.s[0]}" cy="${COURSE.s[1]}" r="7.5" fill="#FFFFFF" stroke="${BLACK}" stroke-width="2.6"/>
+  </g></g>
+  ${nest(inkStamp('cflat'), 200, 590, 540, 440, -10)}
+  <text x="70" y="900" class="g6" font-size="84" letter-spacing="-3" fill="${BLACK}">Chilly Central</text>
+  <text x="70" y="986" class="g6" font-size="84" letter-spacing="-3" fill="${BLACK}">Park 5K</text>
+  <text x="70" y="1040" class="t-wm" font-size="34" letter-spacing="-1" fill="${BLACK}">HEATS</text>
+  <text x="1010" y="1040" text-anchor="end" class="m5" font-size="26" fill="${BLACK}">ENGINEERS' GATE · SAT OCT 10</text>
+</svg>`
+
 mkdirSync(OUT, { recursive: true })
 writeFileSync(path.join(OUT, 'heats-logo.png'), render(logo, 1000))
 writeFileSync(path.join(OUT, 'heat-001-cover.png'), render(cover, S))
 writeFileSync(path.join(OUT, 'heat-001-cover-clouds.png'), render(clouds, S))
-writeFileSync(path.join(OUT, 'calendar-cover.png'), render(banner, BW))
+writeFileSync(path.join(OUT, 'calendar-cover.png'), render(bannerFlat, BW))
+writeFileSync(path.join(OUT, 'heat-001-cover-flat.png'), render(coverFlat, S))
 console.log('wrote', OUT)
