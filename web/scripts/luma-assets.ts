@@ -67,9 +67,8 @@ const puff = (cx: number, cy: number, k: number) =>
 const clouds = `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">${STYLE}<defs>${INK}
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
   <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FAEF2"/><stop offset=".55" stop-color="#BBD4F7"/><stop offset="1" stop-color="#EEF4FD"/></linearGradient>
-  <radialGradient id="glow" cx="160" cy="120" r="520" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${CENTRAL.b}" stop-opacity=".55"/><stop offset="1" stop-color="${CENTRAL.b}" stop-opacity="0"/></radialGradient></defs>
+</defs>
   <rect width="${S}" height="${S}" fill="url(#sky)"/>
-  <rect width="${S}" height="${S}" fill="url(#glow)"/>
   <g opacity=".95">${puff(860, 230, 1.1)}${puff(170, 560, 0.85)}${puff(930, 690, 0.75)}${puff(420, 860, 1.25)}</g>
   <rect width="${S}" height="${S}" filter="url(#grain)" opacity=".16"/>
   <text x="70" y="104" class="t-mono" font-size="30" letter-spacing="3" fill="#0B0C0A" opacity=".75">HEAT 001</text>
