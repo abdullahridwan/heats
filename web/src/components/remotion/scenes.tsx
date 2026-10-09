@@ -43,7 +43,7 @@ export function RunScene({ standalone = true }: { standalone?: boolean }) {
   return (
     <AbsoluteFill style={{ opacity: standalone ? 1 : fadeInOut(f, SCENE) }}>
       <Backdrop tint="#F2FFC4" />
-      <Caption step="01" text="Run 5K in Central Park" />
+      <Caption step="01" text="Start at Engineers' Gate" />
       <svg viewBox="0 0 200 200" style={{ position: 'absolute', left: 230, top: 90, width: 400, height: 400, overflow: 'visible' }}>
         <g transform={COURSE.t}>
           <path d={COURSE.d} fill="none" stroke="#DADDD3" strokeWidth={4} strokeLinejoin="round" />
@@ -53,7 +53,7 @@ export function RunScene({ standalone = true }: { standalone?: boolean }) {
       </svg>
       <div style={{ position: 'absolute', right: 44, bottom: 40, textAlign: 'right', fontFamily: 'var(--f-ui), sans-serif' }}>
         <div style={{ fontFamily: 'var(--f-mono), monospace', fontSize: 64, fontWeight: 500, letterSpacing: '-.04em', color: ink, fontVariantNumeric: 'tabular-nums' }}>{km}<span style={{ fontSize: 28, marginLeft: 8, color: '#5E625B' }}>km</span></div>
-        <div style={{ fontSize: 18, color: '#5E625B' }}>Any time on Saturday · any route</div>
+        <div style={{ fontSize: 18, color: '#5E625B' }}>Any time Saturday · 5th Ave & E 90th St</div>
       </div>
     </AbsoluteFill>
   )

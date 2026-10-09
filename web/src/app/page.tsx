@@ -8,7 +8,7 @@ import { heatNo } from '@/lib/time'
 export const revalidate = 30
 
 const STEPS = [
-  { scene: 'run', title: 'Run 5K in Central Park', body: 'Any route, any time on race day. Track it on Strava.' },
+  { scene: 'run', title: "Start at Engineers' Gate", body: 'Run 5K in Central Park any time on race day. Track it on Strava.' },
   { scene: 'post', title: 'Post your screenshot', body: 'Upload the Strava share card. We read your distance, time and location.' },
   { scene: 'stamp', title: 'Get stamped', body: "The heat's stamp lands in your run passport, and you're on the heat sheet." },
 ] as const
@@ -34,9 +34,9 @@ export default async function Home() {
     <main className="wrap">
       <header className="lp-hero">
         <div className="lp-copy">
-          <span className="lp-kicker"><span className="dot" />Heat {n} · Sat Oct 10 · Central Park</span>
+          <span className="lp-kicker"><span className="dot" />Heat {n} · Sat Oct 10 · Engineers&apos; Gate</span>
           <h1 className="lp-h1">Free 5Ks across New York. Run it, get&nbsp;stamped.</h1>
-          <p className="lp-sub">Run 5K anywhere in Central Park, any time on race day. Post your Strava screenshot and we stamp your run passport.</p>
+          <p className="lp-sub">Start at Engineers&apos; Gate in Central Park any time on race day and run 5K. Post your Strava screenshot and we stamp your run passport.</p>
           <div className="lp-ctas">
             <Link className="btn volt lg" href={cta.href}>{cta.label}</Link>
             <a className="btn ghost lg" href="#how">How it works</a>
@@ -87,8 +87,8 @@ export default async function Home() {
       </section>
 
       <section className="lp-final">
-        <h2>{over ? 'Heat 002 is coming.' : 'See you in Central Park.'}</h2>
-        <p>{over ? 'Thanks for running Heat 001. The next one is on its way.' : 'Saturday, October 10. Free, every pace, any time of day.'}</p>
+        <h2>{over ? 'Heat 002 is coming.' : "See you at Engineers' Gate."}</h2>
+        <p>{over ? 'Thanks for running Heat 001. The next one is on its way.' : 'Saturday, October 10 · 5th Ave & E 90th St. Free, every pace, any time of day.'}</p>
         <Link className="btn volt lg" href={cta.href}>{cta.label}</Link>
       </section>
     </main>

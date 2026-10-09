@@ -31,13 +31,13 @@ function Clip({ component, frames, label, start = 0 }: { component: ComponentTyp
 
 const SCENES = { run: RunScene, post: PostScene, stamp: StampScene }
 const LABELS = {
-  run: 'A runner traces the Central Park loop as the distance counts up to 5.02 km.',
+  run: "A runner sets off from Engineers' Gate around the Central Park loop as the distance counts up to 5.02 km.",
   post: 'A Strava screenshot slides in and its distance, time and location are checked off.',
   stamp: 'The Heat 001 stamp lands on a passport page and the Founding Runner medal appears.',
 }
 
 export function HeroPlayer() {
-  return <Clip component={LoopScene} frames={LOOP} label="How Heats works: run 5K in Central Park, post your Strava screenshot, get stamped." start={12} />
+  return <Clip component={LoopScene} frames={LOOP} label="How Heats works: start at Engineers' Gate and run 5K in Central Park, post your Strava screenshot, get stamped." start={12} />
 }
 
 export function StepPlayer({ scene }: { scene: keyof typeof SCENES }) {
