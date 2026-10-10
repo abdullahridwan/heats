@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heats Site v2 Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@1,125,900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* Mockup of the simplified site: the homepage IS the race, the long explainer lives on /about.
+   Flat system: white, black, one volt highlight, the burnt-orange stamp. No gradients. */
+:root {
+  --ink: #0B0C0A; --text2: #5E625B; --text3: #9A9D95; --hair: #ECEDE7; --volt: #CCFF00; --stamp: #B4471B;
+  --f-wm: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-ui: "Geist", -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #F1F2EE; color: var(--ink); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button { font: inherit; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.wm, .t-wm { font-family: var(--f-wm); font-weight: 900; font-style: italic; font-stretch: 125%; }
+.wm { text-transform: uppercase; letter-spacing: -.04em; line-height: .85; }
+.t-mono { font-family: var(--f-mono); font-weight: 600; }
+
+/* ───────── workbench */
+.bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid #E2E4DC; padding: 10px 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.bar .ttl { font-weight: 600; font-size: 14px; margin-right: 6px; }
+.seg { display: flex; gap: 3px; padding: 3px; border: 1px solid #E2E4DC; border-radius: 12px; background: #FAFAF7; }
+.seg button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--text2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.seg button:focus-visible { outline: 2px solid var(--ink); }
+.sp { flex: 1; }
+.cap { padding: 10px 18px; font-size: 13px; color: var(--text2); background: #FAFAF7; border-bottom: 1px solid #E2E4DC; }
+.cap b { color: var(--ink); }
+.stage { padding: 24px 18px 56px; display: grid; justify-items: center; }
+.fit { overflow: hidden; }
+.desk { width: 1200px; background: #fff; border: 1px solid #E2E4DC; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 24px 60px -24px rgba(0,0,0,.2); transform-origin: top left; }
+.chrome { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--hair); background: #FAFAF8; }
+.dots { display: flex; gap: 6px; } .dots i { width: 10px; height: 10px; border-radius: 50%; background: #E2E4DC; display: block; }
+.url { flex: 1; max-width: 460px; margin: 0 auto; font-family: var(--f-mono); font-size: 12px; color: var(--text2); background: #fff; border: 1px solid var(--hair); border-radius: 8px; padding: 5px 12px; text-align: center; }
+.phone { width: 390px; border: 10px solid var(--ink); border-radius: 46px; overflow: hidden; background: #fff; box-shadow: 0 24px 60px -24px rgba(0,0,0,.35); }
+.phone .notch { height: 26px; background: #fff; display: flex; justify-content: center; align-items: center; }
+.phone .notch i { width: 90px; height: 6px; border-radius: 4px; background: #E2E4DC; display: block; }
+
+/* ───────── the site (container queries so the phone frame gets the phone layout) */
+.site { container-type: inline-size; background: #fff; }
+.w { max-width: 1080px; margin: 0 auto; padding-inline: clamp(20px, 4cqw, 48px); }
+.nav { display: flex; align-items: center; justify-content: space-between; padding-block: 20px; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.brand .wm { font-size: 20px; }
+.nav .r { display: flex; align-items: center; gap: 26px; font-size: 14.5px; font-weight: 500; }
+.lnk { color: #3B3E38; cursor: pointer; }
+.lnk:hover { color: var(--ink); }
+.btn { appearance: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 12px 18px; border-radius: 12px; background: var(--ink); color: #fff; text-decoration: none; white-space: nowrap; }
+.btn.volt { background: var(--volt); color: var(--ink); }
+.btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--hair); }
+.btn.sm { padding: 9px 14px; font-size: 14px; border-radius: 10px; }
+.btn.lg { padding: 16px 24px; font-size: 16.5px; border-radius: 14px; }
+.btn.block { width: 100%; }
+.lu { width: 16px; height: 16px; border-radius: 5px; background: var(--ink); color: var(--volt); font-size: 10px; font-weight: 700; display: inline-grid; place-items: center; }
+.tx { font-weight: 600; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; font-size: 15px; }
+.kicker { font-family: var(--f-mono); font-size: 12.5px; letter-spacing: .09em; color: var(--text2); text-transform: uppercase; }
+
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 40px 80px; }
+.h1 { font-size: clamp(36px, 5.3cqw, 66px); font-weight: 600; letter-spacing: -.045em; line-height: 1.02; margin: 16px 0 18px; text-wrap: balance; }
+.sub { font-size: clamp(16px, 1.65cqw, 20px); color: var(--text2); max-width: 36ch; margin: 0; }
+.ctas { display: flex; gap: 18px; align-items: center; margin-top: 30px; flex-wrap: wrap; }
+.proof { margin-top: 18px; font-size: 14px; color: var(--text2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.live { width: 8px; height: 8px; border-radius: 50%; background: var(--volt); box-shadow: 0 0 0 3px #F2FFC4; display: inline-block; }
+.art { position: relative; aspect-ratio: 1; max-width: 470px; width: 100%; justify-self: center; }
+.art .stamp { position: absolute; left: 0; top: 4%; width: 86%; transform: rotate(-8deg); }
+.art .medal { position: absolute; right: 0; bottom: 4%; width: 33%; transform: rotate(9deg); filter: drop-shadow(0 14px 18px rgba(11,12,10,.2)); }
+.stamp { display: block; mix-blend-mode: multiply; }
+.stamp svg, .medal svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px; padding-block: 56px; border-top: 1px solid var(--hair); }
+.step .n { font-family: var(--f-mono); font-size: 13px; color: var(--text3); }
+.step h3 { font-size: 23px; letter-spacing: -.03em; margin: 10px 0 8px; font-weight: 600; }
+.step p { margin: 0; color: var(--text2); font-size: 16px; max-width: 30ch; }
+.sec { padding-block: 64px; border-top: 1px solid var(--hair); display: grid; gap: 28px; }
+.sec h2 { margin: 0; font-size: clamp(30px, 4cqw, 46px); letter-spacing: -.04em; line-height: 1.05; font-weight: 600; text-wrap: balance; }
+.sec .lead { margin: 0; color: var(--text2); font-size: 18px; max-width: 52ch; }
+.final { background: var(--ink); color: #fff; border-radius: 28px; padding: clamp(40px, 7cqw, 84px) 24px; text-align: center; display: grid; gap: 14px; justify-items: center; margin-block: 24px 56px; }
+.final h2 { margin: 0; font-size: clamp(30px, 4.6cqw, 54px); letter-spacing: -.045em; line-height: 1.03; font-weight: 600; }
+.final p { margin: 0 0 8px; color: #B9BCB3; font-size: 17px; }
+.foot { border-top: 1px solid var(--hair); padding-block: 28px 40px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--text3); font-size: 13.5px; align-items: center; }
+.foot .links { display: flex; gap: 22px; }
+
+.sheet { border: 1px solid var(--hair); border-radius: 20px; overflow: hidden; }
+.row { display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--hair); }
+.row:last-child { border-bottom: 0; }
+.row .pl { font-family: var(--f-mono); color: var(--text3); font-size: 14px; } .row .pl.f { color: var(--ink); font-weight: 600; }
+.row .nm { font-weight: 600; } .row .cm { color: var(--text2); font-size: 14px; }
+.row .tm { font-family: var(--f-mono); font-size: 17px; font-weight: 500; }
+
+.pp { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.page { position: relative; aspect-ratio: 5 / 6; max-width: 400px; width: 100%; justify-self: center; background: #fff; border: 1px solid var(--hair); border-radius: 8px 20px 20px 8px; box-shadow: 0 24px 50px -26px rgba(11,12,10,.3); overflow: hidden; }
+.page .hdr { position: absolute; left: 20px; right: 20px; top: 16px; display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10px; letter-spacing: .14em; color: var(--text2); }
+.page .stamp { position: absolute; left: 8%; top: 12%; width: 62%; transform: rotate(-8deg); }
+.page .medal { position: absolute; right: 7%; top: 24%; width: 24%; transform: rotate(10deg); filter: drop-shadow(0 10px 14px rgba(11,12,10,.2)); }
+.slot { position: absolute; border: 1.5px dashed #CDD0C7; border-radius: 50%; aspect-ratio: 1; display: grid; place-items: center; text-align: center; font-size: 11px; color: var(--text3); line-height: 1.3; }
+.slot b { display: block; color: var(--text2); font-size: 12px; }
+.faq { border-top: 1px solid var(--hair); }
+.faq details { border-bottom: 1px solid var(--hair); padding-block: 18px; }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 18px; letter-spacing: -.02em; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::after { content: "+"; font-weight: 400; color: var(--text3); }
+.faq details[open] summary::after { content: "–"; }
+.faq p { margin: 10px 0 0; color: var(--text2); max-width: 60ch; }
+
+.panel { border: 1px solid var(--hair); border-radius: 20px; padding: 24px; display: grid; gap: 12px; background: #fff; }
+.sbox { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+.drop { border: 1.5px dashed #D7D9D1; border-radius: 20px; padding: 28px; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.card { width: 150px; aspect-ratio: 9 / 16; border-radius: 14px; overflow: hidden; position: relative; background: linear-gradient(#E8EBE3 0 56%, #3C4038 100%); }
+.card svg { position: absolute; inset: 0; width: 100%; height: 56%; }
+.card .t { position: absolute; left: 11px; bottom: 11px; color: #fff; display: grid; gap: 2px; font-size: 9px; }
+.card .t b { font-size: 11px; } .card .t em { font-style: normal; font-weight: 700; font-size: 13px; }
+.in { border: 1px solid var(--hair); border-radius: 12px; padding: 12px 14px; width: 100%; font: inherit; background: #fff; color: var(--text3); text-align: left; }
+.chk { display: grid; gap: 10px; }
+.chk div { display: flex; gap: 10px; align-items: center; font-size: 14.5px; color: var(--text2); }
+.chk .c { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--volt); display: grid; place-items: center; font-size: 11px; flex: none; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stats div { border: 1px solid var(--hair); border-radius: 14px; padding: 12px; } .stats small { display: block; color: var(--text2); font-size: 12px; } .stats b { font-family: var(--f-mono); font-size: 24px; font-weight: 500; }
+.won { display: flex; gap: 28px; align-items: center; border: 1px solid var(--hair); border-radius: 22px; padding: 24px; }
+.won .stamp { width: 190px; flex: none; transform: rotate(-8deg); }
+
+@container (max-width: 780px) {
+  .hero { grid-template-columns: 1fr; gap: 24px; padding-block: 12px 48px; }
+  .art { max-width: 320px; }
+  .steps { grid-template-columns: 1fr; gap: 28px; padding-block: 40px; }
+  .pp { grid-template-columns: 1fr; gap: 28px; }
+  .sbox { grid-template-columns: 1fr; }
+  .won { flex-direction: column; text-align: center; }
+  .sec { padding-block: 44px; }
+}
+@container (max-width: 560px) {
+  .nav .lnk { display: none; }
+  .nav .r { gap: 0; }
+  .ctas { gap: 14px; }
+  .ctas .btn.lg { width: 100%; }
+  .row { padding: 12px 14px; }
+  .stats b { font-size: 20px; }
+  .foot { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="1" seed="9" result="s"/>
+    <feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4.2 0 0 0 3.05" result="m"/>
+    <feComposite in="d" in2="m" operator="in"/>
+  </filter>
+</svg>
+
+<div class="bar">
+  <span class="ttl">Heats · site v2 mockup</span>
+  <div class="seg" id="pages" role="group" aria-label="Page"></div>
+  <div class="seg" id="states" role="group" aria-label="State"></div>
+  <span class="sp"></span>
+  <div class="seg" id="device" role="group" aria-label="Device">
+    <button type="button" data-d="desk" aria-pressed="true">Desktop</button>
+    <button type="button" data-d="phone" aria-pressed="false">Phone</button>
+  </div>
+</div>
+<div class="cap" id="cap"></div>
+<div class="stage"><div class="fit" id="fit"><div id="host"></div></div></div>
+
+<script>
+(function () {
+  var uid = 0;
+  /* ───────── art: the Chilly Central Park stamp and the Founding Runner medal (same geometry as the app) */
+  var LEAF = 'M0,-10 L2,-5.2 L5.4,-6.6 L4.2,-2.2 L8.6,-3.2 L6.2,0.8 L9.6,2.2 L4.4,4.2 L5.2,7.4 L1.2,5.6 L0.9,10.4 L-0.9,10.4 L-1.2,5.6 L-5.2,7.4 L-4.4,4.2 L-9.6,2.2 L-6.2,0.8 L-8.6,-3.2 L-4.2,-2.2 L-5.4,-6.6 L-2,-5.2 Z';
+  function leaf(x, y, r, k, c) { return '<path d="' + LEAF + '" transform="translate(' + x + ' ' + y + ') rotate(' + r + ') scale(' + k + ')" fill="' + c + '"/>'; }
+  function stampSVG() {
+    var c = '#B4471B', id = 's' + (++uid);
+    return '<svg viewBox="0 0 200 200" aria-label="Heat 001 stamp"><g filter="url(#ink)" opacity=".94">' +
+      '<circle cx="100" cy="100" r="92" fill="none" stroke="' + c + '" stroke-width="5"/><circle cx="100" cy="100" r="80" fill="none" stroke="' + c + '" stroke-width="1.6"/>' +
+      '<path id="' + id + 't" d="M 33 100 A 67 67 0 0 1 167 100" fill="none"/><path id="' + id + 'b" d="M 25 100 A 75 75 0 0 0 175 100" fill="none"/>' +
+      '<text class="t-mono" fill="' + c + '" font-size="11.2" letter-spacing="1.5" text-anchor="middle"><textPath href="#' + id + 't" startOffset="50%">CHILLY CENTRAL PARK</textPath></text>' +
+      '<text class="t-mono" fill="' + c + '" font-size="10.5" letter-spacing="2.2" text-anchor="middle"><textPath href="#' + id + 'b" startOffset="50%">OCT 10 2026 · 5K · NYC</textPath></text>' +
+      leaf(33, 100, -40, .56, c) + leaf(167, 100, 40, .56, c) +
+      '<text x="100" y="78" text-anchor="middle" class="t-mono" font-size="10" letter-spacing="4" fill="' + c + '">HEAT</text>' +
+      '<text x="100" y="122" text-anchor="middle" class="t-wm" font-size="50" letter-spacing="-2" fill="' + c + '">001</text>' +
+      leaf(74, 144, -24, .78, c) + leaf(100, 149, 6, .92, c) + leaf(126, 144, 28, .78, c) + '</g></svg>';
+  }
+  function starPts(cx, cy, R, r, n) { var p = [], a0 = -Math.PI / 2; for (var i = 0; i < n * 2; i++) { var rr = i % 2 ? r : R, a = a0 + i * Math.PI / n; p.push((cx + rr * Math.cos(a)).toFixed(1) + ',' + (cy + rr * Math.sin(a)).toFixed(1)); } return p.join(' '); }
+  function medalSVG() {
+    var id = 'm' + (++uid), G = 'url(#' + id + 'au)', shape = '<polygon points="' + starPts(80, 80, 74, 60, 20) + '"/>';
+    return '<svg viewBox="0 0 160 160" aria-label="Founding Runner medal"><defs><linearGradient id="' + id + 'au" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4C2"/><stop offset=".3" stop-color="#E3C065"/><stop offset=".55" stop-color="#A07A1C"/><stop offset=".78" stop-color="#F3DB8C"/><stop offset="1" stop-color="#B8902F"/></linearGradient></defs>' +
+      '<g fill="' + G + '" stroke="' + G + '" stroke-width="11" stroke-linejoin="round">' + shape + '</g><g fill="#CCFF00" stroke="#9C7A22" stroke-width="1.6" stroke-linejoin="round">' + shape + '</g>' +
+      '<circle cx="80" cy="80" r="44" fill="#0B0C0A" stroke="' + G + '" stroke-width="3"/>' +
+      '<text x="80" y="66" class="t-mono" text-anchor="middle" font-size="8" letter-spacing="2.5" fill="#E3C065">FOUNDING</text>' +
+      '<text x="80" y="99" class="t-wm" text-anchor="middle" font-size="34" fill="#CCFF00">01</text>' +
+      '<text x="80" y="112" class="t-mono" text-anchor="middle" font-size="8" letter-spacing="2.5" fill="#E3C065">RUNNER</text></svg>';
+  }
+  var S = function (cls) { return '<span class="stamp ' + (cls || '') + '">' + stampSVG() + '</span>'; };
+  var M = function (cls) { return '<span class="medal ' + (cls || '') + '">' + medalSVG() + '</span>'; };
+  var MARK = '<svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#CCFF00"/><polygon points="32,22 46,22 38,78 24,78" fill="#0B0C0A"/><polygon points="62,22 76,22 68,78 54,78" fill="#0B0C0A"/><polygon points="37,43 67,43 65.4,55 35.4,55" fill="#0B0C0A"/></svg>';
+  var LU = '<span class="lu">L</span>';
+
+  /* ───────── shared pieces */
+  var BTN = {
+    before: { label: 'RSVP on Luma', go: null, icon: LU },
+    race:   { label: 'Submit my run', go: 'submit' },
+    after:  { label: 'See the results', go: null }
+  };
+  function nav(st) {
+    var b = BTN[st];
+    return '<div class="w"><div class="nav"><span class="brand" data-go="home">' + MARK + '<span class="wm">Heats</span></span><div class="r"><span class="lnk" data-go="about">How it works</span>' +
+      '<span class="btn volt sm" ' + (b.go ? 'data-go="' + b.go + '"' : '') + '>' + (b.icon || '') + b.label + '</span></div></div></div>';
+  }
+  function foot() {
+    return '<div class="w"><div class="foot"><span style="display:flex;gap:12px;align-items:center"><span class="wm" style="font-size:18px;color:var(--ink)">Heats</span><span>Free community 5Ks · New York</span></span><span class="links"><span class="lnk" data-go="about">About</span><span class="lnk">Results</span><span class="lnk">Luma</span></span></div></div>';
+  }
+  function steps() {
+    return '<div class="w"><div class="steps">' +
+      '<div class="step"><span class="n">01</span><h3>RSVP</h3><p>Free, on Luma. No Heats account needed yet.</p></div>' +
+      '<div class="step"><span class="n">02</span><h3>Run</h3><p>Start at Engineers&apos; Gate any time Saturday. Track it on Strava.</p></div>' +
+      '<div class="step"><span class="n">03</span><h3>Submit</h3><p>Upload your Strava screenshot by 11:59 PM. We stamp your passport.</p></div>' +
+      '</div></div>';
+  }
+  function closer(st) {
+    var b = BTN[st];
+    var h = st === 'after' ? 'Heat 002 is coming.' : st === 'race' ? 'Ran it? Get your stamp.' : "See you at Engineers' Gate.";
+    var p = st === 'after' ? 'Follow Heats on Luma and you will hear about it first.' : st === 'race' ? 'Submit your Strava screenshot before 11:59 PM tonight.' : 'Saturday, Oct 10. Free, every pace, any time of day.';
+    var label = st === 'after' ? 'Follow for Heat 002' : b.label;
+    return '<div class="w"><div class="final"><h2>' + h + '</h2><p>' + p + '</p><span class="btn volt lg" ' + (b.go && st !== 'after' ? 'data-go="' + b.go + '"' : '') + '>' + (st === 'before' || st === 'after' ? LU : '') + label + '</span></div></div>';
+  }
+  var SHEET = [['lowkey_sprinter', '17:52', 'went out way too fast. held on.'], ['mile_kat', '18:31', 'PR!!!'], ['jt.runs', '19:07', 'that hill was evil'], ['ada.o', '22:48', 'first race ever, will be back'], ['slowandsteady', '31:05', 'walked the hills, no regrets']];
+  function sheet() {
+    return '<div class="sheet">' + SHEET.map(function (r, i) { return '<div class="row"><span class="pl' + (i === 0 ? ' f' : '') + '">0' + (i + 1) + '</span><div><div class="nm">' + r[0] + '</div><div class="cm">' + r[2] + '</div></div><span class="tm">' + r[1] + '</span></div>'; }).join('') + '</div>';
+  }
+
+  /* ───────── pages */
+  var PAGES = {
+    home: {
+      label: 'Home', url: 'heats.run',
+      states: { before: 'Before race', race: 'Race day', after: 'After' },
+      cap: {
+        before: '<b>One job: get the RSVP.</b> The button goes to Luma. Nothing else competes with it.',
+        race: '<b>One job: submit the run.</b> RSVP is optional, so the button is Submit my run. The proof line only appears once there are 5+ real finishers.',
+        after: '<b>One job: results, then capture Heat 002.</b> The warmest audience you will ever have. Follow-on-Luma is the growth loop. Sample runners shown.'
+      },
+      render: function (st) {
+        var b = BTN[st];
+        var kick = st === 'after' ? 'Heat 001 · Oct 10 · Done' : "Heat 001 · Sat Oct 10 · Engineers' Gate";
+        var h1 = st === 'after' ? '29 runners got the Chilly Central Park stamp.' : 'Run a free 5K in Central Park. Get stamped.';
+        var sub = st === 'after' ? 'Thanks for running Heat 001. The next heat is on its way.' : "Chilly Central Park 5K. Start at Engineers' Gate any time on Saturday, submit your Strava screenshot, and the stamp is yours.";
+        var proof = st === 'before' ? '<span class="live"></span>Free · every pace · no cutoff'
+          : st === 'race' ? '<span class="live"></span><b>14 runners stamped so far</b> · submissions close 11:59 PM'
+          : '<span class="live"></span>Founding Runner medal: Heat 001 only';
+        var second = st === 'race' ? '<span class="tx">Not run yet? RSVP on Luma</span>' : st === 'after' ? '<span class="tx">Follow for Heat 002</span>' : '<span class="tx" data-go="about">How it works</span>';
+        return nav(st) +
+          '<div class="w"><div class="hero"><div><span class="kicker">' + kick + '</span><h1 class="h1">' + h1 + '</h1><p class="sub">' + sub + '</p>' +
+          '<div class="ctas"><span class="btn volt lg" ' + (b.go ? 'data-go="' + b.go + '"' : '') + '>' + (b.icon || '') + b.label + '</span>' + second + '</div><div class="proof">' + proof + '</div></div>' +
+          '<div class="art">' + S() + M() + '</div></div></div>' +
+          (st === 'after' ? '<div class="w"><div class="sec" style="border-top:1px solid var(--hair)"><h2>The heat sheet.</h2>' + sheet() + '<span class="tx" style="justify-self:start">See all 29 results</span></div></div>' : steps()) +
+          closer(st) + foot();
+      }
+    },
+    about: {
+      label: 'About', url: 'heats.run/about',
+      states: { default: 'Default' },
+      cap: { default: '<b>The long explainer lives here</b>, linked from "How it works". Everything that used to crowd the homepage: the idea, the passport, the questions people actually ask.' },
+      render: function () {
+        return nav('before') +
+          '<div class="w"><div class="hero" style="padding-bottom:56px"><div><span class="kicker">About Heats</span><h1 class="h1">Free 5Ks. A new stamp every race.</h1><p class="sub">Heats is a community running series in New York. No bibs, no entry fee, no start gun. Run on your own time, submit your Strava screenshot, and collect a stamp for every heat in your run passport.</p></div>' +
+          '<div class="pp" style="grid-template-columns:1fr"><div class="page"><div class="hdr"><span>RUN PASSPORT</span><span>FALL 2026</span></div>' + S() + M() +
+          '<span class="slot" style="left:56%;top:58%;width:34%"><span><b>Heat 002</b>coming soon</span></span><span class="slot" style="left:12%;top:66%;width:30%"><span><b>Heat 003</b></span></span></div></div></div></div>' +
+          '<div class="w"><div class="sec"><h2>How it works</h2><div class="steps" style="border:0;padding:0">' +
+          '<div class="step"><span class="n">01</span><h3>RSVP on Luma</h3><p>Free, and no Heats account needed yet.</p></div>' +
+          '<div class="step"><span class="n">02</span><h3>Run 5K</h3><p>Start at the gate any time on race day. Track it on Strava.</p></div>' +
+          '<div class="step"><span class="n">03</span><h3>Submit and get stamped</h3><p>Upload the Strava share card by 11:59 PM. The stamp lands in your passport.</p></div></div></div></div>' +
+          '<div class="w"><div class="sec"><h2>Questions</h2><div class="faq">' +
+          [['Do I have to RSVP to get a stamp?', 'No. RSVP on Luma helps us plan, but anyone who runs and submits a valid Strava screenshot gets the stamp.'],
+           ['Where do I run?', "Start at Engineers' Gate (5th Ave and E 90th St) and run any 5K route inside Central Park, any time on race day."],
+           ['What do I submit?', 'The Strava share card, the one with the map behind it. We read the distance, time and location. Other running apps may need a quick manual check.'],
+           ['What if I am slow?', 'Every pace counts and there is no cutoff. Walking is fine. The stamp looks the same.'],
+           ['What is the Founding Runner medal?', 'Everyone who finishes Heat 001 gets it. It will never be given out again.']]
+            .map(function (q) { return '<details><summary>' + q[0] + '</summary><p>' + q[1] + '</p></details>'; }).join('') + '</div></div></div>' +
+          closer('before') + foot();
+      }
+    },
+    submit: {
+      label: 'Submit my run', url: 'heats.run/post',
+      states: { out: 'Signed out', upload: 'Upload', done: 'Stamped' },
+      cap: {
+        out: '<b>The old dead end, fixed.</b> A real sign-up button, and the account is made now, after the run, when the runner wants the stamp.',
+        upload: '<b>One screen.</b> Drop the Strava card, optional note, submit. The checks are listed so nobody is surprised.',
+        done: '<b>The payoff moment</b>, and the thing people share to their story.'
+      },
+      render: function (st) {
+        var head = '<div class="w"><div style="padding-block:20px 8px"><span class="kicker">Heat 001 · Sat Oct 10</span><h1 class="h1" style="font-size:clamp(34px,4.6cqw,56px);margin-bottom:12px">Submit my run</h1><p class="sub" style="max-width:52ch">Screenshot your run from Strava, Garmin, Apple Watch or Nike. It needs the map, the distance and the time.</p></div></div>';
+        var body;
+        if (st === 'out') body = '<div class="panel"><b style="font-size:20px;letter-spacing:-.02em">You ran it. Claim your stamp.</b><span style="color:var(--text2)">Make your free Heats passport, then upload your Strava screenshot. About a minute.</span><div class="ctas" style="margin-top:6px"><span class="btn volt">Get my stamp</span><span class="btn ghost">I already have a passport</span></div></div>';
+        else if (st === 'upload') body = '<div class="sbox"><div class="drop"><div class="card"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#E4E8DF"/><path d="M-5 30 L105 6 M-5 52 L105 30" stroke="#fff" stroke-width="6"/><ellipse cx="50" cy="62" rx="30" ry="14" transform="rotate(-24 50 62)" fill="none" stroke="#FC4C02" stroke-width="1.6"/></svg><div class="t"><b>Morning Run</b><span>Distance · Time</span><em>3.12 mi · 24m 31s</em></div></div><b style="font-size:18px">Strava card added</b><span style="color:var(--text2)">Tap to replace it.</span><div style="width:100%;display:grid;gap:6px;text-align:left"><span style="font-size:13px;color:var(--text2)">Note (optional) · shows next to your time</span><div class="in">that hill was evil</div></div><span class="btn volt block lg">Submit my run</span></div>' +
+          '<div class="panel"><b>What we check</b><div class="chk"><div><span class="c">1</span>It is a Strava share card</div><div><span class="c">2</span>Distance is 4.9 km or more</div><div><span class="c">3</span>The map shows Central Park</div><div><span class="c">4</span>Posted on race day</div><div><span class="c">5</span>Nobody posted this image before</div></div><span style="font-size:13px;color:var(--text2)">All five pass: stamped instantly. Anything else: a person takes a look.</span></div></div>';
+        else body = '<div class="won">' + S() + '<div style="display:grid;gap:14px"><span class="kicker">Heat 001 · Chilly Central Park 5K</span><h2 style="margin:0;font-size:46px;letter-spacing:-.045em;line-height:1">Stamped.</h2><div class="stats"><div><small>Distance</small><b>5.02 km</b></div><div><small>Time</small><b>24:31</b></div><div><small>Place</small><b>4th</b></div></div><div class="ctas" style="margin:0"><span class="btn volt">Share to your story</span><span class="btn ghost">See the results</span></div></div></div>';
+        return nav('race') + head + '<div class="w" style="padding-bottom:64px">' + body + '</div>' + foot();
+      }
+    }
+  };
+
+  /* ───────── workbench */
+  var cur = { page: 'home', state: { home: 'race', about: 'default', submit: 'out' }, device: 'desk' };
+  var $ = function (id) { return document.getElementById(id); };
+  function seg(el, items, pressed, attr) {
+    el.innerHTML = items.map(function (k) { return '<button type="button" ' + attr + '="' + k[0] + '" aria-pressed="' + (k[0] === pressed) + '">' + k[1] + '</button>'; }).join('');
+  }
+  function render() {
+    uid = 0;
+    var p = PAGES[cur.page], st = cur.state[cur.page];
+    seg($('pages'), Object.keys(PAGES).map(function (k) { return [k, PAGES[k].label]; }), cur.page, 'data-p');
+    var sk = Object.keys(p.states);
+    seg($('states'), sk.map(function (k) { return [k, p.states[k]]; }), st, 'data-s');
+    $('states').hidden = sk.length < 2;
+    $('cap').innerHTML = p.cap[st];
+    var site = '<div class="site">' + p.render(st) + '</div>';
+    if (cur.device === 'desk') {
+      $('host').className = 'desk';
+      $('host').innerHTML = '<div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">' + p.url + '</div><div style="width:46px"></div></div>' + site;
+    } else {
+      $('host').className = 'phone';
+      $('host').innerHTML = '<div class="notch"><i></i></div>' + site;
+    }
+    document.querySelectorAll('#device button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.d === cur.device)); });
+    fit();
+  }
+  function fit() {
+    var fitEl = $('fit'), host = $('host');
+    if (cur.device === 'desk') {
+      var k = Math.min(1, (window.innerWidth - 36) / 1200);
+      host.style.transform = 'scale(' + k + ')';
+      fitEl.style.width = Math.ceil(1200 * k) + 'px';
+      fitEl.style.height = Math.ceil(host.offsetHeight * k) + 'px';
+    } else {
+      host.style.transform = 'none'; fitEl.style.width = '390px'; fitEl.style.height = 'auto';
+    }
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-p],[data-s],[data-d],[data-go]');
+    if (!t) return;
+    if (t.dataset.p) cur.page = t.dataset.p;
+    else if (t.dataset.s) cur.state[cur.page] = t.dataset.s;
+    else if (t.dataset.d) cur.device = t.dataset.d;
+    else if (t.dataset.go) cur.page = t.dataset.go;
+    render(); window.scrollTo(0, 0);
+  });
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  render();
+})();
+</script>
+</body>
+</html>
