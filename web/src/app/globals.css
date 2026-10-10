@@ -555,19 +555,19 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 /* Homepage */
 .btn.ink { background: var(--ink); color: #fff; }
 .btn.lg { padding: 16px 26px; font-size: 16px; border-radius: 14px; }
-.h-one { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 56px; align-items: start; padding-block: 24px 72px; }
-.h-reward { display: flex; align-items: center; gap: 14px; margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--hair); width: 100%; max-width: 440px; font-size: 14px; color: var(--text2); line-height: 1.4; }
+.h-one { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 56px; padding-block: 40px 80px; text-align: center; }
+.h-reward { display: flex; align-items: center; justify-content: center; text-align: left; gap: 14px; margin-top: 8px; padding-top: 22px; border-top: 1px solid var(--hair); width: 100%; max-width: 360px; font-size: 14px; color: var(--text2); line-height: 1.4; }
 .h-reward .h-stamp { position: static; width: 96px; flex: none; transform: rotate(-8deg); animation: none; }
 .h-reward .h-medal { position: static; width: 52px; flex: none; transform: rotate(8deg); margin-left: -22px; margin-top: 30px; animation: none; filter: drop-shadow(0 8px 10px rgba(11,12,10,.2)); }
-.h-rsvp { display: grid; gap: 12px; }
+.h-rsvp { display: grid; gap: 12px; width: 100%; max-width: 560px; justify-items: center; }
 .h-rsvp-t { font-size: 15px; font-weight: 600; max-width: none; }
 .h-embed iframe { height: 640px; }
 @media (max-width: 900px) { .h-one { grid-template-columns: 1fr; gap: 36px; padding-top: 12px; } }
-.h-copy { display: grid; gap: 26px; justify-items: start; }
+.h-copy { display: grid; gap: 26px; justify-items: center; max-width: 1040px; }
 .h-live { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none; padding: 7px 14px 7px 12px; border: 1px solid var(--hair); border-radius: 999px; background: #fff; }
 .h-live i { width: 8px; height: 8px; border-radius: 50%; background: var(--volt); box-shadow: 0 0 0 3px var(--volt-soft); display: inline-block; animation: h-pulse 1.8s ease-in-out infinite; }
 @keyframes h-pulse { 50% { box-shadow: 0 0 0 6px var(--volt-soft); } }
-.h-title { margin: 0; font-size: clamp(40px, 5.6vw, 80px); line-height: .92; letter-spacing: -.045em; }
+.h-title { margin: 0; font-size: clamp(36px, 6.4vw, 88px); line-height: .92; letter-spacing: -.045em; }
 .h-title mark { background: var(--volt); color: var(--ink); padding: 0 .08em; margin-inline: -.04em; border-radius: .06em; }
 .h-sub { font-size: clamp(17px, 1.6vw, 20px); color: var(--text2); line-height: 1.5; max-width: 46ch; }
 .h-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
