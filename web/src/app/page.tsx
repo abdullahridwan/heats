@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import { Guilloche, Medal, Stamp } from '@/components/art'
+import { ShareButton } from '@/components/share-button'
 import { getHeats, serverNow } from '@/lib/data'
 import { heatNo } from '@/lib/time'
 
 export const revalidate = 30
+
+const site = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heats-two.vercel.app'
 
 const FALLBACK = { number: 1, name: 'Chilly Central Park 5K', opens_at: '2026-10-10T04:00:00Z', closes_at: '2026-10-11T03:59:59Z', location_terms: ['Central Park'] }
 
@@ -21,25 +24,30 @@ export default async function Home() {
       {/* ── Hero: the brand, and the one thing to do today */}
       <section className="wrap h-hero">
         <div className="h-copy">
-          <a className="h-live" href={over ? '/results' : '#run'}>
-            {over ? <>Heat {n} is done · See the results</>
-              : open ? <><i />Live now · {heat.name} · until 11:59 PM</>
-              : <>Heat {n} · {heat.name} · Sat Oct 10</>}
-            <span aria-hidden="true">→</span>
-          </a>
-          <h1 className="h-title wm">Run New York.<br />Get <mark>stamped.</mark></h1>
-          <p className="h-sub">Free 5Ks across the city, one park at a time. Run on race day, post your Strava screenshot, and the stamp goes in your run passport.</p>
+          <span className="h-live">
+            {over ? <>{heat.name} · Finished</> : open ? <><i />{heat.name} · Live now</> : <>{heat.name} · Sat Oct 10</>}
+          </span>
+          <h1 className="h-title wm">
+            {over ? <>The race<br />is <mark>done.</mark></> : <>Free 5K in<br />Central Park.<br /><mark>{open ? 'Today.' : 'Saturday.'}</mark></>}
+          </h1>
+          <p className="h-sub">
+            {over
+              ? 'Thanks to everyone who ran it. Your stamp is in your run passport.'
+              : <>Start at Engineers&apos; Gate any time {open ? 'today' : 'on race day'}, until 11:59&nbsp;PM, at any pace. Post your Strava screenshot and this stamp goes in your run passport.</>}
+          </p>
           <div className="h-ctas">
             {over ? (
               <Link className="btn volt lg" href="/results">See the results</Link>
-            ) : (
+            ) : open ? (
               <>
-                <a className="btn volt lg" href="#run">{open ? 'Run it today' : 'RSVP free'}</a>
-                {open && <Link className="btn ghost lg" href="/post">Submit my run</Link>}
+                <a className="btn volt lg" href="#run">Haven&apos;t signed up? RSVP</a>
+                <Link className="btn ink lg" href="/post">Ran it? Submit your run</Link>
               </>
+            ) : (
+              <a className="btn volt lg" href="#run">RSVP free</a>
             )}
           </div>
-          <p className="h-fine">Free · Every pace · Any time on race day</p>
+          <p className="h-fine">Free · Every pace · <Link className="lp-inline" href="/about">How it works</Link></p>
         </div>
 
         <div className="h-pp" aria-label={`A Heats run passport with the ${heat.name} stamp and the Founding Runner medal`} role="img">
@@ -56,8 +64,6 @@ export default async function Home() {
             <Guilloche colors={['rgba(204,255,0,.55)', 'rgba(180,71,27,.16)']} cx={60} cy={80} />
             <div className="phdr"><span>STAMPS</span><span>FALL 2026 · P.1</span></div>
             <Stamp heat={heat} salt="hero" className="h-stamp" />
-            <div className="h-slot a"><b>Heat 002</b>Coming soon</div>
-            <div className="h-slot b"><b>Heat 003</b>Coming soon</div>
           </div>
           <Medal kind="founding" salt="hero" className="h-medal" />
         </div>
@@ -77,6 +83,7 @@ export default async function Home() {
                 <div><dt>Distance</dt><dd>5K, tracked on Strava</dd></div>
                 <div><dt>Cost</dt><dd>Free</dd></div>
               </dl>
+              {luma && <a className="h-luma" href={luma} target="_blank" rel="noopener noreferrer">Embed not loading? Open on Luma ↗</a>}
               {open && (
                 <div className="h-ran">
                   <span>Already ran it?</span>
@@ -103,18 +110,15 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ── Closing CTA */}
+      {/* ── Closing CTA: bring someone */}
       <section className="wrap h-close">
-        <h2 className="wm">{over ? <>Heat 002<br />is coming.</> : <>See you at<br />Engineers&apos; Gate.</>}</h2>
+        <h2 className="wm">{over ? <>Thanks for<br />running.</> : <>Run it with<br />a friend.</>}</h2>
+        <p>{over ? 'See the results and your passport.' : 'Send them the link. Free, any pace, any time today.'}</p>
         <div className="h-ctas center">
-          {over ? (
-            <Link className="btn volt lg" href="/results">See the results</Link>
-          ) : (
-            <>
-              <a className="btn volt lg" href="#run">{open ? 'Run it today' : 'RSVP free'}</a>
-              {open && <Link className="btn ghost lg" href="/post">Submit my run</Link>}
-            </>
-          )}
+          {over
+            ? <Link className="btn volt lg" href="/results">See the results</Link>
+            : <ShareButton url={site} title={`${heat.name} · Heats`} className="btn volt lg" />}
+          {!over && <Link className="btn ghost lg" href="/post">Submit my run</Link>}
         </div>
       </section>
     </main>
