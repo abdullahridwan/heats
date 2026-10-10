@@ -234,9 +234,6 @@ button { font: inherit; }
   }
   var PH = function (t) { return '<span class="ph">' + t + '</span>'; };
   // Live data only. The mockup never invents runners, times or counts: it shows what each field will hold.
-  function sheet() {
-    return '<div class="sheet">' + [0, 1, 2, 3, 4].map(function (i) { return '<div class="row"><span class="pl' + (i === 0 ? ' f' : '') + '">0' + (i + 1) + '</span><div><div class="nm">' + PH('alias') + '</div><div class="cm">' + PH('their one-line note') + '</div></div><span class="tm">' + PH('m:ss') + '</span></div>'; }).join('') + '</div>';
-  }
 
   /* ───────── pages */
   var PAGES = {
@@ -246,7 +243,7 @@ button { font: inherit; }
       cap: {
         before: '<b>One job: get the RSVP.</b> The button goes to Luma. Nothing else competes with it.',
         race: '<b>One job: submit the run.</b> RSVP is optional, so the button is Submit my run. <b>N is the real count from the database, and the whole line stays hidden until N is 5 or more.</b> It is never typed in by hand.',
-        after: '<b>One job: results, then capture Heat 002.</b> The warmest audience you will ever have. Follow-on-Luma is the growth loop. Highlighted boxes are live data, shown as placeholders.'
+        after: '<b>One job: results, then capture Heat 002.</b> The full results live on their own page, one click away. The homepage stays short: what happened, one button, and a way to hear about Heat 002. Highlighted boxes are live data, shown as placeholders.'
       },
       render: function (st) {
         var b = BTN[st];
@@ -261,7 +258,7 @@ button { font: inherit; }
           '<div class="w"><div class="hero"><div><span class="kicker">' + kick + '</span><h1 class="h1">' + h1 + '</h1><p class="sub">' + sub + '</p>' +
           '<div class="ctas"><span class="btn volt lg" ' + (b.go ? 'data-go="' + b.go + '"' : '') + '>' + (b.icon || '') + b.label + '</span>' + second + '</div><div class="proof">' + proof + '</div></div>' +
           '<div class="art">' + S() + M() + '</div></div></div>' +
-          (st === 'after' ? '<div class="w"><div class="sec" style="border-top:1px solid var(--hair)"><h2>The heat sheet.</h2>' + sheet() + '<span class="tx" style="justify-self:start">See all ' + PH('N') + ' results</span></div></div>' : steps()) +
+          (st === 'after' ? '' : steps()) +
           closer(st) + foot();
       }
     },
