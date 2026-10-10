@@ -6,21 +6,19 @@ import art from './art.json'
 export const W = 1080
 export const H = 1920
 export const FPS = 30
-const S1 = 105, S2 = 105, S3 = 105, S4 = 90, S5 = 90
-export const TOTAL = S1 + S2 + S3 + S4 + S5
 
-const ink = '#0B0C0A'
-const volt = '#CCFF00'
-const grey = '#5E625B'
+export const ink = '#0B0C0A'
+export const volt = '#CCFF00'
+export const grey = '#5E625B'
 // TikTok covers the top ~170px, the bottom ~420px and the right ~120px with its own UI.
-const X0 = 70, X1 = 960
+export const X0 = 70, X1 = 960
 
-const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const
-const wm: React.CSSProperties = { fontFamily: 'ArchivoWide, sans-serif', textTransform: 'uppercase', letterSpacing: '-.035em', lineHeight: 0.9 }
-const ui: React.CSSProperties = { fontFamily: 'Geist, sans-serif' }
-const mono: React.CSSProperties = { fontFamily: 'GeistMono, monospace', fontVariantNumeric: 'tabular-nums' }
+export const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const
+export const wm: React.CSSProperties = { fontFamily: 'ArchivoWide, sans-serif', textTransform: 'uppercase', letterSpacing: '-.035em', lineHeight: 0.9 }
+export const ui: React.CSSProperties = { fontFamily: 'Geist, sans-serif' }
+export const mono: React.CSSProperties = { fontFamily: 'GeistMono, monospace', fontVariantNumeric: 'tabular-nums' }
 
-function useFonts() {
+export function useFonts() {
   const [handle] = useState(() => delayRender('fonts'))
   useEffect(() => {
     const faces = [
@@ -34,7 +32,7 @@ function useFonts() {
   }, [handle])
 }
 
-const Defs = () => (
+export const Defs = () => (
   <>
     <style>{`.t-mono{font-family:GeistMono,monospace;font-weight:600}.t-wm{font-family:ArchivoWide,sans-serif}`}</style>
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
@@ -49,7 +47,7 @@ const Defs = () => (
   </>
 )
 
-const Mark = ({ size }: { size: number }) => (
+export const Mark = ({ size }: { size: number }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
     <rect width="100" height="100" rx="24" fill={volt} />
     <polygon points="32,22 46,22 38,78 24,78" fill={ink} /><polygon points="62,22 76,22 68,78 54,78" fill={ink} /><polygon points="37,43 67,43 65.4,55 35.4,55" fill={ink} />
@@ -57,7 +55,7 @@ const Mark = ({ size }: { size: number }) => (
 )
 
 // A line of display type that rises out of a mask.
-function Rise({ children, at, size, hl = false }: { children: string; at: number; size: number; hl?: boolean }) {
+export function Rise({ children, at, size, hl = false }: { children: string; at: number; size: number; hl?: boolean }) {
   const f = useCurrentFrame()
   const { fps } = useVideoConfig()
   const s = spring({ frame: f - at, fps, config: { damping: 16, stiffness: 180 } })
@@ -72,7 +70,7 @@ function Rise({ children, at, size, hl = false }: { children: string; at: number
   )
 }
 
-const Brand = () => (
+export const Brand = () => (
   <div style={{ position: 'absolute', left: X0, top: 178, display: 'flex', alignItems: 'center', gap: 18 }}>
     <Mark size={64} />
     <span style={{ ...wm, fontSize: 40, color: ink }}>Heats</span>
@@ -107,9 +105,9 @@ function Hook() {
 }
 
 // ───────── 2 · The run
-function Course() {
+export function Course({ title, sub, to = 5 }: { title: React.ReactNode; sub: string; to?: number }) {
   const f = useCurrentFrame()
-  const p = interpolate(f, [14, S2 - 14], [0, 1], { ...clamp, easing: Easing.inOut(Easing.quad) })
+  const p = interpolate(f, [14, 76], [0, 1], { ...clamp, easing: Easing.inOut(Easing.quad) })
   const len = getLength(art.course.d)
   const pt = getPointAtLength(art.course.d, Math.max(0.01, p * len))!
   const start = getPointAtLength(art.course.d, 0.01)!
@@ -118,7 +116,7 @@ function Course() {
     <AbsoluteFill style={{ background: '#fff' }}>
       <Brand />
       <div style={{ position: 'absolute', left: X0, top: 340, ...ui, fontWeight: 600, fontSize: 92, letterSpacing: '-.04em', lineHeight: 1.02, color: ink, opacity: head, transform: `translateY(${(1 - head) * 30}px)`, width: 880 }}>
-        Run it any time<br />until 11:59 PM.
+        {title}
       </div>
       <svg viewBox="0 0 200 200" style={{ position: 'absolute', left: 90, top: 600, width: 900, height: 900, overflow: 'visible' }}>
         <g transform={art.course.t}>
@@ -129,18 +127,18 @@ function Course() {
         </g>
       </svg>
       <div style={{ position: 'absolute', left: X0, top: 1400, display: 'flex', alignItems: 'baseline', gap: 16 }}>
-        <span style={{ ...ui, fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontSize: 170, letterSpacing: '-.05em', color: ink }}>{(p * 5).toFixed(2)}</span>
+        <span style={{ ...ui, fontWeight: 600, fontVariantNumeric: 'tabular-nums', fontSize: 170, letterSpacing: '-.05em', color: ink }}>{(p * to).toFixed(2)}</span>
         <span style={{ ...ui, fontSize: 52, color: grey }}>km</span>
       </div>
       <div style={{ position: 'absolute', left: X0, top: 1600, ...ui, fontSize: 40, color: grey, width: 880, opacity: interpolate(f, [30, 44], [0, 1], clamp) }}>
-        Start at Engineers&apos; Gate · 5th Ave &amp; E 90th St
+        {sub}
       </div>
     </AbsoluteFill>
   )
 }
 
 // ───────── 3 · Post the screenshot
-function Card() {
+export function Card() {
   return (
     <div style={{ width: 440, height: 782, borderRadius: 44, overflow: 'hidden', position: 'relative', background: '#EEF0E9', boxShadow: '0 40px 80px -30px rgba(11,12,10,.4)' }}>
       <svg viewBox="0 0 440 470" style={{ position: 'absolute', inset: 0, width: 440, height: 470 }}>
@@ -161,7 +159,7 @@ function Card() {
   )
 }
 
-function Check({ label, value, at }: { label: string; value: string; at: number }) {
+export function Check({ label, value, at }: { label: string; value: string; at: number }) {
   const f = useCurrentFrame()
   const { fps } = useVideoConfig()
   const s = spring({ frame: f - at, fps, config: { damping: 14, stiffness: 170 } })
@@ -197,7 +195,7 @@ function Post() {
 }
 
 // ───────── 4 · Stamped
-function Stamped() {
+export function Stamped({ title, foot, slots = false }: { title: React.ReactNode; foot: string; slots?: boolean }) {
   const f = useCurrentFrame()
   const { fps } = useVideoConfig()
   const head = interpolate(f, [0, 12], [0, 1], clamp)
@@ -211,22 +209,25 @@ function Stamped() {
     <AbsoluteFill style={{ background: '#fff', transform: `translate(${shake}px, ${shake * 0.6}px)` }}>
       <Brand />
       <div style={{ position: 'absolute', left: X0, top: 340, ...ui, fontWeight: 600, fontSize: 92, letterSpacing: '-.04em', lineHeight: 1.02, color: ink, opacity: head, transform: `translateY(${(1 - head) * 30}px)` }}>
-        Get stamped.
+        {title}
       </div>
       <div style={{ position: 'absolute', left: 120, top: 560, width: 760, height: 900, borderRadius: '14px 34px 34px 14px', background: '#fff', border: '2px solid #ECEDE7', boxShadow: '0 50px 90px -34px rgba(11,12,10,.35)', backgroundImage: 'repeating-linear-gradient(#fff 0 55px, #F1F2EC 55px 57px)', transform: 'rotate(2deg)' }}>
         <span style={{ position: 'absolute', left: 40, top: 32, ...mono, fontWeight: 500, fontSize: 24, letterSpacing: '.14em', color: '#9A9D95' }}>STAMPS</span>
+        {slots && [[60, 725], [250, 745]].map(([x, y], i) => (
+          <div key={i} style={{ position: 'absolute', left: x, top: y, width: 160, height: 160, borderRadius: "50%", border: '4px dashed #CDD0C7', opacity: interpolate(f, [34 + i * 6, 46 + i * 6], [0, 1], clamp) }} />
+        ))}
         <div style={{ position: 'absolute', left: 90, top: 190, width: 560, transform: `rotate(-9deg) scale(${scale})`, opacity: op, mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: art.stamp }} />
       </div>
       <div style={{ position: 'absolute', left: 640, top: 1130, width: 270, transform: `rotate(10deg) scale(${pop})`, filter: 'drop-shadow(0 22px 26px rgba(11,12,10,.28))' }} dangerouslySetInnerHTML={{ __html: art.medal }} />
       <div style={{ position: 'absolute', left: X0, top: 1500, ...ui, fontSize: 42, color: grey, opacity: interpolate(f, [50, 62], [0, 1], clamp), width: 880 }}>
-        Plus the Founding Runner medal.
+        {foot}
       </div>
     </AbsoluteFill>
   )
 }
 
 // ───────── 5 · Call to action
-function Cta() {
+export function Cta({ lines, sub }: { lines: React.ReactNode; sub: string }) {
   const f = useCurrentFrame()
   const { fps } = useVideoConfig()
   const s = spring({ frame: f - 4, fps, config: { damping: 14, stiffness: 140 } })
@@ -237,26 +238,31 @@ function Cta() {
       <div style={{ position: 'absolute', left: 0, right: 0, top: 380, display: 'grid', justifyItems: 'center', gap: 44, opacity: s, transform: `translateY(${(1 - s) * 40}px)` }}>
         <Mark size={200} />
         <div style={{ ...wm, fontSize: 210, color: ink }}>Heats</div>
-        <div style={{ ...ui, fontSize: 56, color: grey, textAlign: 'center', lineHeight: 1.25 }}>Free 5K · Central Park · Today<br />Run it any time until 11:59 PM</div>
+        <div style={{ ...ui, fontSize: 56, color: grey, textAlign: 'center', lineHeight: 1.25 }}>{lines}</div>
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, top: 1130, display: 'grid', justifyItems: 'center', gap: 34 }}>
         <div style={{ background: volt, color: ink, ...ui, fontWeight: 600, fontSize: 84, letterSpacing: '-.03em', padding: '40px 84px', borderRadius: 40, transform: `scale(${btn * pulse})`, opacity: Math.min(1, btn) }}>heats.run</div>
-        <div style={{ ...ui, fontSize: 46, color: grey, opacity: interpolate(f, [34, 46], [0, 1], clamp) }}>RSVP free · link in bio</div>
+        <div style={{ ...ui, fontSize: 46, color: grey, opacity: interpolate(f, [34, 46], [0, 1], clamp) }}>{sub}</div>
       </div>
     </AbsoluteFill>
   )
 }
 
-export function TikTok() {
+// The race-day video: hook, where and when, the reward, call to action.
+const T = { hook: 105, run: 90, stamp: 105, cta: 90 }
+export const TODAY_TOTAL = T.hook + T.run + T.stamp + T.cta
+
+export function Today() {
   useFonts()
+  let at = 0
+  const seq = (d: number) => { const from = at; at += d; return { from, durationInFrames: d } }
   return (
     <AbsoluteFill style={{ background: '#fff' }}>
       <Defs />
-      <Sequence from={0} durationInFrames={S1}><Hook /></Sequence>
-      <Sequence from={S1} durationInFrames={S2}><Course /></Sequence>
-      <Sequence from={S1 + S2} durationInFrames={S3}><Post /></Sequence>
-      <Sequence from={S1 + S2 + S3} durationInFrames={S4}><Stamped /></Sequence>
-      <Sequence from={S1 + S2 + S3 + S4} durationInFrames={S5}><Cta /></Sequence>
+      <Sequence {...seq(T.hook)}><Hook /></Sequence>
+      <Sequence {...seq(T.run)}><Course title={<>Run it any time<br />until 11:59 PM.</>} sub="Start at Engineers' Gate · 5th Ave & E 90th St" /></Sequence>
+      <Sequence {...seq(T.stamp)}><Stamped title={<>Post your run.<br />Get stamped.</>} foot="Send your Strava screenshot at heats.run" /></Sequence>
+      <Sequence {...seq(T.cta)}><Cta lines={<>Free 5K · Central Park · Today<br />Run it any time until 11:59 PM</>} sub="RSVP free · link in bio" /></Sequence>
     </AbsoluteFill>
   )
 }
