@@ -1,19 +1,11 @@
 import Link from 'next/link'
 import { Guilloche, Medal, Stamp } from '@/components/art'
-import { StepPlayer } from '@/components/remotion/players'
 import { getHeats, serverNow } from '@/lib/data'
-import { MEDAL_INFO, MEDAL_ORDER } from '@/lib/medals'
 import { heatNo } from '@/lib/time'
 
 export const revalidate = 30
 
 const FALLBACK = { number: 1, name: 'Chilly Central Park 5K', opens_at: '2026-10-10T04:00:00Z', closes_at: '2026-10-11T03:59:59Z', location_terms: ['Central Park'] }
-
-const STEPS = [
-  { scene: 'rsvp', title: 'RSVP on Luma', body: 'Free and takes ten seconds. No Heats account until you claim your stamp.' },
-  { scene: 'run', title: 'Run it on race day', body: "Start at Engineers' Gate any time that day and run 5K at your own pace. Track it on Strava." },
-  { scene: 'post', title: 'Post your screenshot', body: 'Upload the Strava share card. We check the distance, time and park, and stamp your passport.' },
-] as const
 
 export default async function Home() {
   const heat = (await getHeats())[0] ?? FALLBACK
@@ -39,10 +31,7 @@ export default async function Home() {
           <p className="h-sub">Free 5Ks across the city, one park at a time. Run on race day, post your Strava screenshot, and the stamp goes in your run passport.</p>
           <div className="h-ctas">
             {over ? (
-              <>
-                <Link className="btn volt lg" href="/results">See the results</Link>
-                <a className="btn ghost lg" href="#how">How it works</a>
-              </>
+              <Link className="btn volt lg" href="/results">See the results</Link>
             ) : (
               <>
                 <a className="btn volt lg" href="#run">{open ? 'Run it today' : 'RSVP free'}</a>
@@ -113,49 +102,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      {/* ── How it works */}
-      <section className="h-sec" id="how">
-        <div className="wrap">
-          <div className="h-head center">
-            <span className="eyebrow">How it works</span>
-            <h2>Three steps. Then it&apos;s in your passport.</h2>
-          </div>
-          <div className="h-steps">
-            {STEPS.map((s, i) => (
-              <article className="h-step" key={s.scene}>
-                <div className="h-clip"><StepPlayer scene={s.scene} /></div>
-                <div className="h-step-txt">
-                  <span>0{i + 1}</span>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── The collection */}
-      <section className="h-sec">
-        <div className="wrap">
-          <div className="h-head center">
-            <span className="eyebrow">The collection</span>
-            <h2>Every heat has its own stamp. Milestones get medals.</h2>
-            <p>Stamps never repeat. Run Heat 001 and you get the Founding Runner medal, which will never be given out again.</p>
-          </div>
-          <div className="h-medals">
-            {MEDAL_ORDER.map(k => (
-              <div className="medal" key={k}>
-                <Medal kind={k} salt="home" />
-                <span className="medal-shadow" aria-hidden="true" />
-                <b>{MEDAL_INFO[k].name}</b>
-                <span className="muted">{MEDAL_INFO[k].how}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── Closing CTA */}
       <section className="wrap h-close">
