@@ -569,10 +569,10 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 .hm-cta { display: grid; justify-items: center; gap: 16px; }
 .hm-link { font-size: 15px; font-weight: 500; color: var(--text2); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--hair); }
 .hm-link:hover { color: var(--ink); text-decoration-color: var(--ink); }
-.hm-rsvp { display: grid; justify-items: center; gap: 20px; width: 100%; max-width: 560px; padding-block: 64px 96px; border-top: 1px solid var(--hair); }
+.hm-rsvp { display: grid; justify-items: center; gap: 20px; width: 100%; max-width: 760px; padding-block: 64px 96px; border-top: 1px solid var(--hair); }
 .hm-rsvp h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 600; letter-spacing: -.035em; }
 .hm-embed { width: 100%; border: 1px solid var(--hair); border-radius: 22px; overflow: hidden; background: #fff; box-shadow: var(--shadow-lg); }
-.hm-embed iframe { display: block; width: 100%; height: 640px; }
+.hm-embed iframe { display: block; width: 100%; height: 520px; }
 @media (prefers-reduced-motion: reduce) { .hm-status i, .hm-stamp { animation: none; } }
 @media (max-width: 640px) { .hm-stamp { right: 0; } .hm-stage { margin-bottom: 30px; } .hm-hero { gap: 22px; } }
 .lp-inline { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
@@ -583,3 +583,4 @@ footer.foot { padding-block: 40px 56px; border-top: 1px solid var(--hair); displ
 .lp-embed { justify-self: end; width: 100%; max-width: 600px; }
 .lp-embed iframe { display: block; width: 100%; height: 740px; border: 1px solid var(--hair); border-radius: 18px; background: #fff; box-shadow: var(--shadow); }
 @media (max-width: 900px) { .lp-embed { justify-self: stretch; } }
+@media (max-width: 640px) { .hm-embed iframe { height: 720px; } }

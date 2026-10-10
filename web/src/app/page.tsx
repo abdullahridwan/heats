@@ -48,8 +48,8 @@ export default async function Home() {
             <iframe
               src={`https://luma.com/embed/event/${lumaEventId}/simple`}
               title={`RSVP for ${heat.name} on Luma`}
-              width="600"
-              height="640"
+              width="760"
+              height="520"
               allow="fullscreen"
               style={{ border: 0 }}
             />
