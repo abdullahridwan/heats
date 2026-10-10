@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="wm">Heats</span>
               </Link>
               <div className="navr">
-                <Link className="navlink hide-sm" href="/about">How it works</Link>
+                <Link className="navlink hide-sm" href="/#how">How it works</Link>
                 <Link className="navlink hide-sm" href="/results">Results</Link>
                 <Link className="btn volt sm" href="/post">Submit my run</Link>
                 <Show when="signed-out">
