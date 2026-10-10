@@ -69,6 +69,7 @@ button { font: inherit; }
 .sub { font-size: clamp(16px, 1.65cqw, 20px); color: var(--text2); max-width: 36ch; margin: 0; }
 .ctas { display: flex; gap: 18px; align-items: center; margin-top: 30px; flex-wrap: wrap; }
 .proof { margin-top: 18px; font-size: 14px; color: var(--text2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ph { font-family: var(--f-mono); font-weight: 500; background: #F2FFC4; border: 1px dashed #9A9D95; border-radius: 6px; padding: 0 7px; color: var(--ink); white-space: nowrap; }
 .live { width: 8px; height: 8px; border-radius: 50%; background: var(--volt); box-shadow: 0 0 0 3px #F2FFC4; display: inline-block; }
 .art { position: relative; aspect-ratio: 1; max-width: 470px; width: 100%; justify-self: center; }
 .art .stamp { position: absolute; left: 0; top: 4%; width: 86%; transform: rotate(-8deg); }
@@ -231,9 +232,10 @@ button { font: inherit; }
     var label = st === 'after' ? 'Follow for Heat 002' : b.label;
     return '<div class="w"><div class="final"><h2>' + h + '</h2><p>' + p + '</p><span class="btn volt lg" ' + (b.go && st !== 'after' ? 'data-go="' + b.go + '"' : '') + '>' + (st === 'before' || st === 'after' ? LU : '') + label + '</span></div></div>';
   }
-  var SHEET = [['lowkey_sprinter', '17:52', 'went out way too fast. held on.'], ['mile_kat', '18:31', 'PR!!!'], ['jt.runs', '19:07', 'that hill was evil'], ['ada.o', '22:48', 'first race ever, will be back'], ['slowandsteady', '31:05', 'walked the hills, no regrets']];
+  var PH = function (t) { return '<span class="ph">' + t + '</span>'; };
+  // Live data only. The mockup never invents runners, times or counts: it shows what each field will hold.
   function sheet() {
-    return '<div class="sheet">' + SHEET.map(function (r, i) { return '<div class="row"><span class="pl' + (i === 0 ? ' f' : '') + '">0' + (i + 1) + '</span><div><div class="nm">' + r[0] + '</div><div class="cm">' + r[2] + '</div></div><span class="tm">' + r[1] + '</span></div>'; }).join('') + '</div>';
+    return '<div class="sheet">' + [0, 1, 2, 3, 4].map(function (i) { return '<div class="row"><span class="pl' + (i === 0 ? ' f' : '') + '">0' + (i + 1) + '</span><div><div class="nm">' + PH('alias') + '</div><div class="cm">' + PH('their one-line note') + '</div></div><span class="tm">' + PH('m:ss') + '</span></div>'; }).join('') + '</div>';
   }
 
   /* ───────── pages */
@@ -243,23 +245,23 @@ button { font: inherit; }
       states: { before: 'Before race', race: 'Race day', after: 'After' },
       cap: {
         before: '<b>One job: get the RSVP.</b> The button goes to Luma. Nothing else competes with it.',
-        race: '<b>One job: submit the run.</b> RSVP is optional, so the button is Submit my run. The proof line only appears once there are 5+ real finishers.',
-        after: '<b>One job: results, then capture Heat 002.</b> The warmest audience you will ever have. Follow-on-Luma is the growth loop. Sample runners shown.'
+        race: '<b>One job: submit the run.</b> RSVP is optional, so the button is Submit my run. <b>N is the real count from the database, and the whole line stays hidden until N is 5 or more.</b> It is never typed in by hand.',
+        after: '<b>One job: results, then capture Heat 002.</b> The warmest audience you will ever have. Follow-on-Luma is the growth loop. Highlighted boxes are live data, shown as placeholders.'
       },
       render: function (st) {
         var b = BTN[st];
         var kick = st === 'after' ? 'Heat 001 · Oct 10 · Done' : "Heat 001 · Sat Oct 10 · Engineers' Gate";
-        var h1 = st === 'after' ? '29 runners got the Chilly Central Park stamp.' : 'Run a free 5K in Central Park. Get stamped.';
+        var h1 = st === 'after' ? PH('N') + ' runners got the Chilly Central Park stamp.' : 'Run a free 5K in Central Park. Get stamped.';
         var sub = st === 'after' ? 'Thanks for running Heat 001. The next heat is on its way.' : "Chilly Central Park 5K. Start at Engineers' Gate any time on Saturday, submit your Strava screenshot, and the stamp is yours.";
         var proof = st === 'before' ? '<span class="live"></span>Free · every pace · no cutoff'
-          : st === 'race' ? '<span class="live"></span><b>14 runners stamped so far</b> · submissions close 11:59 PM'
+          : st === 'race' ? '<span class="live"></span><b>' + PH('N') + ' runners stamped so far</b> · submissions close 11:59 PM'
           : '<span class="live"></span>Founding Runner medal: Heat 001 only';
         var second = st === 'race' ? '<span class="tx">Not run yet? RSVP on Luma</span>' : st === 'after' ? '<span class="tx">Follow for Heat 002</span>' : '<span class="tx" data-go="about">How it works</span>';
         return nav(st) +
           '<div class="w"><div class="hero"><div><span class="kicker">' + kick + '</span><h1 class="h1">' + h1 + '</h1><p class="sub">' + sub + '</p>' +
           '<div class="ctas"><span class="btn volt lg" ' + (b.go ? 'data-go="' + b.go + '"' : '') + '>' + (b.icon || '') + b.label + '</span>' + second + '</div><div class="proof">' + proof + '</div></div>' +
           '<div class="art">' + S() + M() + '</div></div></div>' +
-          (st === 'after' ? '<div class="w"><div class="sec" style="border-top:1px solid var(--hair)"><h2>The heat sheet.</h2>' + sheet() + '<span class="tx" style="justify-self:start">See all 29 results</span></div></div>' : steps()) +
+          (st === 'after' ? '<div class="w"><div class="sec" style="border-top:1px solid var(--hair)"><h2>The heat sheet.</h2>' + sheet() + '<span class="tx" style="justify-self:start">See all ' + PH('N') + ' results</span></div></div>' : steps()) +
           closer(st) + foot();
       }
     },
@@ -292,7 +294,7 @@ button { font: inherit; }
       cap: {
         out: '<b>The old dead end, fixed.</b> A real sign-up button, and the account is made now, after the run, when the runner wants the stamp.',
         upload: '<b>One screen.</b> Drop the Strava card, optional note, submit. The checks are listed so nobody is surprised.',
-        done: '<b>The payoff moment</b>, and the thing people share to their story.'
+        done: '<b>The payoff moment</b>, and the thing people share to their story. Each runner&#39;s own numbers fill the boxes.'
       },
       render: function (st) {
         var head = '<div class="w"><div style="padding-block:20px 8px"><span class="kicker">Heat 001 · Sat Oct 10</span><h1 class="h1" style="font-size:clamp(34px,4.6cqw,56px);margin-bottom:12px">Submit my run</h1><p class="sub" style="max-width:52ch">Screenshot your run from Strava, Garmin, Apple Watch or Nike. It needs the map, the distance and the time.</p></div></div>';
@@ -300,7 +302,7 @@ button { font: inherit; }
         if (st === 'out') body = '<div class="panel"><b style="font-size:20px;letter-spacing:-.02em">You ran it. Claim your stamp.</b><span style="color:var(--text2)">Make your free Heats passport, then upload your Strava screenshot. About a minute.</span><div class="ctas" style="margin-top:6px"><span class="btn volt">Get my stamp</span><span class="btn ghost">I already have a passport</span></div></div>';
         else if (st === 'upload') body = '<div class="sbox"><div class="drop"><div class="card"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect width="100" height="100" fill="#E4E8DF"/><path d="M-5 30 L105 6 M-5 52 L105 30" stroke="#fff" stroke-width="6"/><ellipse cx="50" cy="62" rx="30" ry="14" transform="rotate(-24 50 62)" fill="none" stroke="#FC4C02" stroke-width="1.6"/></svg><div class="t"><b>Morning Run</b><span>Distance · Time</span><em>3.12 mi · 24m 31s</em></div></div><b style="font-size:18px">Strava card added</b><span style="color:var(--text2)">Tap to replace it.</span><div style="width:100%;display:grid;gap:6px;text-align:left"><span style="font-size:13px;color:var(--text2)">Note (optional) · shows next to your time</span><div class="in">that hill was evil</div></div><span class="btn volt block lg">Submit my run</span></div>' +
           '<div class="panel"><b>What we check</b><div class="chk"><div><span class="c">1</span>It is a Strava share card</div><div><span class="c">2</span>Distance is 4.9 km or more</div><div><span class="c">3</span>The map shows Central Park</div><div><span class="c">4</span>Posted on race day</div><div><span class="c">5</span>Nobody posted this image before</div></div><span style="font-size:13px;color:var(--text2)">All five pass: stamped instantly. Anything else: a person takes a look.</span></div></div>';
-        else body = '<div class="won">' + S() + '<div style="display:grid;gap:14px"><span class="kicker">Heat 001 · Chilly Central Park 5K</span><h2 style="margin:0;font-size:46px;letter-spacing:-.045em;line-height:1">Stamped.</h2><div class="stats"><div><small>Distance</small><b>5.02 km</b></div><div><small>Time</small><b>24:31</b></div><div><small>Place</small><b>4th</b></div></div><div class="ctas" style="margin:0"><span class="btn volt">Share to your story</span><span class="btn ghost">See the results</span></div></div></div>';
+        else body = '<div class="won">' + S() + '<div style="display:grid;gap:14px"><span class="kicker">Heat 001 · Chilly Central Park 5K</span><h2 style="margin:0;font-size:46px;letter-spacing:-.045em;line-height:1">Stamped.</h2><div class="stats"><div><small>Distance</small><b>' + PH('0.00 km') + '</b></div><div><small>Time</small><b>' + PH('m:ss') + '</b></div><div><small>Place</small><b>' + PH('Nth') + '</b></div></div><div class="ctas" style="margin:0"><span class="btn volt">Share to your story</span><span class="btn ghost">See the results</span></div></div></div>';
         return nav('race') + head + '<div class="w" style="padding-bottom:64px">' + body + '</div>' + foot();
       }
     }
