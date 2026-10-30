@@ -24,10 +24,11 @@ input:focus{outline:none}
     <span class="mono" style="margin-left:4px">Heat 003 / Prospect Park / Nov 15 to 16</span>
   </nav>
   <div style="padding:32px 16px;display:flex;flex-direction:column;gap:20px;flex:1">
+    <div style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#4c5265">WELCOME TO HEATS / ONE TIME ONLY</div>
     <h1 class="disp" style="font-size:44px">Claim your @</h1>
     <div style="display:flex;flex-direction:column;gap:8px">
       <label for="handle" class="mono">Your handle</label>
-      <div style="display:flex;align-items:center;background:#FFFFFF;border:2px solid {{ring}};border-radius:8px;padding:0 14px;min-height:60px;gap:2px">
+      <div style="display:flex;align-items:center;background:#FFFFFF;border:2px solid {{ring}};box-shadow:{{glow}};border-radius:8px;padding:0 14px;min-height:60px;gap:2px">
         <span class="disp" style="font-size:26px;color:#4c5265">@</span>
         <input id="handle" value="{{handle}}" onInput="{{onType}}" autocomplete="off" spellcheck="false" style="flex:1;border:0;font-size:22px;font-weight:600;font-family:'DM Sans',sans-serif;color:#061236;background:transparent;min-width:0">
         <sc-if value="{{ok}}" hint-placeholder-val="{{ true }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4B7A00" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></sc-if>
@@ -40,6 +41,7 @@ input:focus{outline:none}
     </div>
     <div style="flex:1"></div>
     <a href="Verify.dc.html" class="btn" style="background:{{btnBg}};color:{{btnFg}}">Send my code</a>
+    <a href="Verify.dc.html" style="text-align:center;font-size:14px;color:#4c5265;padding:6px">Already have an @? Sign in with your email</a>
   </div>
 </div>
 </x-dc>
@@ -62,8 +64,9 @@ class Component extends DCLogic {
     const [msg, msgColor, ok] = this.check(h);
     return {
       handle: h, msg, msgColor, ok,
-      ring: ok ? '#061236' : (msg ? '#D93B3B' : '#e8e8e8'),
-      btnBg: ok ? '#121212' : '#9fcbe6',
+      ring: msg && !ok ? '#D93B3B' : '#CCFF00',
+      glow: msg && !ok ? '0 0 0 4px #FBE3E3' : '0 0 0 4px #F2FFC4',
+      btnBg: ok ? '#061236' : '#e8e8e8',
       btnFg: ok ? '#FFFFFF' : '#6b7180',
       onType: (e) => this.setState({ handle: e.target.value.toLowerCase().replace(/^@/, '') }),
     };
