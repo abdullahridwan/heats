@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Heats user flow</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.02em;line-height:1.1;margin:0}
+.lane{display:flex;align-items:center;gap:0;padding:28px;border-radius:18px}
+.box{width:170px;min-height:96px;box-sizing:border-box;background:#FFFFFF;border-radius:12px;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:4px;box-shadow:0 1px 2px rgba(6,18,54,.08)}
+.t{font-weight:700;font-size:16px}
+.s{font-size:13px;color:#4c5265;line-height:1.35}
+.arr{display:flex;flex-direction:column;align-items:center;justify-content:center;width:96px;gap:4px;flex:none}
+.btnlbl{font-size:11px;font-weight:700;background:#061236;color:#FFFFFF;border-radius:4px;padding:3px 7px;white-space:nowrap}
+.tag{font-size:12px;font-weight:700;letter-spacing:.06em;width:120px;flex:none}
+</style>
+</helmet>
+<div style="width:1640px;height:900px;box-sizing:border-box;font-family:'DM Sans',sans-serif;color:#061236;background:#FFFFFF;padding:48px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:20px">
+    <h1 class="serif" style="font-size:52px">How Heats works</h1>
+    <span style="font-size:17px;color:#4c5265">Two tabs. Every action starts from a heat on the Calendar and ends back on a tab.</span>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:16px;padding:8px 0 4px">
+    <div class="box" style="border:2.5px solid #061236;width:200px"><div class="t">Calendar tab</div><div class="s">Live heat, coming up, past</div></div>
+    <svg width="60" height="20" viewBox="0 0 60 20" aria-hidden="true"><path d="M2 10h50M44 3l8 7-8 7M16 3L8 10l8 7" fill="none" stroke="#061236" stroke-width="2"></path></svg>
+    <div class="box" style="border:2.5px solid #061236;width:200px;background:#061236;color:#FFFFFF"><div class="t">Passport tab</div><div class="s" style="color:#c4cbe0">Your @, stamps, share link</div></div>
+    <span class="s" style="margin-left:12px">Tap between them anytime with the bottom bar.</span>
+  </div>
+
+  <div class="lane" style="background:#BFE7FF">
+    <div class="tag">JOIN A HEAT<br><span style="font-weight:500;letter-spacing:0">future weekend</span></div>
+    <div class="box" style="border:2.5px solid #061236"><div class="t">Calendar</div><div class="s">Coming up row</div></div>
+    <div class="arr"><span class="btnlbl">Join</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box"><div class="t">Claim your @</div><div class="s">Handle + email</div></div>
+    <div class="arr"><span class="btnlbl">Send my code</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box"><div class="t">Email code</div><div class="s">6 digits. First time only</div></div>
+    <div class="arr"><span class="btnlbl">Confirm</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box" style="background:#CCFF00"><div class="t">You're in</div><div class="s" style="color:#061236">Where + when</div></div>
+    <div class="arr"><span class="btnlbl">Back to calendar</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box" style="border:2.5px solid #061236"><div class="t">Calendar</div><div class="s">Row now says "You're in"</div></div>
+  </div>
+
+  <div class="lane" style="background:#E6DEFF">
+    <div class="tag">RUN IT<br><span style="font-weight:500;letter-spacing:0">this weekend</span></div>
+    <div class="box" style="border:2.5px solid #061236"><div class="t">Calendar</div><div class="s">Live now card</div></div>
+    <div class="arr"><span class="btnlbl">Submit your run</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box"><div class="t">Post your run</div><div class="s">Upload Strava screenshot</div></div>
+    <div class="arr"><span class="btnlbl">Stamp it</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box" style="background:#061236;color:#FFFFFF"><div class="t" style="color:#CCFF00">Stamped</div><div class="s" style="color:#c4cbe0">Your time</div></div>
+    <div class="arr"><span class="btnlbl">See my passport</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box" style="border:2.5px solid #061236;background:#061236;color:#FFFFFF"><div class="t">Passport</div><div class="s" style="color:#c4cbe0">New stamp added</div></div>
+  </div>
+
+  <div class="lane" style="background:#FFE1C7">
+    <div class="tag">SEE RESULTS<br><span style="font-weight:500;letter-spacing:0">past weekend</span></div>
+    <div class="box" style="border:2.5px solid #061236"><div class="t">Calendar</div><div class="s">Past row</div></div>
+    <div class="arr"><span class="btnlbl">Results</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box"><div class="t">Heat sheet</div><div class="s">Ranked times</div></div>
+    <div class="arr"><span class="btnlbl">Tap an @</span><svg width="80" height="16" viewBox="0 0 80 16" aria-hidden="true"><path d="M2 8h70M64 2l8 6-8 6" fill="none" stroke="#061236" stroke-width="2"></path></svg></div>
+    <div class="box" style="background:#061236;color:#FFFFFF"><div class="t">Their passport</div><div class="s" style="color:#c4cbe0">heats.run/p/handle</div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
