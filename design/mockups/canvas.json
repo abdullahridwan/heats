@@ -1,17 +1,1 @@
-{"v":3,"createdOnFiles":{"v":1,"at":"2026-10-30T18:00:00Z"},"title":"Heats Mockups","launch":{"view":"focused","file":"Flow.dc.html"},"pages":[],
-"boards":{
-"Main.dc.html":{"x":0,"y":0,"w":1440,"h":3300,"title":"Landing (desktop)","expand":"fill"},
-"Flow.dc.html":{"x":1520,"y":0,"w":1640,"h":900,"title":"User flow"},
-"Calendar.dc.html":{"x":0,"y":3640,"w":390,"h":844,"title":"Tab 1: Calendar"},
-"Passport.dc.html":{"x":470,"y":3640,"w":390,"h":844,"title":"Tab 2: Passport"},
-"Join.dc.html":{"x":1010,"y":3640,"w":390,"h":844,"title":"Join a heat: @","is_interactive":true},
-"Verify.dc.html":{"x":1480,"y":3640,"w":390,"h":844,"title":"Join a heat: code"},
-"Joined.dc.html":{"x":1950,"y":3640,"w":390,"h":844,"title":"Join a heat: done"},
-"Submit.dc.html":{"x":2490,"y":3640,"w":390,"h":844,"title":"Live heat: submit"},
-"Stamped.dc.html":{"x":2960,"y":3640,"w":390,"h":844,"title":"Live heat: stamped"},
-"Results.dc.html":{"x":3500,"y":3640,"w":390,"h":844,"title":"Past heat: results"}},
-"order":["Main.dc.html","Flow.dc.html","Calendar.dc.html","Passport.dc.html","Join.dc.html","Verify.dc.html","Joined.dc.html","Submit.dc.html","Stamped.dc.html","Results.dc.html"],
-"notes":{
-"t1":{"x":0,"y":-300,"text":"Web","kind":"title1","maxW":1440},
-"t2":{"x":0,"y":3397,"text":"Two tabs. Three things to do from the calendar.","kind":"title1","maxW":3890}},
-"designSystems":[]}
+{"v": 3, "createdOnFiles": {"v": 1, "at": "2026-10-30T18:00:00Z"}, "title": "Heats Mockups", "launch": {"view": "focused", "file": "Flow.dc.html"}, "pages": [], "boards": {"Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 3300, "title": "Landing (desktop)", "expand": "fill"}, "Flow.dc.html": {"x": 1520, "y": 0, "w": 1640, "h": 900, "title": "User flow"}, "Calendar.dc.html": {"x": 0, "y": 3640, "w": 390, "h": 844, "title": "Tab 1: Calendar"}, "Passport.dc.html": {"x": 470, "y": 3640, "w": 390, "h": 1240, "title": "Tab 2: Passport"}, "Join.dc.html": {"x": 1010, "y": 3640, "w": 390, "h": 844, "title": "Join a heat: @", "is_interactive": true}, "Verify.dc.html": {"x": 1480, "y": 3640, "w": 390, "h": 844, "title": "Join a heat: code"}, "Joined.dc.html": {"x": 1950, "y": 3640, "w": 390, "h": 844, "title": "Join a heat: done"}, "Submit.dc.html": {"x": 2490, "y": 3640, "w": 390, "h": 844, "title": "Live heat: submit"}, "Stamped.dc.html": {"x": 2960, "y": 3640, "w": 390, "h": 844, "title": "Live heat: stamped"}, "Results.dc.html": {"x": 3500, "y": 3640, "w": 390, "h": 844, "title": "Past heat: results"}}, "order": ["Main.dc.html", "Flow.dc.html", "Calendar.dc.html", "Passport.dc.html", "Join.dc.html", "Verify.dc.html", "Joined.dc.html", "Submit.dc.html", "Stamped.dc.html", "Results.dc.html"], "notes": {"t1": {"x": 0, "y": -300, "text": "Web", "kind": "title1", "maxW": 1440}, "t2": {"x": 0, "y": 3397, "text": "Two tabs. Three things to do from the calendar.", "kind": "title1", "maxW": 3890}}, "designSystems": []}
