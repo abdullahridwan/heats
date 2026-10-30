@@ -22,6 +22,7 @@ def _trees(xs, base, col, s=1.0):
 SCENES = {
     # Heat 001: Central Park in fall. Bow Bridge over the Lake, leaves coming down.
     'central_fall': dict(
+        deno='#7A2E12',
         park='Central Park', name='Bow Bridge', paper='#FFF8EC', ink='#7A2E12', accent='#E2662A',
         art=lambda u: (
             f'<defs><linearGradient id="{u}sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9D9A8"></stop><stop offset="1" stop-color="#F3A65C"></stop></linearGradient></defs>'
@@ -38,11 +39,12 @@ SCENES = {
     ),
     # Heat 002: Central Park at dusk. The Reservoir and the south skyline.
     'central_dusk': dict(
+        deno='#FFFFFF',
         park='Central Park', name='The Reservoir', paper='#F4F1FF', ink='#241A5C', accent='#FF7A59',
         art=lambda u: (
             f'<defs><linearGradient id="{u}sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B2F8F"></stop><stop offset=".55" stop-color="#C45A9A"></stop><stop offset="1" stop-color="#FF9E6B"></stop></linearGradient></defs>'
             f'<rect x="14" y="14" width="172" height="168" fill="url(#{u}sk)"></rect>'
-            '<circle cx="146" cy="58" r="16" fill="#FFD8A8" opacity=".9"></circle>'
+            '<circle cx="150" cy="52" r="16" fill="#FFD8A8" opacity=".9"></circle>'
             '<g fill="#241A5C"><rect x="24" y="70" width="12" height="44"></rect><rect x="38" y="44" width="7" height="70"></rect><rect x="47" y="60" width="16" height="54"></rect><rect x="66" y="30" width="5" height="84"></rect><rect x="73" y="66" width="14" height="48"></rect><rect x="90" y="52" width="10" height="62"></rect><rect x="103" y="38" width="6" height="76"></rect><rect x="112" y="74" width="18" height="40"></rect><rect x="133" y="62" width="9" height="52"></rect><rect x="146" y="80" width="22" height="34"></rect><rect x="170" y="70" width="10" height="44"></rect></g>'
             '<g fill="#FFD8A8" opacity=".75"><rect x="40" y="52" width="2" height="2"></rect><rect x="50" y="70" width="2" height="2"></rect><rect x="56" y="80" width="2" height="2"></rect><rect x="92" y="62" width="2" height="2"></rect><rect x="105" y="48" width="2" height="2"></rect><rect x="116" y="84" width="2" height="2"></rect><rect x="150" y="90" width="2" height="2"></rect></g>'
             '<rect x="14" y="114" width="172" height="68" fill="#2C2470"></rect>'
@@ -53,10 +55,11 @@ SCENES = {
     ),
     # Heat 003: Prospect Park. The Grand Army Plaza arch through autumn trees.
     'prospect': dict(
+        deno='#16443A',
         park='Prospect Park', name='Grand Army Plaza', paper='#EEF7F2', ink='#16443A', accent='#D9A21B',
         art=lambda u: (
             '<rect x="14" y="14" width="172" height="168" fill="#BFE3D4"></rect>'
-            '<circle cx="40" cy="44" r="12" fill="#FFF2C4"></circle>'
+            '<circle cx="162" cy="40" r="12" fill="#FFF2C4"></circle>'
             '<g fill="#EADFC8" stroke="#16443A" stroke-width="1.6"><path d="M52 150 V70 H148 V150 H122 V110 A22 22 0 0 0 78 110 V150 Z"></path></g>'
             '<rect x="48" y="62" width="104" height="10" fill="#16443A"></rect>'
             '<g fill="#16443A"><path d="M84 62 l8 -16 l8 4 l8 -4 l8 16 z"></path><circle cx="100" cy="42" r="5"></circle></g>'
@@ -68,6 +71,7 @@ SCENES = {
     ),
     # Heat 004: Hudson River Greenway. The George Washington Bridge and the Little Red Lighthouse.
     'hudson': dict(
+        deno='#0D2E5C',
         park='Hudson River Greenway', name='Little Red Lighthouse', paper='#EEF5FF', ink='#0D2E5C', accent='#E23B2E',
         art=lambda u: (
             f'<defs><linearGradient id="{u}sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD0F5"></stop><stop offset="1" stop-color="#E6F4FF"></stop></linearGradient></defs>'
@@ -87,6 +91,7 @@ SCENES = {
     ),
     # Heat 005: Flushing Meadows. The Unisphere and its fountains.
     'flushing': dict(
+        deno='#3A1150',
         park='Flushing Meadows', name='The Unisphere', paper='#FFF4F7', ink='#3A1150', accent='#3BC4C9',
         art=lambda u: (
             '<rect x="14" y="14" width="172" height="168" fill="#F7C9D8"></rect>'
@@ -102,6 +107,7 @@ SCENES = {
     ),
     # Heat 006: Brooklyn Bridge Park at night. The bridge towers and the lower Manhattan lights.
     'bbp': dict(
+        deno='#F2C14E',
         park='Brooklyn Bridge Park', name='Pier 1 at night', paper='#FFFBEA', ink='#101A33', accent='#F2C14E',
         art=lambda u: (
             '<rect x="14" y="14" width="172" height="168" fill="#101A33"></rect>'
@@ -136,10 +142,11 @@ def stamp(key, heat_no, date, uid, postmark=True, size='100%'):
         f'<g mask="url(#{uid}pf)"><rect width="200" height="250" fill="{paper}"></rect>'
         f'<g clip-path="url(#{uid}art)">{s["art"](uid)}</g>'
         f'<rect x="14" y="14" width="172" height="168" fill="none" stroke="{ink}" stroke-width="1.2"></rect>'
-        f'<text x="22" y="32" font-family="DM Mono, monospace" font-weight="600" font-size="9" letter-spacing="1.5" fill="#FFFFFF" stroke="{ink}" stroke-width="2.4" paint-order="stroke">HEAT {heat_no}</text>'
-        f'<g transform="translate(150 20)"><rect width="32" height="22" rx="2" fill="{accent}" stroke="{ink}" stroke-width="1"></rect><text x="16" y="16" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="900" font-stretch="125%" font-size="14" fill="{ink}">5K</text></g>'
+        # Denomination the way real stamps do it: bare numerals in the corner, stacked with the issuer.
+        f'<g fill="{s.get("deno", "#FFFFFF")}"><text x="22" y="30" font-family="DM Mono, monospace" font-weight="600" font-size="6.5" letter-spacing="2">HEATS NYC</text>'
+        f'<text x="20" y="58" font-family="Instrument Serif, serif" font-size="32" letter-spacing="-1">5K</text></g>'
         f'<text x="100" y="208" text-anchor="middle" font-family="Instrument Serif, serif" font-size="21" fill="{ink}">{s["park"] if len(s["park"]) < 18 else s["park"].replace(" Greenway", "")}</text>'
         f'<text x="100" y="224" text-anchor="middle" font-family="DM Mono, monospace" font-weight="600" font-size="7.5" letter-spacing="2" fill="{ink}" opacity=".75">{s["name"].upper()}</text>'
-        f'<text x="100" y="238" text-anchor="middle" font-family="DM Mono, monospace" font-size="6.5" letter-spacing="2.5" fill="{ink}" opacity=".55">NEW YORK / 2026</text>'
+        f'<text x="100" y="238" text-anchor="middle" font-family="DM Mono, monospace" font-size="6.5" letter-spacing="2.5" fill="{ink}" opacity=".55">HEAT {heat_no} / NEW YORK 2026</text>'
         f'{pm}</g></svg>'
     )
