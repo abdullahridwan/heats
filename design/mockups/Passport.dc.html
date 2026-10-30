@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passport</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,800&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B0C0A}a:hover{color:#4B7A00}
+.disp{font-family:'Archivo',sans-serif;font-weight:800;font-stretch:112%;letter-spacing:-0.025em;line-height:1;margin:0}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:6px;font-weight:600;font-size:16px;text-decoration:none}
+.stamp{aspect-ratio:1;border-radius:50%;border:3px solid #4B7A00;background:#F2FFC4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#4B7A00}
+.empty{aspect-ratio:1;border-radius:50%;border:2px dashed #CDD0C6}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;font-family:'Geist',sans-serif;color:#0B0C0A;background:#FFFFFF;display:flex;flex-direction:column;padding:24px 16px;gap:28px">
+  <a href="Landing-Phone.dc.html" aria-label="Heats home"><svg width="34" height="34" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#0B0C0A" stroke-width="14"><rect x="22" y="48" width="156" height="104" rx="52"></rect><rect x="46" y="72" width="108" height="56" rx="28"></rect></g></svg></a>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <h1 class="disp" style="font-size:30px">@the_subway_surfer</h1>
+    <div style="font-size:16px;color:#5A5D55">2 stamps</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+    <div class="stamp" style="transform:rotate(-6deg)"><span class="disp" style="font-size:22px">001</span><span style="font-family:'Geist Mono',monospace;font-size:12px">20:21</span></div>
+    <div class="stamp" style="transform:rotate(5deg)"><span class="disp" style="font-size:22px">002</span><span style="font-family:'Geist Mono',monospace;font-size:12px">19:42</span></div>
+    <div class="empty"></div>
+    <div class="empty"></div>
+    <div class="empty"></div>
+    <div class="empty"></div>
+  </div>
+  <div style="flex:1"></div>
+  <a href="#" class="btn" style="background:#0B0C0A;color:#CCFF00">Share my passport</a>
+  <div style="text-align:center;font-family:'Geist Mono',monospace;font-size:13px;color:#5A5D55">heats.run/p/the_subway_surfer</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

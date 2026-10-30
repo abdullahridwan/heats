@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Heats landing, phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,800&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B0C0A}a:hover{color:#4B7A00}
+.disp{font-family:'Archivo',sans-serif;font-weight:800;font-stretch:112%;letter-spacing:-0.025em;line-height:1;margin:0}
+.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:6px;font-weight:600;font-size:16px;text-decoration:none}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;font-family:'Geist',sans-serif;color:#0B0C0A;background:#FFFFFF;display:flex;flex-direction:column;padding:24px 16px;gap:20px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <svg width="34" height="34" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#0B0C0A" stroke-width="14"><rect x="22" y="48" width="156" height="104" rx="52"></rect><rect x="46" y="72" width="108" height="56" rx="28"></rect></g></svg>
+    <a href="Results.dc.html" style="font-size:15px;font-weight:600;padding:12px 0">Results</a>
+  </div>
+  <div style="flex:1"></div>
+  <h1 class="disp" style="font-size:64px">Run.<br>Get stamped.</h1>
+  <p style="margin:0;color:#5A5D55;font-size:18px;line-height:1.5">Free 5Ks across New York.</p>
+  <div style="flex:1"></div>
+  <div style="border-top:1px solid #ECEDE7;padding-top:16px;display:flex;justify-content:space-between;font-size:16px"><span style="font-weight:600">Heat 002</span><span style="color:#5A5D55">Sat Nov 8</span></div>
+  <a href="Join.dc.html" class="btn" style="background:#CCFF00">I'm in</a>
+  <a href="Submit.dc.html" style="text-align:center;font-size:15px;padding:8px">Already ran? Post your run</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
