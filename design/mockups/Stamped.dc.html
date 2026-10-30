@@ -2,31 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Stamped</title>
+<title>Your medal</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=DM+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=DM+Mono:wght@500&amp;family=Archivo:wdth,wght@125,900&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
-a{color:#FFFFFF}a:hover{color:#CCFF00}
-.disp{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.02em;line-height:1.1;margin:0}
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:5px;font-weight:500;font-size:16px;text-decoration:none;width:100%}
+a{color:#FFFFFF}
+.serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-0.02em;line-height:1.05;margin:0}
+.k{font-size:11px;font-weight:700;letter-spacing:.12em;margin:0}
 </style>
 </helmet>
-<div style="width:390px;height:844px;box-sizing:border-box;font-family:'DM Sans',sans-serif;color:#FFFFFF;background:#061236;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;gap:28px;text-align:center">
+<div style="width:390px;height:844px;box-sizing:border-box;font-family:'DM Sans',sans-serif;color:#FFFFFF;background:radial-gradient(circle at 50% 35%,#1d3a8a 0,#061236 62%);display:flex;flex-direction:column;align-items:center;padding:24px 16px;gap:22px;text-align:center">
   <div style="flex:1"></div>
-  <div style="width:200px;height:200px;border-radius:50%;border:5px solid #CCFF00;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transform:rotate(-8deg)">
-    <svg width="64" height="64" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#CCFF00" stroke-width="14"><rect x="22" y="48" width="156" height="104" rx="52"></rect><rect x="46" y="72" width="108" height="56" rx="28"></rect></g></svg>
-    <span class="disp" style="font-size:26px;color:#CCFF00">HEAT 002</span>
-  </div>
-  <h1 class="disp" style="font-size:44px">Stamped.</h1>
-  <div style="font-family:'DM Mono',monospace;font-size:28px">19:42</div>
+  <div style="width:220px;filter:drop-shadow(0 18px 28px rgba(0,0,0,.5))"><svg width="100%" viewBox="0 0 160 200" role="img" aria-label="Heat 002 medal, Central Park"><defs><linearGradient id="gs2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4C2"></stop><stop offset=".3" stop-color="#E3C065"></stop><stop offset=".55" stop-color="#A07A1C"></stop><stop offset=".78" stop-color="#F3DB8C"></stop><stop offset="1" stop-color="#B8902F"></stop></linearGradient><linearGradient id="ls2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"></stop><stop offset=".5" stop-color="#fff" stop-opacity="0"></stop></linearGradient><clipPath id="cs2"><circle cx="80" cy="120" r="66"></circle></clipPath><path id="as2" d="M 34 120 A 46 46 0 0 1 126 120" fill="none"></path></defs><path d="M58 4 L80 40 L102 4 L118 4 L92 52 L68 52 L42 4 Z" fill="#1d3a8a" stroke="url(#gs2)" stroke-width="2"></path><path d="M74 4 L80 16 L86 4 Z" fill="#FFFFFF" opacity=".25"></path><circle cx="80" cy="120" r="72" fill="url(#gs2)"></circle><circle cx="80" cy="120" r="62" fill="#1d3a8a" stroke="#9C7A22" stroke-width="1.6"></circle><circle cx="80" cy="120" r="52" fill="none" stroke="url(#gs2)" stroke-width="2"></circle><text font-family="DM Mono, monospace" font-size="9" letter-spacing="2" fill="#F3DB8C" text-anchor="middle"><textPath href="#as2" startOffset="50%">CENTRAL PARK</textPath></text><text x="80" y="118" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" letter-spacing="3" fill="#F3DB8C">HEAT</text><text x="80" y="150" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="900" font-stretch="125%" font-size="34" fill="url(#gs2)">002</text><g clip-path="url(#cs2)"><rect x="0" y="54" width="160" height="66" fill="url(#ls2)"></rect><ellipse cx="54" cy="86" rx="34" ry="10" fill="#fff" opacity=".22" transform="rotate(-30 54 86)"></ellipse></g></svg></div>
+  <h1 class="serif" style="font-size:44px">You got your medal.</h1>
+  <div style="font-family:'DM Mono',monospace;font-size:24px;color:#CCFF00">19:42</div>
   <div style="flex:1"></div>
-  <a href="Passport.dc.html" class="btn" style="background:#CCFF00;color:#061236">See my passport</a>
-  <a href="#" style="font-size:14px;color:#A3A69C">Time looks wrong?</a>
+  <a href="Passport.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:52px;width:100%;border-radius:5px;background:#CCFF00;color:#061236;font-weight:600;text-decoration:none">See my passport</a>
+  <a href="#" style="font-size:14px;color:#9aa6c7">Time looks wrong?</a>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
