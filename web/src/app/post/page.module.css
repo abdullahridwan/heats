@@ -1,0 +1,287 @@
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 24px;
+  color: var(--navy);
+  font-family: var(--f-sans);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  margin: 0 -16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--navy);
+  text-decoration: none;
+}
+
+.back:focus-visible,
+.btn:focus-visible,
+.btnGhost:focus-visible,
+.voltBtn:focus-visible,
+.drop:focus-within {
+  outline: 2px solid var(--volt);
+  outline-offset: 2px;
+}
+
+.mono {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.disp {
+  margin: 0;
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text2);
+}
+
+.grow {
+  flex: 1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 24px;
+  flex: 1;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Drop zone */
+.drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 240px;
+  padding: 24px;
+  border: 2px dashed #cfd3dc;
+  border-radius: 12px;
+  background: var(--bg2);
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.dropPreview {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.dropTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dropHint {
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 2px solid var(--line2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  font-family: var(--f-sans);
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--volt);
+  box-shadow: 0 0 0 4px var(--volt-soft);
+}
+
+.counter {
+  align-self: flex-end;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.checks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.checks li::before {
+  content: '\2713';
+  display: inline-block;
+  width: 20px;
+  color: #4b7a00;
+  font-weight: 700;
+}
+
+.error {
+  margin: 0;
+  font-size: 14px;
+  color: var(--danger);
+}
+
+.status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.btn,
+.btnGhost,
+.voltBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 5px;
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.btn {
+  border: 0;
+  background: var(--navy);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  border: 2px solid var(--line2);
+  background: #fff;
+  color: var(--navy);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 32px;
+}
+
+.reviewBox {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 32px;
+}
+
+/* Stamped: navy moment */
+.stampedScreen {
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  color: #fff;
+  text-align: center;
+  font-family: var(--f-sans);
+  background: radial-gradient(circle at 50% 35%, #1d3a8a 0, #061236 62%);
+}
+
+.stampShadow {
+  width: 210px;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.5));
+}
+
+.stampedTitle {
+  margin: 0;
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.stampedTime {
+  font-family: var(--f-mono);
+  font-size: 24px;
+  color: var(--volt);
+}
+
+.stampedPlace {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.voltBtn {
+  border: 0;
+  background: var(--volt);
+  color: var(--navy);
+  font-weight: 600;
+}

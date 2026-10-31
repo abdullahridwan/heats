@@ -2,6 +2,8 @@ export type Heat = {
   id: string
   number: number
   name: string
+  park: string
+  scene: string
   opens_at: string
   closes_at: string
   location_terms: string[]
@@ -9,13 +11,32 @@ export type Heat = {
   max_km: number
 }
 
-export type UserRow = {
+export type HeatState = 'live' | 'upcoming' | 'past'
+
+export type Runner = {
   id: string
   alias: string
   email: string
-  avatar_url: string | null
   created_at: string
 }
+
+export type ResultRow = {
+  heat_id: string
+  alias: string
+  time_s: number
+  note: string | null
+  place: number
+}
+
+// A stamped heat on a stamp case: the heat plus this runner's time and place in it.
+export type StampEntry = {
+  heat: Heat
+  time_s: number
+  place: number
+}
+
+// Kept so older imports still resolve. Prefer StampEntry.
+export type Stamp = StampEntry
 
 export type SubmissionStatus = 'auto_verified' | 'needs_review' | 'verified' | 'rejected'
 
@@ -36,23 +57,4 @@ export type Submission = {
   reviewed_by: string | null
   reviewed_at: string | null
   created_at: string
-}
-
-export type ResultRow = {
-  heat_id: string
-  alias: string
-  avatar_url: string | null
-  time_s: number
-  note: string | null
-  place: number
-}
-
-// A stamped heat on a passport: the result row joined to its heat.
-export type Stamp = {
-  heat: Heat
-  alias: string
-  time_s: number
-  note: string | null
-  place: number
-  finishers: number
 }

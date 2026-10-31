@@ -67,7 +67,7 @@ export function decide(o: {
   if (!o.ocr.ok || o.ocr.mismatch) return { status: 'needs_review', review_reason: 'ocr_mismatch' }
   if (o.km === null || o.km < o.minKm || o.km > o.maxKm) return { status: 'needs_review', review_reason: 'distance' }
   // Vision is the only source of not_strava / location. If it didn't answer, we never auto-verify
-  // and we never blame the runner — vision_unavailable.
+  // and we never blame the runner (vision_unavailable).
   if (!o.vision) return { status: 'needs_review', review_reason: 'vision_unavailable' }
   if (!o.vision.is_strava_card) return { status: 'needs_review', review_reason: 'not_strava' }
   if (!o.vision.location_ok) return { status: 'needs_review', review_reason: 'location' }
@@ -75,7 +75,7 @@ export function decide(o: {
 }
 
 // Returns true when this image is a duplicate of an existing submission for the heat.
-// Exact: same sha256. Near: hamming ≤ 6 AND the same parsed time and distance — because two
+// Exact: same sha256. Near: hamming ≤ 6 AND the same parsed time and distance, because two
 // different runners' cards over the same park look alike at the pixel level.
 export async function isDuplicate(heatId: string, sha: string, hash: string, timeS: number | null, km: number | null, ignoreId?: string): Promise<boolean> {
   let q = db().from('submissions').select('id, sha256, dhash, time_s, distance_km').eq('heat_id', heatId)
@@ -98,7 +98,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
   const sha = sha256(input.bytes)
   const hash = await dhash(input.bytes)
 
-  // OCR and vision are independent — run them together.
+  // OCR and vision are independent, so run them together.
   const [ocr, vision] = await Promise.all([
     readStatsBuf(input.bytes),
     (async (): Promise<VisionResult | null> => {

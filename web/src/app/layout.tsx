@@ -1,77 +1,57 @@
 import type { Metadata, Viewport } from 'next'
-import Link from 'next/link'
-import { Archivo, Geist, Geist_Mono } from 'next/font/google'
-import { ClerkProvider, Show, SignInButton, UserButton } from '@clerk/nextjs'
-import { auth } from '@clerk/nextjs/server'
-import { InkFilter, Mark } from '@/components/art'
-import { RevealObserver } from '@/components/reveal'
-import { getMe } from '@/lib/data'
+import { Archivo, DM_Mono, DM_Sans, Instrument_Serif } from 'next/font/google'
+import { unstable_rethrow } from 'next/navigation'
+import { connection } from 'next/server'
+import { Footer } from '@/components/site/footer'
+import { LaneFrame } from '@/components/site/lane-frame'
+import { Nav, stampCaseHref } from '@/components/site/nav'
+import { TabBar } from '@/components/site/tab-bar'
+import { getCalendar } from '@/lib/data'
+import { getRunner } from '@/lib/session'
+import type { ReactNode } from 'react'
 import './globals.css'
 
-const wm = Archivo({ subsets: ['latin'], style: ['italic'], axes: ['wdth'], variable: '--f-wm' })
-const ui = Geist({ subsets: ['latin'], variable: '--f-ui' })
-const mono = Geist_Mono({ subsets: ['latin'], variable: '--f-mono' })
+const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'], variable: '--f-serif' })
+const sans = DM_Sans({ subsets: ['latin'], variable: '--f-sans' })
+const mono = DM_Mono({ subsets: ['latin'], weight: '500', variable: '--f-mono' })
+// Variable weight so the wdth axis can load too; the stamps draw at 900 with font-stretch 125%.
+const wm = Archivo({ subsets: ['latin'], axes: ['wdth'], variable: '--f-wm' })
 
 const site = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: { default: 'Heats · Chilly Central Park 5K', template: '%s · Heats' },
-  description: 'Free community 5Ks across New York. Run it, post your Strava screenshot, get stamped.',
+  title: { default: 'Heats · Run New York, one stamp at a time', template: '%s · Heats' },
+  description: 'Free 5Ks every weekend across New York. Run it, post your Strava screenshot, get that park\'s stamp.',
   openGraph: { siteName: 'Heats', type: 'website' },
 }
 
-export const viewport: Viewport = { themeColor: '#FFFFFF' }
+export const viewport: Viewport = { themeColor: '#CCFF00' }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { userId } = await auth()
-  const me = await getMe(userId)
+// A missing env var or unreachable DB must never take down the whole shell.
+async function safely<T>(load: () => Promise<T>): Promise<T | null> {
+  try {
+    return await load()
+  } catch (e) {
+    unstable_rethrow(e)
+    return null
+  }
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Every page shows who is signed in, so render per request.
+  await connection()
+  const [runner, calendar] = await Promise.all([safely(getRunner), safely(getCalendar)])
+  const nextHeat = calendar ? (calendar.live ?? calendar.upcoming[0] ?? null) : null
   return (
-    <ClerkProvider
-      appearance={{ variables: { colorPrimary: '#0B0C0A', colorForeground: '#0B0C0A', borderRadius: '12px', fontFamily: 'var(--f-ui), sans-serif' } }}
-      localization={{
-        signIn: { start: { title: 'Sign in to Heats', subtitle: 'Welcome back. Your run passport is waiting.' } },
-        signUp: { start: { title: 'Claim your stamp', subtitle: 'Create your Heats passport. No password needed.' } },
-      }}
-    >
-      <html lang="en" className={`js ${wm.variable} ${ui.variable} ${mono.variable}`} suppressHydrationWarning>
-        <body>
-          {/* Entrance animations start hidden (html.js) and are revealed by RevealObserver. Without
-              JavaScript nothing would ever reveal them, so un-hide everything. */}
-          <noscript><style>{'[data-reveal]:not([data-in]), [data-reveal]:not([data-in]) * { opacity: 1 !important; transform: none !important; }'}</style></noscript>
-          <RevealObserver />
-          <InkFilter />
-          <div className="wrap">
-            <nav className="top">
-              <Link href="/" className="brand" aria-label="Heats home">
-                <Mark />
-                <span className="wm">Heats</span>
-              </Link>
-              <div className="navr">
-                <Link className="navlink hide-sm" href="/about">How it works</Link>
-                <Link className="navlink hide-sm" href="/results">Results</Link>
-                <Link className="btn volt sm" href="/post">Submit my run</Link>
-                <Show when="signed-out">
-                  <SignInButton mode="modal"><button className="navlink" type="button">Sign in</button></SignInButton>
-                </Show>
-                <Show when="signed-in">
-                  {me
-                    ? <Link className="navlink" href={`/p/${me.alias}`}>Passport</Link>
-                    : <Link className="navlink" href="/onboarding">Get your passport</Link>}
-                  <UserButton />
-                </Show>
-              </div>
-            </nav>
-          </div>
+    <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable} ${wm.variable}`}>
+      <body>
+        <LaneFrame footer={<Footer nextHeat={nextHeat} runner={runner} />}>
+          <Nav runner={runner} />
           {children}
-          <div className="wrap">
-            <footer className="foot">
-              <span className="wm" style={{ fontSize: 22, color: 'var(--ink)' }}>Heats</span>
-              <span>Free community 5Ks · New York · Every pace</span>
-            </footer>
-          </div>
-        </body>
-      </html>
-    </ClerkProvider>
+        </LaneFrame>
+        <TabBar stampHref={stampCaseHref(runner)} />
+      </body>
+    </html>
   )
 }

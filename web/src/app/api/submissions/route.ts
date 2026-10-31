@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getMe } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { getHeat } from '@/lib/data'
 import { runPipeline } from '@/lib/pipeline'
+import { getRunner } from '@/lib/session'
 import { heatNo } from '@/lib/time'
 
 export const runtime = 'nodejs'
@@ -18,17 +17,24 @@ const Body = z.object({
 const MAX_ATTEMPTS = 5
 
 export async function POST(req: Request) {
-  const me = await getMe()
-  if (!me) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const runner = await getRunner()
+  if (!runner) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   const parsed = Body.safeParse(await req.json().catch(() => null))
   if (!parsed.success) return NextResponse.json({ error: 'bad_request' }, { status: 400 })
   const { path, note } = parsed.data
 
   // The runner may only submit their own upload path.
-  if (!path.startsWith(`${me.id}/`) || path.includes('..')) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  if (!path.startsWith(`${runner.id}/`) || path.includes('..')) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
 
-  const heat = await getHeat(parsed.data.heat ?? 1)
+  // Explicit heat number, or the live heat when omitted.
+  const nowIso = new Date().toISOString()
+  const heatQuery = db().from('heats')
+    .select('id, number, opens_at, closes_at, location_terms, min_km, max_km')
+  const { data: heat } = parsed.data.heat !== undefined
+    ? await heatQuery.eq('number', parsed.data.heat).maybeSingle()
+    : await heatQuery.lte('opens_at', nowIso).gte('closes_at', nowIso)
+      .order('opens_at', { ascending: false }).limit(1).maybeSingle()
   if (!heat) return NextResponse.json({ error: 'no_heat' }, { status: 404 })
 
   // Window check against the server clock.
@@ -36,10 +42,6 @@ export async function POST(req: Request) {
   if (now < new Date(heat.opens_at).getTime() || now > new Date(heat.closes_at).getTime()) {
     return NextResponse.json({ error: 'window_closed' }, { status: 403 })
   }
-
-  // The user row must exist (a runner has picked an alias).
-  const { data: user } = await db().from('users').select('id').eq('id', me.id).maybeSingle()
-  if (!user) return NextResponse.json({ error: 'no_profile' }, { status: 409 })
 
   // Fetch the image from storage with the service key.
   const { data: blob, error: dlErr } = await db().storage.from('proofs').download(path)
@@ -51,7 +53,7 @@ export async function POST(req: Request) {
   // rows can be resubmitted up to 5 attempts.
   const { data: existing } = await db()
     .from('submissions').select('id, status, attempts')
-    .eq('user_id', me.id).eq('heat_id', heat.id).maybeSingle()
+    .eq('user_id', runner.id).eq('heat_id', heat.id).maybeSingle()
 
   if (existing?.status === 'verified' || existing?.status === 'auto_verified') {
     return NextResponse.json({ error: 'already_stamped' }, { status: 409 })
@@ -78,7 +80,7 @@ export async function POST(req: Request) {
   }
 
   const fields = {
-    user_id: me.id,
+    user_id: runner.id,
     heat_id: heat.id,
     image_path: path,
     sha256: result.sha256,
@@ -108,7 +110,7 @@ export async function POST(req: Request) {
   // Place is only meaningful once the row is stamped.
   let place: number | null = null
   if (result.status === 'auto_verified') {
-    const { data } = await db().from('results').select('place').eq('heat_id', heat.id).eq('alias', (await aliasOf(me.id))).maybeSingle()
+    const { data } = await db().from('results').select('place').eq('heat_id', heat.id).eq('alias', runner.alias).maybeSingle()
     place = (data?.place as number) ?? null
   }
 
@@ -120,9 +122,4 @@ export async function POST(req: Request) {
     place,
     heat: heatNo(heat.number),
   })
-}
-
-async function aliasOf(userId: string): Promise<string> {
-  const { data } = await db().from('users').select('alias').eq('id', userId).maybeSingle()
-  return (data?.alias as string) ?? ''
 }

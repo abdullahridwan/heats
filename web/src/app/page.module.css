@@ -1,0 +1,352 @@
+.page {
+  background: #fff;
+  color: var(--navy);
+  font-family: var(--f-sans), sans-serif;
+}
+
+.page a {
+  color: var(--navy);
+}
+
+.page :focus-visible {
+  outline: 3px solid var(--volt);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Hero */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 96px 24px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+
+.h1 {
+  font-family: var(--f-serif), serif;
+  font-weight: 400;
+  font-size: 76px;
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+  margin: 0;
+  color: var(--navy);
+}
+
+.h1 em {
+  font-style: italic;
+}
+
+.heroSub {
+  font-size: 18px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 5px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.cta:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.ctaSerif {
+  font-family: var(--f-serif), serif;
+  font-style: italic;
+  font-size: 19px;
+  letter-spacing: 0;
+}
+
+/* Fanned 2026 stamp set */
+.setSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 24px 0;
+}
+
+.fan {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0 40px;
+}
+
+.fanItem {
+  flex: none;
+  width: 150px;
+  margin: 0 -18px;
+  transform: translateY(var(--dy)) rotate(var(--rot));
+  filter: drop-shadow(0 16px 24px rgba(6, 18, 54, 0.18));
+}
+
+.caption {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+}
+
+/* How it works */
+.how {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 112px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.howHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--volt);
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.h2 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--navy);
+}
+
+.sub {
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.bentoTop {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 56px 32px 0;
+  overflow: hidden;
+  text-align: center;
+  min-width: 0;
+}
+
+.panelWide {
+  padding-bottom: 48px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.num {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--volt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.h3 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--navy);
+}
+
+.panelSub {
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Phone frame rising from the bottom edge of the panel */
+.phone {
+  position: relative;
+  width: 290px;
+  max-width: 100%;
+  aspect-ratio: 290 / 360;
+  box-sizing: border-box;
+  margin: 32px auto 0;
+  border: 9px solid var(--navy);
+  border-bottom: 0;
+  border-radius: 38px 38px 0 0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(6, 18, 54, 0.14);
+}
+
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  width: 31%;
+  max-width: 90px;
+  aspect-ratio: 90 / 20;
+  transform: translateX(-50%);
+  background: var(--navy);
+  border-radius: 0 0 12px 12px;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+}
+
+/* Stamp case */
+.caseCard {
+  max-width: 720px;
+  margin: 36px auto 0;
+  padding: 28px;
+  box-sizing: border-box;
+  border: 1px solid var(--line2);
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(6, 18, 54, 0.04), 0 8px 24px rgba(6, 18, 54, 0.06);
+}
+
+.caseHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.caseTitle {
+  font-family: var(--f-serif), serif;
+  font-size: 30px;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+
+.caseMeta {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+}
+
+.caseScroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.caseStage {
+  position: relative;
+  width: 100%;
+  min-width: 560px;
+  aspect-ratio: 660 / 150;
+}
+
+/* Mobile: fan becomes a horizontal scroll row, panels stack */
+@media (max-width: 760px) {
+  .hero {
+    padding: 56px 16px 40px;
+  }
+
+  .h1 {
+    font-size: 48px;
+  }
+
+  .heroSub {
+    font-size: 16px;
+  }
+
+  .setSection {
+    padding: 8px 0 0;
+  }
+
+  .fan {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 16px 16px 24px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fanItem {
+    margin: 0 6px;
+    transform: none;
+    scroll-snap-align: center;
+  }
+
+  .how {
+    padding: 80px 16px 0;
+  }
+
+  .h2 {
+    font-size: 30px;
+  }
+
+  .bentoTop {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    padding: 44px 20px 0;
+  }
+
+  .panelWide {
+    padding-bottom: 32px;
+  }
+
+  .h3 {
+    font-size: 24px;
+  }
+
+  .caseCard {
+    padding: 20px;
+  }
+}

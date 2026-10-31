@@ -1,62 +1,123 @@
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
-import { Stamp } from '@/components/art'
-import { getHeats, serverNow } from '@/lib/data'
+import { Stamp } from '@/components/stamp'
+import { CasePlayer, JoinPlayer, SubmitPlayer } from '@/components/how/players'
+import { getHeats } from '@/lib/data'
+import { heatNo } from '@/lib/time'
+import styles from './page.module.css'
 
-export const revalidate = 30
+const FALLBACK_SCENES = ['central_fall', 'central_dusk', 'prospect', 'hudson', 'flushing', 'bbp']
 
-const FALLBACK = { number: 1, name: 'Chilly Central Park 5K', opens_at: '2026-10-10T04:00:00Z', closes_at: '2026-10-11T03:59:59Z', location_terms: ['Central Park'] }
+async function seasonStamps(): Promise<{ scene: string; number: number }[]> {
+  try {
+    const heats = await getHeats()
+    if (heats.length > 0) return heats.map(h => ({ scene: h.scene, number: h.number }))
+  } catch {
+    // No database yet: show the placeholder set.
+  }
+  return FALLBACK_SCENES.map((scene, i) => ({ scene, number: i + 1 }))
+}
 
 export default async function Home() {
-  const heat = (await getHeats())[0] ?? FALLBACK
-  const now = await serverNow()
-  const open = now >= new Date(heat.opens_at).getTime() && now <= new Date(heat.closes_at).getTime()
-  const over = now > new Date(heat.closes_at).getTime()
-  const luma = process.env.NEXT_PUBLIC_LUMA_URL
-  const lumaEventId = process.env.NEXT_PUBLIC_LUMA_EVENT_ID
-  const showEmbed = Boolean(lumaEventId) && !over
+  const stamps = await seasonStamps()
+  const last = stamps.length - 1
+  const mid = last / 2
 
   return (
-    <main className="wrap hm">
-      <header className="hm-hero">
-        <p className="hm-status">
-          {open && <i aria-hidden="true" />}
-          {heat.name} {over ? 'is finished' : open ? 'is live' : 'is on Saturday'}
+    <div className={styles.page}>
+      <section className={styles.hero}>
+        <h1 className={styles.h1}>
+          Run New York.
+          <br />
+          <em>One stamp at a time.</em>
+        </h1>
+        <p className={styles.heroSub}>
+          A free 5K every weekend, somewhere new in the city.
+          <br />
+          Run it any time Saturday or Sunday.
+          <br />
+          Post your Strava screenshot, and that park&apos;s stamp is yours.
         </p>
-        <div className="hm-stage">
-          <h1 className="hm-title wm">
-            {over ? <>The race<br />is <mark>done.</mark></> : <>Free 5K in<br />Central Park.<br /><mark>{open ? 'Today.' : 'Saturday.'}</mark></>}
-          </h1>
-          <Stamp heat={heat} salt="hero" className="hm-stamp" />
-        </div>
-        <p className="hm-sub">
-          {over
-            ? 'Thanks to everyone who ran it. Your stamp is in your run passport.'
-            : <>Start at Engineers&apos; Gate any time {open ? 'today' : 'on race day'}, at any pace. Post your Strava screenshot to get your stamp.</>}
-        </p>
-        <div className="hm-cta">
-          {over ? <Link className="btn volt lg" href="/results">See the results</Link>
-            : open ? <Link className="btn volt lg" href="/post">Ran it? Submit your run</Link>
-            : <a className="btn volt lg" href="#rsvp">RSVP free</a>}
-          <Link className="hm-link" href="/about">How it works</Link>
-        </div>
-      </header>
+        <Link href="/calendar" className={styles.cta}>
+          Join a heat, <span className={styles.ctaSerif}>it&apos;s free</span>
+        </Link>
+      </section>
 
-      {showEmbed && (
-        <section className="hm-rsvp" id="rsvp" aria-labelledby="rsvp-t">
-          <h2 id="rsvp-t">{open ? "Haven't signed up? There's still time." : 'Save your spot.'}</h2>
-          <div className="hm-embed">
-            <iframe
-              src={`https://luma.com/embed/event/${lumaEventId}/simple`}
-              title={`RSVP for ${heat.name} on Luma`}
-              width="760"
-              height="520"
-              allow="fullscreen"
-              style={{ border: 0 }}
-            />
+      <section aria-label="The 2026 stamp set" className={styles.setSection}>
+        <div className={styles.fan}>
+          {stamps.map((s, i) => {
+            const t = last === 0 ? 0 : (i - mid) / mid
+            const style = {
+              '--rot': `${(t * 14).toFixed(2)}deg`,
+              '--dy': `${(Math.abs(t) * 32).toFixed(1)}px`,
+              zIndex: stamps.length - Math.round(Math.abs(i - mid)),
+            } as CSSProperties
+            return (
+              <div key={`${s.number}-${s.scene}`} className={styles.fanItem} style={style}>
+                <Stamp scene={s.scene} heatNo={heatNo(s.number)} width={150} />
+              </div>
+            )
+          })}
+        </div>
+        <p className={styles.caption}>The 2026 set. One stamp per heat, one heat every weekend.</p>
+      </section>
+
+      <section id="how" className={styles.how}>
+        <div className={styles.howHead}>
+          <span className={styles.pill}>How it works</span>
+          <h2 className={styles.h2}>Every weekend, a new corner of the city</h2>
+          <p className={styles.sub}>Three steps. Each heat happens somewhere different, and each one has its own stamp.</p>
+        </div>
+
+        <div className={styles.bentoTop}>
+          <article className={styles.panel}>
+            <div className={styles.panelHead}>
+              <span className={styles.num}>1</span>
+              <h3 className={styles.h3}>Sign up for a heat</h3>
+            </div>
+            <p className={styles.panelSub}>A new park every weekend. Join the ones you want.</p>
+            <div className={styles.phone}>
+              <div className={styles.notch} aria-hidden="true" />
+              <div className={styles.screen}>
+                <JoinPlayer />
+              </div>
+            </div>
+          </article>
+
+          <article className={styles.panel}>
+            <div className={styles.panelHead}>
+              <span className={styles.num}>2</span>
+              <h3 className={styles.h3}>Submit your Strava</h3>
+            </div>
+            <p className={styles.panelSub}>Run 5K any time Saturday or Sunday, then post the screenshot.</p>
+            <div className={styles.phone}>
+              <div className={styles.notch} aria-hidden="true" />
+              <div className={styles.screen}>
+                <SubmitPlayer />
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <article className={`${styles.panel} ${styles.panelWide}`}>
+          <div className={styles.panelHead}>
+            <span className={styles.num}>3</span>
+            <h3 className={styles.h3}>Get your stamp</h3>
           </div>
-          {luma && <a className="hm-link" href={luma} target="_blank" rel="noopener noreferrer">Embed not loading? Open on Luma</a>}
-        </section>
-      )}
-    </main>
+          <p className={styles.panelSub}>Postmarked with the date and the park. It lands in your stamp case for good.</p>
+          <div className={styles.caseCard}>
+            <div className={styles.caseHead}>
+              <span className={styles.caseTitle}>Stamp case</span>
+              <span className={styles.caseMeta}>@the_subway_surfer / 4 of 6</span>
+            </div>
+            <div className={styles.caseScroll}>
+              <div className={styles.caseStage}>
+                <CasePlayer />
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
   )
 }

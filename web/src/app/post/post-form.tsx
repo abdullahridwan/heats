@@ -1,23 +1,27 @@
 'use client'
 import { useMemo, useRef, useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
-import { formatTime, ordinal } from '@/lib/time'
+import { Stamp } from '@/components/stamp'
+import type { Heat, SubmissionStatus } from '@/lib/types'
+import { day, formatTime, heatNo, mon, ordinal } from '@/lib/time'
+import styles from './page.module.css'
 
 // idle → uploading → processing → stamped | review | error. One pass, no polling: the POST
-// returns the decision synchronously (expect ~4–8 s).
+// returns the decision synchronously (expect about 4 to 8 s).
 
 type Phase = 'idle' | 'uploading' | 'processing' | 'stamped' | 'review' | 'error'
 
 type Props = {
-  heatNumber: number
+  heat: Heat
   alias: string
-  minKm: number
-  maxKm: number
   attempts: number
   initialNote: string
-  previousStatus: string | null
-  previousReason: string | null
+  initialStatus: SubmissionStatus | null
+  initialReason: string | null
+  initialTime: number | null
+  initialStampedAt: string | null
 }
 
 type ApiResult = {
@@ -30,14 +34,16 @@ type ApiResult = {
 }
 
 const REASONS: Record<string, string> = {
-  not_strava: 'That doesn’t look like a running-app card. Screenshot the activity, not just the map.',
-  ocr_mismatch: 'We couldn’t read the numbers cleanly. Make sure the distance, time and pace are visible and not cut off.',
-  distance: 'The distance looks outside 5K. It should be roughly 4.9–5.6 km.',
-  location: 'We couldn’t match the map to Central Park. Make sure the route is in the park.',
+  not_strava: "That doesn't look like a running-app card. Screenshot the activity, not just the map.",
+  ocr_mismatch: 'We could not read the numbers cleanly. Make sure the distance, time and pace are visible and not cut off.',
+  distance: 'The distance looks outside 5K. It should be roughly 4.9 to 5.6 km.',
+  location: 'We could not match the map to the park. Make sure the route is inside the park.',
   duplicate: 'This looks like an image already posted for this heat.',
   vision_unavailable: 'Our check is temporarily unavailable, so a human will take a look.',
   runner_flagged: 'You flagged this one for review.',
 }
+
+const STAMPED_STATUSES: SubmissionStatus[] = ['auto_verified', 'verified']
 
 async function compress(file: File): Promise<Blob> {
   const bmp = await createImageBitmap(file)
@@ -49,7 +55,16 @@ async function compress(file: File): Promise<Blob> {
   return new Promise((res, rej) => canvas.toBlob(b => (b ? res(b) : rej(new Error('encode'))), 'image/webp', 0.82))
 }
 
-export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNote, previousStatus }: Props) {
+export function PostForm({
+  heat,
+  alias,
+  attempts,
+  initialNote,
+  initialStatus,
+  initialReason,
+  initialTime,
+  initialStampedAt,
+}: Props) {
   // Only used for the signed upload: the one-time token from /api/submissions/upload-url is the
   // authorisation, so the client needs just the public URL and publishable key. No Clerk token.
   const supabase = useMemo(() => createClient(
@@ -57,14 +72,25 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     { auth: { persistSession: false, autoRefreshToken: false } },
   ), [])
-  const [phase, setPhase] = useState<Phase>('idle')
+
+  const initialPhase: Phase =
+    initialStatus && STAMPED_STATUSES.includes(initialStatus) ? 'stamped'
+      : initialStatus === 'needs_review' ? 'review'
+        : 'idle'
+
+  const [phase, setPhase] = useState<Phase>(initialPhase)
   const [message, setMessage] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
   const [note, setNote] = useState(initialNote)
-  const [result, setResult] = useState<ApiResult | null>(null)
+  const [result, setResult] = useState<ApiResult | null>({
+    status: initialPhase === 'stamped' ? 'auto_verified' : initialPhase === 'review' ? 'needs_review' : undefined,
+    review_reason: initialReason,
+    time_s: initialTime,
+  })
+  const [stampedAt, setStampedAt] = useState<string>(initialStampedAt ?? new Date().toISOString())
   const fileRef = useRef<File | null>(null)
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const file = fileRef.current
     if (!file) { setPhase('error'); setMessage('Add a screenshot of your run.'); return }
@@ -85,7 +111,7 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
       const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path, note, heat: heatNumber }),
+        body: JSON.stringify({ path, note, heat: heat.number }),
       })
       const data: ApiResult = await res.json()
 
@@ -93,11 +119,12 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
       if (!res.ok) {
         setPhase('error')
         setMessage(data.error === 'window_closed' ? 'The submission window is closed.'
-          : data.error === 'too_many_attempts' ? 'You’ve hit the resubmit limit. Email us and we’ll sort it.'
-          : data.error === 'already_stamped' ? 'You’re already stamped for this heat.'
-          : 'Something went wrong. Try again.')
+          : data.error === 'too_many_attempts' ? "You've hit the resubmit limit. Email us and we'll sort it."
+            : data.error === 'already_stamped' ? "You're already stamped for this heat."
+              : 'Something went wrong. Try again.')
         return
       }
+      if (data.status === 'auto_verified') setStampedAt(new Date().toISOString())
       setPhase(data.status === 'auto_verified' ? 'stamped' : 'review')
     } catch {
       setPhase('error')
@@ -105,7 +132,7 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
     }
   }
 
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+  function onFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 15 * 1024 * 1024) { setPhase('error'); setMessage('That image is over 15 MB. Try a regular screenshot.'); return }
@@ -114,62 +141,118 @@ export function PostForm({ heatNumber, alias, minKm, maxKm, attempts, initialNot
     setPhase('idle'); setMessage('')
   }
 
+  function tryAnother() {
+    fileRef.current = null
+    setPreview(null)
+    setResult(null)
+    setPhase('idle')
+  }
+
   if (phase === 'stamped') {
+    const postmark = `${mon(stampedAt)} ${day(stampedAt)}`
     return (
-      <div className="state">
-        <b>Stamped. {result?.time_s ? formatTime(result.time_s) : ''}{result?.place ? ` · ${ordinal(result.place)}` : ''}</b>
-        <span className="muted" style={{ fontSize: 14 }}>Heat {heatNumber} is in your passport.</span>
-        <div className="row-actions">
-          <a className="btn theme sm" href={`/api/story/result?alias=${encodeURIComponent(alias)}&heat=${heatNumber}&download=1`}>Save your stamp</a>
-          <Link className="btn ghost sm" href="/results">See the heat sheet</Link>
+      <main className={styles.stampedScreen}>
+        <div className={styles.grow} />
+        <div className={styles.stampShadow}>
+          <Stamp scene={heat.scene} heatNo={heatNo(heat.number)} postmark={postmark} width={210} tilt={-4} />
         </div>
-      </div>
+        <h1 className={styles.stampedTitle}>Stamped.</h1>
+        {result?.time_s ? <div className={styles.stampedTime}>{formatTime(result.time_s)}</div> : null}
+        {result?.place ? <p className={styles.stampedPlace}>{ordinal(result.place)} place</p> : null}
+        <div className={styles.grow} />
+        <Link href={`/p/${alias}`} className={styles.voltBtn}>
+          See my stamp case
+        </Link>
+      </main>
     )
   }
 
   if (phase === 'review') {
     return (
-      <div className="state" style={{ background: 'var(--e-s)' }}>
-        <b>In review.</b>
-        <span className="muted" style={{ fontSize: 14 }}>{REASONS[result?.review_reason ?? ''] ?? 'A human will check this one.'}</span>
-        <div className="row-actions">
-          <button className="btn ghost sm" type="button" onClick={() => { setPhase('idle'); setResult(null) }}>Try another screenshot</button>
+      <main className={styles.page}>
+        <div className={styles.reviewBox}>
+          <h1 className={styles.disp}>In review.</h1>
+          <p className={styles.lead}>{REASONS[result?.review_reason ?? ''] ?? 'A human will check this one.'}</p>
+          <button type="button" className={styles.btnGhost} onClick={tryAnother}>
+            Try another screenshot
+          </button>
         </div>
-      </div>
+      </main>
     )
   }
 
   const busy = phase === 'uploading' || phase === 'processing'
+  const park = heat.park
 
   return (
-    <form className="form" onSubmit={submit}>
-      <label className="drop">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {preview ? <img className="prev" src={preview} alt="Your screenshot" /> : <span className="prev" aria-hidden="true" />}
-        <span style={{ display: 'grid', gap: 4 }}>
-          <b style={{ fontSize: 15 }}>{preview ? 'Screenshot added' : 'Add your screenshot'}</b>
-          <span className="muted" style={{ fontSize: 14 }}>{preview ? 'Tap to replace it.' : 'Any running app. Show the map, distance and time.'}</span>
-        </span>
-        <input type="file" accept="image/*" onChange={onFile} aria-label="Screenshot of your run" disabled={busy} />
-      </label>
+    <main className={styles.page}>
+      <nav className={styles.top} aria-label="Back">
+        <Link href="/calendar" className={styles.back} aria-label="Back to calendar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </Link>
+      </nav>
 
-      <div className="field">
-        <label htmlFor="note">Note <span style={{ color: 'var(--text3)' }}>· shows next to your time</span></label>
-        <input className="input" id="note" name="note" maxLength={100} placeholder="that hill was evil" value={note} onChange={e => setNote(e.target.value)} disabled={busy} />
-        <span className="counter">{note.length} / 100</span>
-      </div>
+      <form className={styles.form} onSubmit={submit}>
+        <div className={styles.head}>
+          <h1 className={styles.disp}>Post your run</h1>
+          <p className={styles.mono}>{park} / Heat {heatNo(heat.number)}</p>
+        </div>
 
-      <div className="checks">
-        <div><span className="c">✓</span>Dated today, in Central Park</div>
-        <div><span className="c">✓</span>Distance {minKm.toFixed(1)}–{maxKm.toFixed(1)} km</div>
-        <div><span className="c">✓</span>Time, distance and pace line up</div>
-      </div>
+        <label className={styles.drop}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {preview ? <img className={styles.dropPreview} src={preview} alt="Your screenshot" /> : null}
+          <span className={styles.dropTitle}>{preview ? 'Screenshot added' : 'Add your Strava screenshot'}</span>
+          <span className={styles.dropHint}>{preview ? 'Tap to replace it.' : 'Any running app. Show the map, distance and time.'}</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onFile}
+            aria-label="Screenshot of your run"
+            disabled={busy}
+            className={styles.fileInput}
+          />
+        </label>
 
-      {attempts > 0 && <p className="eyebrow">Attempt {attempts + 1} of 5. {previousStatus === 'rejected' ? 'Your last one was rejected.' : previousStatus === 'needs_review' ? 'Your last one is still in review.' : ''}</p>}
-      {phase === 'error' && <p className="error" role="alert">{message}</p>}
-      {busy && <p className="eyebrow" role="status">{phase === 'uploading' ? 'Uploading…' : 'Reading your card… this takes a few seconds.'}</p>}
+        <div className={styles.field}>
+          <label htmlFor="note" className={styles.mono}>Note, shows next to your time</label>
+          <input
+            id="note"
+            name="note"
+            className={styles.input}
+            maxLength={100}
+            placeholder="that hill was evil"
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            disabled={busy}
+          />
+          <span className={styles.counter}>{note.length} / 100</span>
+        </div>
 
-      <button className="btn theme block" type="submit" disabled={busy || !preview}>{busy ? 'Working…' : 'Submit my run'}</button>
-    </form>
+        <ul className={styles.checks}>
+          <li>Dated today, in {park}</li>
+          <li>Distance {heat.min_km.toFixed(1)} to {heat.max_km.toFixed(1)} km</li>
+          <li>Time, distance and pace line up</li>
+        </ul>
+
+        {attempts > 0 && (
+          <p className={styles.mono}>
+            Attempt {attempts + 1} of 5.{' '}
+            {initialStatus === 'rejected' ? 'Your last one was rejected.' : initialStatus === 'needs_review' ? 'Your last one is still in review.' : ''}
+          </p>
+        )}
+        {phase === 'error' && <p className={styles.error} role="alert">{message}</p>}
+        {busy && (
+          <p className={styles.status} role="status">
+            {phase === 'uploading' ? 'Uploading...' : 'Reading your screenshot...'}
+          </p>
+        )}
+
+        <button type="submit" className={styles.btn} disabled={busy || !preview}>
+          {busy ? 'Working...' : 'Stamp it'}
+        </button>
+      </form>
+    </main>
   )
 }

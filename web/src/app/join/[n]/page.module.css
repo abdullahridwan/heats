@@ -1,0 +1,277 @@
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 24px;
+  color: var(--navy);
+  font-family: var(--f-sans);
+  background: #fff;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 -16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.back:focus-visible,
+.textBtn:focus-visible,
+.textBtnCenter:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 2px;
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.disp {
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-size: 44px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  padding-top: 32px;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text2);
+}
+
+.strong {
+  color: var(--navy);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.grow {
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 2px solid var(--line2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  font-family: var(--f-sans);
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.handleBox:focus-within {
+  outline: none;
+  border-color: var(--volt);
+  box-shadow: 0 0 0 4px var(--volt-soft);
+}
+
+.handleBox {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 60px;
+  padding: 0 14px;
+  border: 2px solid var(--line2);
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.handleOk {
+  border-color: var(--volt);
+  box-shadow: 0 0 0 4px var(--volt-soft);
+}
+
+.handleBad {
+  border-color: var(--danger);
+}
+
+.at {
+  font-family: var(--f-serif);
+  font-size: 26px;
+  color: var(--text2);
+}
+
+.handleInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  font-family: var(--f-sans);
+  font-size: 22px;
+  font-weight: 600;
+  outline: none;
+}
+
+.msg,
+.msgOk,
+.msgBad {
+  min-height: 20px;
+  font-size: 14px;
+}
+
+.msg {
+  color: var(--text3);
+}
+
+.msgOk {
+  color: #4b7a00;
+}
+
+.msgBad {
+  color: var(--danger);
+}
+
+.error {
+  margin: 0;
+  font-size: 14px;
+  color: var(--danger);
+}
+
+.status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.textBtn,
+.textBtnCenter {
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--text2);
+  font-family: var(--f-sans);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.textBtn:disabled {
+  color: var(--text3);
+  cursor: default;
+}
+
+.textBtnCenter {
+  width: 100%;
+  text-align: center;
+}
+
+.linkRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.over {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 32px;
+}
+
+/* Joined: full volt */
+.joined {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background: var(--volt);
+  color: var(--navy);
+  font-family: var(--f-sans);
+}
+
+.joinedTitle {
+  margin: 0;
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-size: 56px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.joinedLead {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+}

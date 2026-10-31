@@ -1,89 +1,76 @@
-import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Medal } from '@/components/art'
-import { Avatar } from '@/components/avatar'
-import { getStampsForAlias, getUserByAlias } from '@/lib/data'
-import { computeMedals, MEDAL_INFO, MEDAL_ORDER } from '@/lib/medals'
-import { formatTime, heatNo, ordinal, shortDate } from '@/lib/time'
+import { EmptySlot, Stamp } from '@/components/stamp'
+import { getRunnerByAlias, getStampCase } from '@/lib/data'
+import { getRunner } from '@/lib/session'
+import { day, formatTime, heatNo, mon, shortDate } from '@/lib/time'
+import { ShareButton } from './share-button'
+import { SignOutButton } from './sign-out-button'
+import styles from './page.module.css'
 
 type Props = { params: Promise<{ alias: string }> }
 
-export async function generateMetadata({ params }: Props) {
+// Small alternating tilts so the stamps look hand-placed, not gridded.
+const TILTS = [-3, 2, -2, 3, -1, 1]
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { alias } = await params
-  return { title: `${alias}'s passport`, description: `${alias}'s Heats run passport.` }
+  return { title: `@${alias}'s stamp case` }
 }
 
-export default async function Passport({ params }: Props) {
-  const { alias } = await params
-  const user = await getUserByAlias(alias)
-  if (!user) notFound()
-  const stamps = await getStampsForAlias(user)
-  const medals = computeMedals(stamps)
-  const earned = medals.filter(m => m.earned)
-  const best = stamps.length ? Math.min(...stamps.map(s => s.time_s)) : null
+export default async function StampCase({ params }: Props) {
+  const { alias: raw } = await params
+  const runner = await getRunnerByAlias(raw.toLowerCase())
+  if (!runner) notFound()
+
+  const [{ stamps, heats }, viewer] = await Promise.all([getStampCase(runner.id), getRunner()])
+  const byHeat = new Map(stamps.map(s => [s.heat.id, s] as const))
+  const parks = new Set(stamps.map(s => s.heat.park)).size
+  const isOwner = viewer?.id === runner.id
+  const stampLabel = `${stamps.length} ${stamps.length === 1 ? 'stamp' : 'stamps'}`
+  const parkLabel = `${parks} ${parks === 1 ? 'park' : 'parks'}`
 
   return (
-    <>
-      <div className="ambient" aria-hidden="true"><i /><i /><i /><i /></div>
-      <main className="wrap">
-        <section className="s first">
-          <div className="head">
-            <span className="eyebrow">Run passport</span>
-            <h2>{user.alias}</h2>
-            <p>{stamps.length ? `${stamps.length} ${stamps.length === 1 ? 'heat' : 'heats'} stamped, ${earned.length} of 3 medals.` : 'No stamps yet. The first heat is the best one to start with.'}</p>
-            <div className="row-actions">
-              <a className="btn ghost sm" href={`/api/story/passport/${user.alias}`}>Share passport</a>
+    <main className={styles.page}>
+      <header className={styles.head}>
+        <h1 className={styles.title}>Stamp case</h1>
+        <p className={styles.sub}>@{runner.alias} / {stampLabel} / {parkLabel}</p>
+      </header>
+
+      <section aria-label="Stamps" className={styles.grid}>
+        {heats.map((h, i) => {
+          const s = byHeat.get(h.id)
+          const no = heatNo(h.number)
+          if (s) {
+            return (
+              <div key={h.id} className={styles.cell}>
+                <Stamp
+                  scene={h.scene}
+                  heatNo={no}
+                  postmark={`${mon(h.opens_at)} ${day(h.opens_at)}`}
+                  width={108}
+                  tilt={TILTS[i % TILTS.length] ?? 0}
+                />
+                <p className={styles.cellPark}>{h.park}</p>
+                <p className={styles.cellMeta}>{formatTime(s.time_s)}</p>
+              </div>
+            )
+          }
+          return (
+            <div key={h.id} className={`${styles.cell} ${styles.muted}`}>
+              <EmptySlot heatNo={no} width={100} />
+              <p className={styles.cellPark}>{h.park}</p>
+              <p className={styles.cellMeta}>{shortDate(h.opens_at)}</p>
             </div>
-          </div>
+          )
+        })}
+      </section>
 
-          <div className="stats" style={{ maxWidth: 520 }}>
-            <div className="stat"><b>{stamps.length}</b><small>heats</small></div>
-            <div className="stat"><b>{earned.length}/3</b><small>medals</small></div>
-            <div className="stat"><b>{best ? formatTime(best) : '—'}</b><small>best 5K</small></div>
-          </div>
-
-          <div className="medals" data-reveal="">
-            {MEDAL_ORDER.map((k, i) => {
-              const m = medals.find(x => x.kind === k)!
-              return (
-                <div className={`medal${m.earned ? '' : ' locked'}`} key={k} style={{ ['--i' as string]: String(i) }}>
-                  <Medal kind={k} salt="pp" />
-                  <span className="medal-shadow" aria-hidden="true" />
-                  <b>{MEDAL_INFO[k].name}</b>
-                  <i className="obj" style={{ fontStyle: 'normal' }}>{MEDAL_INFO[k].obj}</i>
-                  {m.earned
-                    ? <span className="st" style={{ background: 'var(--volt-soft)', color: '#4B7A00' }}>Earned</span>
-                    : <span className="st" style={{ border: '1px dashed #CDD0C7', color: 'var(--text2)' }}>{MEDAL_INFO[k].how}</span>}
-                </div>
-              )
-            })}
-          </div>
-        </section>
-
-        {stamps.length > 0 ? (
-          <section className="s">
-            <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-.03em' }}>Stamps</h2>
-            <div className="sheet">
-              {[...stamps].reverse().map(s => (
-                <div key={s.heat.id} className="rowr">
-                  <span className="dot" style={{ width: 12, height: 12, background: 'var(--e-b)' }} />
-                  <Avatar alias={s.alias} size={32} />
-                  <div className="who">
-                    <div className="nm">Heat {heatNo(s.heat.number)} · {s.heat.name}</div>
-                    <div className="cm">{shortDate(s.heat.opens_at)} · {ordinal(s.place)} of {s.finishers}{s.note ? ` · ${s.note}` : ''}</div>
-                  </div>
-                  <span className="tm">{formatTime(s.time_s)}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : (
-          <section className="s">
-            <div className="sheet"><div className="empty"><b style={{ color: 'var(--ink)' }}>Nothing stamped yet.</b><span>Race it, post a screenshot, and your stamp lands here.</span></div></div>
-            <div className="row-actions"><Link className="btn theme" href="/post">Submit my run</Link></div>
-          </section>
-        )}
-      </main>
-    </>
+      <footer className={styles.footer}>
+        <ShareButton alias={runner.alias} title={`@${runner.alias}'s stamp case`} />
+        <p className={styles.url}>heats.run/p/{runner.alias}</p>
+        {isOwner && <SignOutButton />}
+      </footer>
+    </main>
   )
 }

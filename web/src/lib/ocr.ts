@@ -192,7 +192,7 @@ export async function readStatsBuf(buf: Buffer): Promise<OcrResult> {
   if (!W || !H) return FAILED
 
   // Real cards put the stats below the map, but the split varies, so take a generous band from
-  // 58% down — cheaper to over-include than to clip.
+  // 58% down: cheaper to over-include than to clip.
   const bandTop = Math.floor(H * 0.58)
   const bw = W * SCALE, bh = (H - bandTop) * SCALE
 

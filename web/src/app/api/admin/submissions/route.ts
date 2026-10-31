@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { isAdmin } from '@/lib/auth'
+import { isAdmin } from '@/lib/admin'
 import { db } from '@/lib/db'
 import { heatNo } from '@/lib/time'
 
