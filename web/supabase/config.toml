@@ -1,6 +1,17 @@
-# Only what Heats manages from the repo. `supabase config push` leaves undeclared settings alone.
+# Only what Heats manages from the repo. `supabase config push` leaves undeclared settings alone
+# (site_url stays whatever is set in the dashboard).
 project_id = "qhzdsobnftgjxmhaloqg"
 
 [auth]
 # Where sign-in links may send people back to (/auth/callback on each host).
-additional_redirect_urls = ["http://localhost:3000/**", "https://heats.run/**", "https://www.heats.run/**"]
+additional_redirect_urls = [
+  "http://localhost:3000/**",
+  "https://heats.run/**",
+  "https://www.heats.run/**",
+  # Vercel production, preview and branch deployments of this project.
+  "https://heats-p17k-abdullahridwans-projects.vercel.app/",
+  "https://heats-p17k-abdullahridwans-projects.vercel.app/**",
+  "https://heats-*-p17k-abdullahridwans-projects.vercel.app",
+  "https://heats-*-p17k-abdullahridwans-projects.vercel.app/**",
+  "https://*-abdullahridwans-projects.vercel.app/**",
+]

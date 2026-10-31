@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { normalizeHandle, validateHandle } from '@/lib/handles'
-import { supabaseServer } from '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
 
@@ -39,7 +39,11 @@ export async function POST(req: Request) {
   if (heat) callback.searchParams.set('heat', String(heat))
   if (next && next.startsWith('/') && !next.startsWith('//')) callback.searchParams.set('next', next)
 
-  const supabase = await supabaseServer()
+  // Implicit flow: the link carries the session itself, so it works in any browser or app (the Gmail
+  // in-app browser, another phone). The SSR client is PKCE-only, which needs the same browser.
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { shouldCreateUser: true, emailRedirectTo: callback.toString() },
