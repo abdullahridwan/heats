@@ -8,8 +8,8 @@ import type { Heat, SubmissionStatus } from '@/lib/types'
 import { day, formatTime, heatNo, mon, ordinal } from '@/lib/time'
 import styles from './page.module.css'
 
-// idle → uploading → processing → stamped | review | error. One pass, no polling: the POST
-// returns the decision synchronously (expect about 4 to 8 s).
+// idle → uploading → processing → stamped | review | error. The POST streams one line per check as
+// the server finishes it, so the checklist fills in live (about 4 to 8 s end to end).
 
 type Phase = 'idle' | 'uploading' | 'processing' | 'stamped' | 'review' | 'error'
 
@@ -42,6 +42,15 @@ const REASONS: Record<string, string> = {
   vision_unavailable: 'Our check is temporarily unavailable, so a human will take a look.',
   runner_flagged: 'You flagged this one for review.',
 }
+
+type CheckId = 'upload' | 'numbers' | 'distance' | 'app' | 'park' | 'duplicate'
+type CheckState = 'pending' | 'running' | 'ok' | 'fail' | 'skip'
+type Checks = Record<CheckId, { state: CheckState; detail?: string }>
+const CHECK_ORDER: CheckId[] = ['upload', 'numbers', 'distance', 'app', 'park', 'duplicate']
+const freshChecks = (): Checks => ({
+  upload: { state: 'pending' }, numbers: { state: 'pending' }, distance: { state: 'pending' },
+  app: { state: 'pending' }, park: { state: 'pending' }, duplicate: { state: 'pending' },
+})
 
 const STAMPED_STATUSES: SubmissionStatus[] = ['auto_verified', 'verified']
 
@@ -89,12 +98,16 @@ export function PostForm({
   })
   const [stampedAt, setStampedAt] = useState<string>(initialStampedAt ?? new Date().toISOString())
   const fileRef = useRef<File | null>(null)
+  const [checks, setChecks] = useState<Checks>(freshChecks)
+  const mark = (id: CheckId, state: CheckState, detail?: string) =>
+    setChecks(c => ({ ...c, [id]: { state, detail: detail ?? c[id].detail } }))
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const file = fileRef.current
     if (!file) { setPhase('error'); setMessage('Add a screenshot of your run.'); return }
     setPhase('uploading'); setMessage('')
+    setChecks({ ...freshChecks(), upload: { state: 'running' } })
 
     try {
       // 1. Signed upload URL, then upload straight to Supabase (avoids the ~4.5 MB API body limit).
@@ -105,18 +118,19 @@ export function PostForm({
       const blob = await compress(file)
       const { error: upErr } = await supabase.storage.from('proofs').uploadToSignedUrl(path, token, blob, { contentType: 'image/webp' })
       if (upErr) throw new Error('upload_failed')
+      mark('upload', 'ok')
 
-      // 2. Run the pipeline.
+      // 2. Run the pipeline and read its checks as they stream in.
       setPhase('processing')
+      setChecks(c => ({ ...c, numbers: { state: 'running' }, distance: { state: 'running' }, app: { state: 'running' }, park: { state: 'running' } }))
       const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path, note, heat: heat.number }),
       })
-      const data: ApiResult = await res.json()
-
-      setResult(data)
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
+        const data: ApiResult = await res.json().catch(() => ({}))
+        setChecks(freshChecks())
         setPhase('error')
         setMessage(data.error === 'window_closed' ? 'The submission window is closed.'
           : data.error === 'too_many_attempts' ? "You've hit the resubmit limit. Email us and we'll sort it."
@@ -124,8 +138,23 @@ export function PostForm({
               : 'Something went wrong. Try again.')
         return
       }
-      if (data.status === 'auto_verified') setStampedAt(new Date().toISOString())
-      setPhase(data.status === 'auto_verified' ? 'stamped' : 'review')
+
+      const final = await readStream(res.body, line => {
+        if (line.type === 'step' && line.id) {
+          mark(line.id as CheckId, line.state as CheckState, line.detail)
+          if (line.id === 'distance') mark('duplicate', 'running')
+        }
+      })
+      if (!final || final.type === 'error') {
+        setPhase('error')
+        setMessage('Something went wrong. Try again.')
+        return
+      }
+      setResult(final)
+      // Let the finished checklist land for a beat before the result screen.
+      await new Promise(r => setTimeout(r, final.status === 'auto_verified' ? 900 : 1400))
+      if (final.status === 'auto_verified') setStampedAt(new Date().toISOString())
+      setPhase(final.status === 'auto_verified' ? 'stamped' : 'review')
     } catch {
       setPhase('error')
       setMessage('Upload failed. Check your connection and try again.')
@@ -145,6 +174,7 @@ export function PostForm({
     fileRef.current = null
     setPreview(null)
     setResult(null)
+    setChecks(freshChecks())
     setPhase('idle')
   }
 
@@ -173,6 +203,7 @@ export function PostForm({
         <div className={styles.reviewBox}>
           <h1 className={styles.disp}>In review.</h1>
           <p className={styles.lead}>{REASONS[result?.review_reason ?? ''] ?? 'A human will check this one.'}</p>
+          {checks.upload.state !== 'pending' && <Checklist checks={checks} park={heat.park} minKm={heat.min_km} maxKm={heat.max_km} />}
           <button type="button" className={styles.btnGhost} onClick={tryAnother}>
             Try another screenshot
           </button>
@@ -230,11 +261,7 @@ export function PostForm({
           <span className={styles.counter}>{note.length} / 100</span>
         </div>
 
-        <ul className={styles.checks}>
-          <li>Dated today, in {park}</li>
-          <li>Distance {heat.min_km.toFixed(1)} to {heat.max_km.toFixed(1)} km</li>
-          <li>Time, distance and pace line up</li>
-        </ul>
+        <Checklist checks={checks} park={park} minKm={heat.min_km} maxKm={heat.max_km} />
 
         {attempts > 0 && (
           <p className={styles.mono}>
@@ -243,16 +270,69 @@ export function PostForm({
           </p>
         )}
         {phase === 'error' && <p className={styles.error} role="alert">{message}</p>}
-        {busy && (
-          <p className={styles.status} role="status">
-            {phase === 'uploading' ? 'Uploading...' : 'Reading your screenshot...'}
-          </p>
-        )}
 
         <button type="submit" className={styles.btn} disabled={busy || !preview}>
           {busy ? 'Working...' : 'Stamp it'}
         </button>
       </form>
     </main>
+  )
+}
+
+type StreamLine = ApiResult & { type: 'step' | 'done' | 'error'; id?: string; state?: string; detail?: string }
+
+// Reads the newline-delimited JSON stream, calling onLine for each step, and returns the last line.
+async function readStream(body: ReadableStream<Uint8Array>, onLine: (l: StreamLine) => void): Promise<StreamLine | null> {
+  const reader = body.getReader()
+  const dec = new TextDecoder()
+  let buf = ''
+  let last: StreamLine | null = null
+  for (;;) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buf += dec.decode(value, { stream: true })
+    let nl
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const raw = buf.slice(0, nl).trim()
+      buf = buf.slice(nl + 1)
+      if (!raw) continue
+      const line = JSON.parse(raw) as StreamLine
+      if (line.type === 'step') onLine(line)
+      else last = line
+    }
+  }
+  return last
+}
+
+const LABELS = (park: string, minKm: number, maxKm: number): Record<CheckId, string> => ({
+  upload: 'Screenshot uploaded',
+  numbers: 'Read your time and distance',
+  distance: `5K distance, ${minKm.toFixed(1)} to ${maxKm.toFixed(1)} km`,
+  app: 'A running app screenshot',
+  park: `Run in ${park}`,
+  duplicate: 'Not posted before',
+})
+
+function Checklist({ checks, park, minKm, maxKm }: { checks: Checks; park: string; minKm: number; maxKm: number }) {
+  const labels = LABELS(park, minKm, maxKm)
+  return (
+    <ul className={styles.live} aria-live="polite">
+      {CHECK_ORDER.map(id => {
+        const c = checks[id]
+        return (
+          <li key={id} className={`${styles.liveItem} ${styles[`is_${c.state}`] ?? ''}`}>
+            <span className={styles.liveIcon} aria-hidden="true">
+              {c.state === 'ok' ? '\u2713' : c.state === 'fail' ? '\u2715' : c.state === 'skip' ? '\u2013' : ''}
+            </span>
+            <span className={styles.liveLabel}>
+              {labels[id]}
+              {c.detail ? <span className={styles.liveDetail}> {c.detail}</span> : null}
+              {c.state === 'skip' ? <span className={styles.liveDetail}> (a person will check)</span> : null}
+            </span>
+            <span className="sr-only">{c.state === 'ok' ? 'passed' : c.state === 'fail' ? 'did not pass' : c.state === 'running' ? 'checking' : c.state === 'skip' ? 'needs a person' : 'waiting'}</span>
+          </li>
+        )
+      })}
+    </ul>
   )
 }

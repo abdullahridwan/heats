@@ -285,3 +285,24 @@
   color: var(--navy);
   font-weight: 600;
 }
+
+/* Live checklist: each line fills in as the server finishes that check. */
+.live { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.liveItem { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--text3); transition: color .2s ease; }
+.liveIcon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line2);
+  font-size: 12px; font-weight: 700; line-height: 1; transition: background .2s ease, border-color .2s ease;
+}
+.liveLabel { min-width: 0; }
+.liveDetail { font-family: var(--f-mono); font-size: 13px; color: var(--text3); }
+.is_running { color: var(--navy); }
+.is_running .liveIcon { border-color: var(--line2); border-top-color: var(--navy); animation: spin .8s linear infinite; }
+.is_ok { color: var(--navy); }
+.is_ok .liveIcon { background: var(--volt); border-color: var(--volt); color: var(--navy); animation: pop .25s ease; }
+.is_fail { color: var(--danger); }
+.is_fail .liveIcon { background: var(--danger); border-color: var(--danger); color: #fff; animation: pop .25s ease; }
+.is_skip .liveIcon { border-style: dashed; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pop { 0% { transform: scale(.6); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .is_running .liveIcon, .is_ok .liveIcon, .is_fail .liveIcon { animation: none; } }

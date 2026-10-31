@@ -62,64 +62,79 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'too_many_attempts' }, { status: 429 })
   }
 
-  let result
-  try {
-    result = await runPipeline({
-      heatId: heat.id,
-      locationTerms: heat.location_terms,
-      minKm: Number(heat.min_km),
-      maxKm: Number(heat.max_km),
-      bytes,
-      contentType,
-      ignoreSubmissionId: existing?.id as string | undefined,
-    })
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'pipeline_failed'
-    const status = msg === 'too_large' ? 413 : msg === 'bad_type' ? 415 : 500
-    return NextResponse.json({ error: msg }, { status })
-  }
+  // From here the answer streams as newline-delimited JSON: one {type:'step'} line per check as it
+  // finishes, then one {type:'done'} or {type:'error'} line. Errors before this point stay plain JSON.
+  const enc = new TextEncoder()
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (obj: unknown) => controller.enqueue(enc.encode(JSON.stringify(obj) + '\n'))
+      try {
+        let result
+        try {
+          result = await runPipeline({
+            heatId: heat.id,
+            locationTerms: heat.location_terms,
+            minKm: Number(heat.min_km),
+            maxKm: Number(heat.max_km),
+            bytes,
+            contentType,
+            ignoreSubmissionId: existing?.id as string | undefined,
+            onStep: st => send({ type: 'step', ...st }),
+          })
+        } catch (e) {
+          send({ type: 'error', error: e instanceof Error ? e.message : 'pipeline_failed' })
+          return
+        }
 
-  const fields = {
-    user_id: runner.id,
-    heat_id: heat.id,
-    image_path: path,
-    sha256: result.sha256,
-    dhash: result.dhash,
-    distance_km: result.distance_km,
-    time_s: result.time_s,
-    pace_s_per_km: result.pace_s_per_km,
-    ocr_raw: result.ocr_raw as object,
-    vision_raw: result.vision_raw as object,
-    is_strava: result.is_strava,
-    location_ok: result.location_ok,
-    note: note ?? null,
-    status: result.status,
-    review_reason: result.review_reason,
-  }
+        const fields = {
+          user_id: runner.id,
+          heat_id: heat.id,
+          image_path: path,
+          sha256: result.sha256,
+          dhash: result.dhash,
+          distance_km: result.distance_km,
+          time_s: result.time_s,
+          pace_s_per_km: result.pace_s_per_km,
+          ocr_raw: result.ocr_raw as object,
+          vision_raw: result.vision_raw as object,
+          is_strava: result.is_strava,
+          location_ok: result.location_ok,
+          note: note ?? null,
+          status: result.status,
+          review_reason: result.review_reason,
+        }
 
-  if (existing) {
-    const { error } = await db().from('submissions')
-      .update({ ...fields, attempts: (existing.attempts as number) + 1 })
-      .eq('id', existing.id)
-    if (error) return NextResponse.json({ error: 'save_failed' }, { status: 500 })
-  } else {
-    const { error } = await db().from('submissions').insert({ ...fields, attempts: 1 })
-    if (error) return NextResponse.json({ error: 'save_failed' }, { status: 500 })
-  }
+        const { error } = existing
+          ? await db().from('submissions').update({ ...fields, attempts: (existing.attempts as number) + 1 }).eq('id', existing.id)
+          : await db().from('submissions').insert({ ...fields, attempts: 1 })
+        if (error) {
+          send({ type: 'error', error: 'save_failed' })
+          return
+        }
 
-  // Place is only meaningful once the row is stamped.
-  let place: number | null = null
-  if (result.status === 'auto_verified') {
-    const { data } = await db().from('results').select('place').eq('heat_id', heat.id).eq('alias', runner.alias).maybeSingle()
-    place = (data?.place as number) ?? null
-  }
+        // Place is only meaningful once the row is stamped.
+        let place: number | null = null
+        if (result.status === 'auto_verified') {
+          const { data } = await db().from('results').select('place').eq('heat_id', heat.id).eq('alias', runner.alias).maybeSingle()
+          place = (data?.place as number) ?? null
+        }
 
-  return NextResponse.json({
-    status: result.status,
-    review_reason: result.review_reason,
-    distance_km: result.distance_km,
-    time_s: result.time_s,
-    place,
-    heat: heatNo(heat.number),
+        send({
+          type: 'done',
+          status: result.status,
+          review_reason: result.review_reason,
+          distance_km: result.distance_km,
+          time_s: result.time_s,
+          place,
+          heat: heatNo(heat.number),
+        })
+      } finally {
+        controller.close()
+      }
+    },
+  })
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' },
   })
 }

@@ -22,7 +22,12 @@ export type PipelineInput = {
   contentType: string
   /** exclude this submission id when checking duplicates (resubmits) */
   ignoreSubmissionId?: string
+  /** called as each check finishes, so the runner can watch the checklist fill in */
+  onStep?: (step: PipelineStep) => void
 }
+
+export type StepId = 'numbers' | 'distance' | 'app' | 'park' | 'duplicate'
+export type PipelineStep = { id: StepId; state: 'ok' | 'fail' | 'skip'; detail?: string }
 
 export type PipelineOutput = {
   status: 'auto_verified' | 'needs_review'
@@ -89,6 +94,13 @@ export async function isDuplicate(heatId: string, sha: string, hash: string, tim
   return false
 }
 
+function numbersDetail(r: OcrResult): string {
+  const parts: string[] = []
+  if (r.distance_km !== null) parts.push(`${r.distance_km.toFixed(2)} km`)
+  if (r.time_s !== null) parts.push(`${Math.floor(r.time_s / 60)}:${String(r.time_s % 60).padStart(2, '0')}`)
+  return parts.join(' / ')
+}
+
 const num = (v: unknown): number | null => (v === null || v === undefined ? null : Number(v))
 
 export async function runPipeline(input: PipelineInput): Promise<PipelineOutput> {
@@ -98,23 +110,35 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
   const sha = sha256(input.bytes)
   const hash = await dhash(input.bytes)
 
-  // OCR and vision are independent, so run them together.
+  const step = input.onStep ?? (() => {})
+  const minKm = Number(input.minKm), maxKm = Number(input.maxKm)
+
+  // OCR and vision are independent, so run them together; each reports its checks as soon as it lands.
   const [ocr, vision] = await Promise.all([
-    readStatsBuf(input.bytes),
+    readStatsBuf(input.bytes).then(r => {
+      const read = r.ok && !r.mismatch
+      step({ id: 'numbers', state: read ? 'ok' : 'fail', detail: read ? numbersDetail(r) : undefined })
+      const inRange = r.distance_km !== null && r.distance_km >= minKm && r.distance_km <= maxKm
+      step({ id: 'distance', state: inRange ? 'ok' : 'fail', detail: r.distance_km !== null ? `${r.distance_km.toFixed(2)} km` : undefined })
+      return r
+    }),
     (async (): Promise<VisionResult | null> => {
       const img = await mapDataUrl(input.bytes)
-      if (!img) return null
-      return checkCard(img, input.locationTerms)
+      const v = img ? await checkCard(img, input.locationTerms) : null
+      step({ id: 'app', state: v ? (v.is_strava_card ? 'ok' : 'fail') : 'skip' })
+      step({ id: 'park', state: v ? (v.location_ok ? 'ok' : 'fail') : 'skip' })
+      return v
     })(),
   ])
 
   const km = ocr.distance_km
   const timeS = ocr.time_s
   const duplicate = await isDuplicate(input.heatId, sha, hash, timeS, km, input.ignoreSubmissionId)
+  step({ id: 'duplicate', state: duplicate ? 'fail' : 'ok' })
 
   const { status, review_reason } = decide({
     duplicate, vision, ocr, km,
-    minKm: Number(input.minKm), maxKm: Number(input.maxKm),
+    minKm, maxKm,
   })
 
   return {

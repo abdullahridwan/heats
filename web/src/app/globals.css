@@ -274,3 +274,6 @@ img, svg { max-width: 100%; }
   .app-header-links .app-header-hide-sm { display: none; }
   .app-body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
 }
+
+/* Visually hidden, still read by screen readers. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
