@@ -1,7 +1,7 @@
 .page {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100dvh;
+  min-height: var(--app-h);
   display: flex;
   flex-direction: column;
   padding: 0 16px 24px;
@@ -13,7 +13,6 @@
 .top {
   display: flex;
   align-items: center;
-  gap: 4px;
   margin: 0 -16px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
@@ -25,18 +24,12 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  flex: none;
-  border: 0;
-  padding: 0;
-  background: none;
   color: var(--navy);
-  cursor: pointer;
   text-decoration: none;
 }
 
 .back:focus-visible,
 .textBtn:focus-visible,
-.textBtnCenter:focus-visible,
 .btn:focus-visible {
   outline: 2px solid var(--volt);
   outline-offset: 2px;
@@ -51,12 +44,12 @@
 }
 
 .disp {
+  margin: 0;
   font-family: var(--f-serif);
   font-weight: 400;
-  font-size: 44px;
+  font-size: 40px;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  margin: 0;
 }
 
 .body {
@@ -65,15 +58,6 @@
   gap: 20px;
   flex: 1;
   padding-top: 32px;
-}
-
-.kicker {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text2);
 }
 
 .lead {
@@ -112,69 +96,10 @@
   box-sizing: border-box;
 }
 
-.input:focus,
-.handleBox:focus-within {
+.input:focus {
   outline: none;
   border-color: var(--volt);
   box-shadow: 0 0 0 4px var(--volt-soft);
-}
-
-.handleBox {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  min-height: 60px;
-  padding: 0 14px;
-  border: 2px solid var(--line2);
-  border-radius: 8px;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-.handleOk {
-  border-color: var(--volt);
-  box-shadow: 0 0 0 4px var(--volt-soft);
-}
-
-.handleBad {
-  border-color: var(--danger);
-}
-
-.at {
-  font-family: var(--f-serif);
-  font-size: 26px;
-  color: var(--text2);
-}
-
-.handleInput {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: var(--navy);
-  font-family: var(--f-sans);
-  font-size: 22px;
-  font-weight: 600;
-  outline: none;
-}
-
-.msg,
-.msgOk,
-.msgBad {
-  min-height: 20px;
-  font-size: 14px;
-}
-
-.msg {
-  color: var(--text3);
-}
-
-.msgOk {
-  color: #4b7a00;
-}
-
-.msgBad {
-  color: var(--danger);
 }
 
 .error {
@@ -204,6 +129,7 @@
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .btn:disabled {
@@ -211,8 +137,7 @@
   cursor: not-allowed;
 }
 
-.textBtn,
-.textBtnCenter {
+.textBtn {
   min-height: 44px;
   padding: 0 6px;
   border: 0;
@@ -228,50 +153,51 @@
   cursor: default;
 }
 
-.textBtnCenter {
-  width: 100%;
-  text-align: center;
-}
-
 .linkRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.over {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-top: 32px;
+/* Six-digit code boxes (shared by join and sign-in through code-input.tsx) */
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
 }
 
-/* Joined: full volt */
-.joined {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-height: 100dvh;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 24px 16px;
-  box-sizing: border-box;
-  background: var(--volt);
+.legend {
+  margin-bottom: 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.digit {
+  width: 100%;
+  height: 60px;
+  padding: 0;
+  border: 2px solid var(--line2);
+  border-radius: 8px;
+  background: #fff;
   color: var(--navy);
-  font-family: var(--f-sans);
+  font-family: var(--f-mono);
+  font-size: 26px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-.joinedTitle {
-  margin: 0;
-  font-family: var(--f-serif);
-  font-weight: 400;
-  font-size: 56px;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-}
-
-.joinedLead {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
+.digit:focus {
+  outline: none;
+  border-color: var(--volt);
+  box-shadow: 0 0 0 4px var(--volt-soft);
 }

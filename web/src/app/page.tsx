@@ -2,7 +2,11 @@ import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { Stamp } from '@/components/stamp'
 import { CasePlayer, JoinPlayer, SubmitPlayer } from '@/components/how/players'
-import { getHeats } from '@/lib/data'
+import { Footer } from '@/components/site/footer'
+import { LaneFrame } from '@/components/site/lane-frame'
+import { Nav } from '@/components/site/nav'
+import { getCalendar, getHeats } from '@/lib/data'
+import { getRunner } from '@/lib/session'
 import { heatNo } from '@/lib/time'
 import styles from './page.module.css'
 
@@ -18,12 +22,19 @@ async function seasonStamps(): Promise<{ scene: string; number: number }[]> {
   return FALLBACK_SCENES.map((scene, i) => ({ scene, number: i + 1 }))
 }
 
+async function shell() {
+  const [runner, calendar] = await Promise.all([getRunner().catch(() => null), getCalendar().catch(() => null)])
+  return { runner, nextHeat: calendar ? (calendar.live ?? calendar.upcoming[0] ?? null) : null }
+}
+
 export default async function Home() {
-  const stamps = await seasonStamps()
+  const [stamps, { runner, nextHeat }] = await Promise.all([seasonStamps(), shell()])
   const last = stamps.length - 1
   const mid = last / 2
 
   return (
+    <LaneFrame footer={<Footer nextHeat={nextHeat} runner={runner} />}>
+    <Nav runner={runner} />
     <div className={styles.page}>
       <section className={styles.hero}>
         <h1 className={styles.h1}>
@@ -119,5 +130,6 @@ export default async function Home() {
         </article>
       </section>
     </div>
+    </LaneFrame>
   )
 }

@@ -25,7 +25,8 @@ export default async function HeatResults({ params }: Props) {
   const number = parseHeatNumber(n)
   const heat = number === null ? null : await getHeat(number)
   if (!heat) notFound()
-  const rows = await getResults(heat.id)
+  // Top 10 keeps the sheet on one phone screen.
+  const rows = (await getResults(heat.id)).slice(0, 10)
 
   return (
     <main className={styles.page}>

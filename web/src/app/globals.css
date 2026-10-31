@@ -21,7 +21,7 @@ body {
   font-family: var(--f-sans), system-ui, sans-serif;
   line-height: 1.5;
   color: var(--navy);
-  background: var(--volt);
+  background: #fff;
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, p { margin: 0; }
@@ -252,4 +252,25 @@ img, svg { max-width: 100%; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* App pages: plain white, one phone screen tall. --app-h is the room between the header and the tab bar. */
+:root { --app-header: 56px; --app-h: calc(100dvh - var(--app-header)); }
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: var(--app-header);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.app-header-logo { display: flex; align-items: center; min-height: 44px; }
+.app-header-links { display: flex; align-items: center; gap: 4px; }
+.app-header-link { display: flex; align-items: center; min-height: 44px; padding: 0 10px; font-size: 14px; font-weight: 500; text-decoration: none; }
+@media (max-width: 719px) {
+  :root { --app-h: calc(100dvh - var(--app-header) - 74px - env(safe-area-inset-bottom)); }
+  .app-header-links .app-header-hide-sm { display: none; }
+  .app-body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
 }

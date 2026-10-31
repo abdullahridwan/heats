@@ -1,7 +1,8 @@
 .page {
   max-width: 560px;
   margin: 0 auto;
-  padding: 28px 16px 40px;
+  min-height: var(--app-h);
+  padding: 12px 16px 16px;
   display: flex;
   flex-direction: column;
   color: var(--navy);
@@ -31,16 +32,16 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px 6px;
-  margin-top: 24px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px 8px;
+  margin-top: 20px;
 }
 
 .cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   min-width: 0;
 }
@@ -56,7 +57,7 @@
   font-family: var(--f-mono);
   font-size: 11px;
   color: var(--text3);
-  margin: -6px 0 0;
+  margin: 0;
 }
 
 .muted .cellPark,
@@ -65,7 +66,8 @@
 }
 
 .footer {
-  margin-top: 32px;
+  margin-top: auto;
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -119,4 +121,10 @@
 .signout:focus-visible {
   outline: 2px solid var(--volt);
   outline-offset: 2px;
+}
+
+/* A heat you haven't collected: the real stamp, faded and desaturated, no postmark. */
+.missed {
+  opacity: 0.28;
+  filter: grayscale(0.7) !important;
 }

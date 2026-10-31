@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { EmptySlot, Stamp } from '@/components/stamp'
+import { Stamp } from '@/components/stamp'
 import { getRunnerByAlias, getStampCase } from '@/lib/data'
 import { getRunner } from '@/lib/session'
 import { day, formatTime, heatNo, mon, shortDate } from '@/lib/time'
@@ -48,18 +48,16 @@ export default async function StampCase({ params }: Props) {
                   scene={h.scene}
                   heatNo={no}
                   postmark={`${mon(h.opens_at)} ${day(h.opens_at)}`}
-                  width={108}
+                  width={78}
                   tilt={TILTS[i % TILTS.length] ?? 0}
                 />
-                <p className={styles.cellPark}>{h.park}</p>
                 <p className={styles.cellMeta}>{formatTime(s.time_s)}</p>
               </div>
             )
           }
           return (
             <div key={h.id} className={`${styles.cell} ${styles.muted}`}>
-              <EmptySlot heatNo={no} width={100} />
-              <p className={styles.cellPark}>{h.park}</p>
+              <Stamp scene={h.scene} heatNo={no} width={78} tilt={TILTS[i % TILTS.length] ?? 0} className={styles.missed} />
               <p className={styles.cellMeta}>{shortDate(h.opens_at)}</p>
             </div>
           )

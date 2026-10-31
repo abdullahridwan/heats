@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { getCalendar, getSignedUpHeatIds } from '@/lib/data'
 import { getRunner } from '@/lib/session'
-import { day, heatNo, mon, shortDate, weekday } from '@/lib/time'
+import { heatNo, shortDate, weekday } from '@/lib/time'
+import { Stamp } from '@/components/stamp'
+import type { Heat } from '@/lib/types'
 import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -9,29 +11,28 @@ export const metadata = { title: 'Calendar' }
 
 const dayName = (iso: string) => weekday(iso).slice(0, 3)
 
-function DateTile({ iso }: { iso: string }) {
+// The heat's own stamp stands in for a date tile: small, tilted, a little preview of what you collect.
+function MiniStamp({ heat, i }: { heat: Heat; i: number }) {
   return (
-    <div className={styles.tile}>
-      <span className={styles.tileMonth}>{mon(iso)}</span>
-      <span className={styles.tileDay}>{day(iso)}</span>
-    </div>
+    <span className={styles.mini}>
+      <Stamp scene={heat.scene} heatNo={heatNo(heat.number)} width={42} tilt={i % 2 ? 4 : -4} />
+    </span>
   )
 }
 
-export default async function Calendar() {
-  const [runner, { live, upcoming, past }] = await Promise.all([getRunner(), getCalendar()])
+export default async function Calendar({ searchParams }: { searchParams: Promise<{ all?: string }> }) {
+  const [{ all }, runner, { live, upcoming: allUpcoming, past: allPast }] = await Promise.all([searchParams, getRunner(), getCalendar()])
+  // One phone screen by default: the live heat, the next few, the latest result. ?all=1 shows the season.
+  const showAll = all === '1'
+  const upcoming = showAll ? allUpcoming : allUpcoming.slice(0, live ? 3 : 4)
+  const past = showAll ? allPast : allPast.slice(0, 1)
+  const hidden = allUpcoming.length - upcoming.length + allPast.length - past.length
   const joined = new Set<string>(runner ? await getSignedUpHeatIds(runner.id) : [])
 
   return (
     <main className={styles.page}>
       <header className={styles.top}>
         <h1 className={styles.title}>Calendar</h1>
-        <svg width="30" height="30" viewBox="0 0 200 200" aria-hidden="true" className={styles.icon}>
-          <g fill="none" stroke="currentColor" strokeWidth="14">
-            <rect x="22" y="48" width="156" height="104" rx="52" />
-            <rect x="46" y="72" width="108" height="56" rx="28" />
-          </g>
-        </svg>
       </header>
 
       {live && (
@@ -56,11 +57,11 @@ export default async function Calendar() {
           <p className={styles.empty}>More heats coming soon.</p>
         ) : (
           <ul className={styles.list}>
-            {upcoming.map(h => (
+            {upcoming.map((h, i) => (
               <li key={h.id} className={styles.row}>
-                <DateTile iso={h.opens_at} />
+                <MiniStamp heat={h} i={i} />
                 <div className={styles.info}>
-                  <p className={styles.heatName}>Heat {heatNo(h.number)}</p>
+                  <p className={styles.heatName}>Heat {heatNo(h.number)} <span className={styles.when}>/ {dayName(h.opens_at)} {shortDate(h.opens_at)}</span></p>
                   <p className={styles.park}>{h.park}</p>
                 </div>
                 {joined.has(h.id) ? (
@@ -78,11 +79,11 @@ export default async function Calendar() {
         <section aria-labelledby="past">
           <h2 id="past" className={styles.label}>Past</h2>
           <ul className={styles.list}>
-            {past.map(h => (
+            {past.map((h, i) => (
               <li key={h.id} className={styles.row}>
-                <DateTile iso={h.opens_at} />
+                <MiniStamp heat={h} i={i} />
                 <div className={styles.info}>
-                  <p className={styles.heatName}>Heat {heatNo(h.number)}</p>
+                  <p className={styles.heatName}>Heat {heatNo(h.number)} <span className={styles.when}>/ {dayName(h.opens_at)} {shortDate(h.opens_at)}</span></p>
                   <p className={styles.park}>{h.park}</p>
                 </div>
                 <Link
@@ -96,6 +97,10 @@ export default async function Calendar() {
             ))}
           </ul>
         </section>
+      )}
+
+      {hidden > 0 && (
+        <Link href="/calendar?all=1" className={styles.more}>See all {allUpcoming.length + allPast.length} heats</Link>
       )}
     </main>
   )

@@ -31,8 +31,9 @@ export function Nav({ runner }: { runner: Runner | null }) {
           </div>
         </div>
         <div className="site-nav-actions">
-          {runner ? <Link className="site-nav-alias" href={`/p/${runner.alias}`}>@{runner.alias}</Link> : null}
-          <Link className="btn btn-primary btn-sm" href="/calendar">Join a heat</Link>
+          {runner
+            ? <Link className="btn btn-ghost btn-sm" href={`/p/${runner.alias}`}>@{runner.alias}</Link>
+            : <Link className="btn btn-primary btn-sm" href="/calendar">Join a heat</Link>}
         </div>
       </nav>
     </header>

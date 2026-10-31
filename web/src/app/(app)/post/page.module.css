@@ -1,7 +1,7 @@
 .page {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100dvh;
+  min-height: var(--app-h);
   display: flex;
   flex-direction: column;
   padding: 0 16px 24px;
@@ -238,7 +238,7 @@
 
 /* Stamped: navy moment */
 .stampedScreen {
-  min-height: 100dvh;
+  min-height: var(--app-h);
   max-width: 480px;
   margin: 0 auto;
   display: flex;
