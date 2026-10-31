@@ -14,6 +14,9 @@ const VisionSchema = z.object({
   location_ok: z.boolean(),
   // Place names the model could actually read on the map. Shown to the admin as evidence.
   place_labels: z.array(z.string()).default([]),
+  // The stats as printed on the card. A second reader for when OCR can't (photo stickers, odd fonts).
+  distance_km: z.number().positive().nullable().default(null),
+  time_s: z.number().int().positive().nullable().default(null),
 })
 
 export type VisionResult = z.infer<typeof VisionSchema>
@@ -24,12 +27,14 @@ export function visionPrompt(locationTerms: string[], locationNote: string) {
     'The event location is described by: ' + locationTerms.join(', ') + '.',
     `Additional location context: ${locationNote || 'none'}.`,
     '',
-    'The image is only the top part of the card: the map area, not the stats. Answer strictly as JSON, nothing else:',
-    '{"is_strava_card": boolean, "location_ok": boolean, "place_labels": string[]}',
+    'The image is the whole card the runner shared: a map or photo, plus the stats. Answer strictly as JSON, nothing else:',
+    '{"is_strava_card": boolean, "location_ok": boolean, "place_labels": string[], "distance_km": number | null, "time_s": number | null}',
     '',
-    '- is_strava_card: true if this looks like the map area of a running-app activity card (Strava, Garmin, Apple Fitness, Nike, Coros): a street map with a coloured GPS route line drawn on it, possibly with an app logo or title. False for photos, plain screenshots and anything that is not a map with a route. Do not require stats; they are not in the image.',
+    '- is_strava_card: true if this is a running-app activity screenshot or share card (Strava, Garmin, Apple Fitness, Nike, Coros): a map with a GPS route, or a photo with the route outline and stats overlaid. False for anything else.',
     '- location_ok: true if the map or any place name overlaps the event location above. Text anywhere on the card naming a different, clearly distant place means false. Prefer true only when you can read a matching place name or the route clearly follows that location; do not guess from a generic green area.',
     '- place_labels: the street, park or landmark names you can actually read on the map (empty if none are legible).',
+    '- distance_km: the activity distance exactly as printed, converted to kilometres if shown in miles. null if you cannot read it.',
+    '- time_s: the moving or elapsed time as printed, in whole seconds (45m 52s is 2752). null if you cannot read it.',
   ].join('\n')
 }
 
@@ -50,7 +55,7 @@ export async function checkCard(image: string, locationTerms: string[], location
       body: JSON.stringify({
         model: MODEL,
         temperature: 0,
-        max_tokens: 150,
+        max_tokens: 220,
         messages: [
           { role: 'user', content: [
             { type: 'text', text: visionPrompt(locationTerms, locationNote) },

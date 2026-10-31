@@ -183,28 +183,51 @@ async function rereadBelow(worker: Worker, band: Buffer, bw: number, bh: number,
   return out
 }
 
-// Crop the bottom ~42% (the stats band), greyscale, upscale 2×, normalise, then extract the
-// Distance / Time / Pace values from whatever layout OCR produces.
+// Where the stats can be. The standard activity screen puts them in a band below the map; share
+// stickers and photo cards put them anywhere, often light text over a photo. Try the band first
+// (fast, least noise), then the whole card, then the whole card inverted, and stop at the first read
+// whose time, distance and pace agree.
+const REGIONS: { top: number; bottom: number; negate: boolean }[] = [
+  { top: 0.58, bottom: 1, negate: false },
+  { top: 0, bottom: 0.5, negate: false },
+  { top: 0, bottom: 1, negate: false },
+  { top: 0, bottom: 1, negate: true },
+]
+
 export async function readStatsBuf(buf: Buffer): Promise<OcrResult> {
+  let best: OcrResult = FAILED
+  for (const r of REGIONS) {
+    const res = await readRegion(buf, r.top, r.bottom, r.negate)
+    if (res.ok && !res.mismatch) return res
+    if (res.ok && !best.ok) best = res
+    if (!best.raw && res.raw) best = { ...best, raw: res.raw }
+  }
+  return best
+}
+
+// Crop from `topFrac` down, greyscale, upscale (small screenshots get more), normalise, optionally
+// invert, then extract the Distance / Time / Pace values from whatever layout OCR produces.
+async function readRegion(buf: Buffer, topFrac: number, bottomFrac: number, negate: boolean): Promise<OcrResult> {
   let meta
   try { meta = await sharp(buf).metadata() } catch { return FAILED }
   const W = meta.width ?? 0, H = meta.height ?? 0
   if (!W || !H) return FAILED
 
-  // Real cards put the stats below the map, but the split varies, so take a generous band from
-  // 58% down: cheaper to over-include than to clip.
-  const bandTop = Math.floor(H * 0.58)
-  const bw = W * SCALE, bh = (H - bandTop) * SCALE
+  const bandTop = Math.floor(H * topFrac)
+  const bandH = Math.max(1, Math.floor(H * bottomFrac) - bandTop)
+  // Tesseract wants glyphs roughly 30px tall: aim for a ~1600px-wide working image.
+  const scale = Math.min(6, Math.max(SCALE, Math.ceil(1600 / W)))
+  const bw = W * scale, bh = bandH * scale
 
   let bandBuf: Buffer
   try {
-    bandBuf = await sharp(buf)
-      .extract({ left: 0, top: bandTop, width: W, height: H - bandTop })
+    let img = sharp(buf)
+      .extract({ left: 0, top: bandTop, width: W, height: bandH })
       .greyscale()
       .resize(bw, bh, { fit: 'fill' })
       .normalise()
-      .png()
-      .toBuffer()
+    if (negate) img = img.negate()
+    bandBuf = await img.png().toBuffer()
   } catch {
     return FAILED
   }
@@ -241,7 +264,9 @@ export async function readStatsBuf(buf: Buffer): Promise<OcrResult> {
           const d = parseDistance(dm[0]); if (d !== null) { distance_km = d; distText = dm[0] }
         }
         if (time1 === null && !isPaceLine) {
-          const cand = hasTimeLabel ? (parseClockish(line) ?? parseDuration(tm)) : parseClockish(line)
+          // Unlabelled "45m 52s" is unambiguous enough to take; bare digits are not.
+          const hms = /\d+\s*m\s*\d+\s*s\b|\d+\s*h\s*\d+\s*m/i.test(line) ? parseDuration(tm) : null
+          const cand = hasTimeLabel ? (parseClockish(line) ?? parseDuration(tm)) : (parseClockish(line) ?? hms)
           if (cand !== null && cand >= 60) time1 = cand
         }
         if (distance_km === null && hasDistLabel) { const d = parseDistance(lines[i + 1] ?? ''); if (d !== null) distance_km = d }

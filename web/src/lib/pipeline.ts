@@ -43,21 +43,24 @@ export type PipelineOutput = {
   location_ok: boolean | null
 }
 
-// The map crop sent to the vision model: top ~64%, scaled to ~512px wide, as a data URL.
-async function mapDataUrl(buf: Buffer): Promise<string | null> {
+// The whole card sent to the vision model, scaled to ~768px wide, as a data URL. Whole card because
+// share stickers put the stats and route anywhere, and the model doubles as a second number reader.
+async function cardDataUrl(buf: Buffer): Promise<string | null> {
   try {
-    const meta = await sharp(buf).metadata()
-    const W = meta.width ?? 0, H = meta.height ?? 0
-    if (!W || !H) return null
-    const crop = await sharp(buf)
-      .extract({ left: 0, top: 0, width: W, height: Math.max(1, Math.floor(H * 0.64)) })
-      .resize(512, null, { withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer()
-    return `data:image/webp;base64,${crop.toString('base64')}`
+    const out = await sharp(buf).resize(768, null, { withoutEnlargement: true }).webp({ quality: 80 }).toBuffer()
+    return `data:image/webp;base64,${out.toString('base64')}`
   } catch {
     return null
   }
+}
+
+// OCR's read when it is clean, otherwise the vision model's read of the same card.
+function effectiveNumbers(ocr: OcrResult, vision: VisionResult | null): OcrResult {
+  if (ocr.ok && !ocr.mismatch) return ocr
+  if (vision?.distance_km && vision.time_s) {
+    return { ...ocr, ok: true, mismatch: false, distance_km: vision.distance_km, time_s: vision.time_s, pace_s_per_km: null }
+  }
+  return ocr
 }
 
 export function decide(o: {
@@ -112,24 +115,31 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
 
   const step = input.onStep ?? (() => {})
   const minKm = Number(input.minKm), maxKm = Number(input.maxKm)
+  const numberSteps = (r: OcrResult) => {
+    const read = r.ok && !r.mismatch
+    step({ id: 'numbers', state: read ? 'ok' : 'fail', detail: read ? numbersDetail(r) : undefined })
+    const inRange = r.distance_km !== null && r.distance_km >= minKm && r.distance_km <= maxKm
+    step({ id: 'distance', state: inRange ? 'ok' : 'fail', detail: r.distance_km !== null ? `${r.distance_km.toFixed(2)} km` : undefined })
+  }
 
   // OCR and vision are independent, so run them together; each reports its checks as soon as it lands.
-  const [ocr, vision] = await Promise.all([
+  // A clean OCR read ticks the number checks right away; otherwise they wait for the vision model's read.
+  let numbersShown = false
+  const [ocrRaw, vision] = await Promise.all([
     readStatsBuf(input.bytes).then(r => {
-      const read = r.ok && !r.mismatch
-      step({ id: 'numbers', state: read ? 'ok' : 'fail', detail: read ? numbersDetail(r) : undefined })
-      const inRange = r.distance_km !== null && r.distance_km >= minKm && r.distance_km <= maxKm
-      step({ id: 'distance', state: inRange ? 'ok' : 'fail', detail: r.distance_km !== null ? `${r.distance_km.toFixed(2)} km` : undefined })
+      if (r.ok && !r.mismatch) { numberSteps(r); numbersShown = true }
       return r
     }),
     (async (): Promise<VisionResult | null> => {
-      const img = await mapDataUrl(input.bytes)
+      const img = await cardDataUrl(input.bytes)
       const v = img ? await checkCard(img, input.locationTerms) : null
       step({ id: 'app', state: v ? (v.is_strava_card ? 'ok' : 'fail') : 'skip' })
       step({ id: 'park', state: v ? (v.location_ok ? 'ok' : 'fail') : 'skip' })
       return v
     })(),
   ])
+  const ocr = effectiveNumbers(ocrRaw, vision)
+  if (!numbersShown) numberSteps(ocr)
 
   const km = ocr.distance_km
   const timeS = ocr.time_s
@@ -145,7 +155,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineOutput>
     status, review_reason,
     sha256: sha, dhash: hash,
     distance_km: km, time_s: timeS, pace_s_per_km: ocr.pace_s_per_km,
-    ocr_raw: ocr, vision_raw: vision,
+    ocr_raw: ocrRaw, vision_raw: vision,
     is_strava: vision ? vision.is_strava_card : null,
     location_ok: vision ? vision.location_ok : null,
   }
