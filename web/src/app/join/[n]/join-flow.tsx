@@ -6,11 +6,10 @@ import { useRouter } from 'next/navigation'
 import type { Heat } from '@/lib/types'
 import { normalizeHandle, validateHandle } from '@/lib/handles'
 import { day, heatNo, shortDate, weekday } from '@/lib/time'
-import { CodeInput } from '@/app/signin/code-input'
 import styles from './page.module.css'
 
 type Mode = 'onboard' | 'confirm' | 'joined'
-type View = 'claim' | 'code' | 'confirm' | 'joined'
+type View = 'claim' | 'sent' | 'confirm' | 'joined'
 type StartRes = { ok?: boolean; newRunner?: boolean; error?: string }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -92,7 +91,6 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
   const [sentTo, setSentTo] = useState('')
   const [sentHandle, setSentHandle] = useState<string | undefined>(undefined)
   const [cooldown, setCooldown] = useState(0)
-  const [attempt, setAttempt] = useState(0)
 
   const handle = normalizeHandle(raw)
   const localErr = emailOnly ? null : localHandleError(handle)
@@ -164,7 +162,7 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
     try {
       const { ok, data } = await postJson<StartRes>(
         '/api/auth/start',
-        emailOnly ? { email: cleanEmail } : { email: cleanEmail, handle },
+        emailOnly ? { email: cleanEmail, heat: heat.number } : { email: cleanEmail, handle, heat: heat.number },
       )
       if (!ok || !data.ok) {
         setError(startError(data.error, handle))
@@ -175,8 +173,7 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
       setSentTo(cleanEmail)
       setSentHandle(emailOnly || existing ? undefined : handle)
       setCooldown(30)
-      setAttempt(a => a + 1)
-      setView('code')
+      setView('sent')
     } catch {
       setError('Something went wrong. Try again.')
     } finally {
@@ -189,7 +186,7 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
     try {
       const { ok, data } = await postJson<StartRes>(
         '/api/auth/start',
-        sentHandle ? { email: sentTo, handle: sentHandle } : { email: sentTo },
+        sentHandle ? { email: sentTo, handle: sentHandle, heat: heat.number } : { email: sentTo, heat: heat.number },
       )
       if (!ok || !data.ok) {
         setError(startError(data.error, sentHandle ?? ''))
@@ -198,38 +195,6 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
       setCooldown(30)
     } catch {
       setError('Something went wrong. Try again.')
-    }
-  }
-
-  async function verify(code: string) {
-    setBusy(true)
-    setError(null)
-    try {
-      const { ok, data } = await postJson<{ alias?: string; error?: string }>('/api/auth/verify', {
-        email: sentTo,
-        code,
-        handle: sentHandle,
-        heat: heat.number,
-      })
-      if (!ok || !data.alias) {
-        if (data.error === 'handle_taken') {
-          setView('claim')
-          setError(`@${sentHandle ?? ''} was just taken. Pick another.`)
-        } else if (data.error === 'handle_required') {
-          setView('claim')
-          setError('Claim an @ to finish.')
-        } else {
-          setError("That code didn't work. Try again.")
-          setAttempt(a => a + 1)
-        }
-        return
-      }
-      setView('joined')
-    } catch {
-      setError("That code didn't work. Try again.")
-      setAttempt(a => a + 1)
-    } finally {
-      setBusy(false)
     }
   }
 
@@ -303,7 +268,7 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
     )
   }
 
-  if (view === 'code') {
+  if (view === 'sent') {
     return (
       <main className={styles.page}>
         <nav className={styles.top} aria-label="Back">
@@ -324,15 +289,14 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
           {returning && <p className={styles.kicker}>Welcome back</p>}
           <h1 className={styles.disp}>Check your email</h1>
           <p className={styles.lead}>
-            We sent a 6-digit code to <strong className={styles.strong}>{sentTo}</strong>. It works for 10 minutes.
+            We sent a link to <strong className={styles.strong}>{sentTo}</strong>. Tap it on this phone to finish joining
+            Heat {heatNo(heat.number)}.
           </p>
-          <CodeInput key={attempt} onComplete={verify} disabled={busy} />
-          {busy && <p className={styles.status} role="status">Checking...</p>}
           {error && <p className={styles.error} role="alert">{error}</p>}
           <div className={styles.grow} />
           <div className={styles.linkRow}>
             <button type="button" className={styles.textBtn} onClick={resend} disabled={cooldown > 0 || busy}>
-              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend the code'}
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend the link'}
             </button>
             <button
               type="button"
@@ -401,7 +365,7 @@ export function JoinFlow({ heat, mode }: { heat: Heat; mode: Mode }) {
         {error && <p className={styles.error} role="alert">{error}</p>}
         <div className={styles.grow} />
         <button type="submit" className={styles.btn} disabled={!canSend}>
-          {busy ? 'Sending...' : 'Send my code'}
+          {busy ? 'Sending...' : 'Email me a link'}
         </button>
         <button
           type="button"

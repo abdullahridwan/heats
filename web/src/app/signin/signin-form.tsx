@@ -2,22 +2,18 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { CodeInput } from './code-input'
 import styles from './page.module.css'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-type View = 'email' | 'code' | 'noaccount'
+type View = 'email' | 'sent' | 'noaccount'
 
-export function SignInForm({ next }: { next: string }) {
-  const router = useRouter()
+export function SignInForm({ next, linkError }: { next: string; linkError: string | null }) {
   const [view, setView] = useState<View>('email')
   const [email, setEmail] = useState('')
   const [sentTo, setSentTo] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [attempt, setAttempt] = useState(0)
+  const [error, setError] = useState<string | null>(linkError)
   const [cooldown, setCooldown] = useState(0)
 
   useEffect(() => {
@@ -32,7 +28,7 @@ export function SignInForm({ next }: { next: string }) {
     const res = await fetch('/api/auth/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: target }),
+      body: JSON.stringify({ email: target, next }),
     })
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
     if (data.error === 'handle_required') {
@@ -60,8 +56,7 @@ export function SignInForm({ next }: { next: string }) {
     try {
       if (await sendCode(target)) {
         setSentTo(target)
-        setAttempt(a => a + 1)
-        setView('code')
+        setView('sent')
       }
     } catch {
       setError('Something went wrong. Try again.')
@@ -76,35 +71,6 @@ export function SignInForm({ next }: { next: string }) {
       await sendCode(sentTo)
     } catch {
       setError('Something went wrong. Try again.')
-    }
-  }
-
-  async function verify(code: string) {
-    setBusy(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: sentTo, code }),
-      })
-      const data = (await res.json().catch(() => ({}))) as { alias?: string; error?: string }
-      if (data.error === 'handle_required') {
-        setView('noaccount')
-        return
-      }
-      if (!res.ok || !data.alias) {
-        setError("That code didn't work. Try again.")
-        setAttempt(a => a + 1)
-        return
-      }
-      router.push(next)
-      router.refresh()
-    } catch {
-      setError("That code didn't work. Try again.")
-      setAttempt(a => a + 1)
-    } finally {
-      setBusy(false)
     }
   }
 
@@ -134,22 +100,20 @@ export function SignInForm({ next }: { next: string }) {
     )
   }
 
-  if (view === 'code') {
+  if (view === 'sent') {
     return (
       <main className={styles.page}>
         {topNav}
         <div className={styles.body}>
           <h1 className={styles.disp}>Check your email</h1>
           <p className={styles.lead}>
-            We sent a 6-digit code to <strong className={styles.strong}>{sentTo}</strong>. It works for 10 minutes.
+            We sent a link to <strong className={styles.strong}>{sentTo}</strong>. Tap it on this phone to sign in.
           </p>
-          <CodeInput key={attempt} onComplete={verify} disabled={busy} />
-          {busy && <p className={styles.status} role="status">Checking...</p>}
           {error && <p className={styles.error} role="alert">{error}</p>}
           <div className={styles.grow} />
           <div className={styles.linkRow}>
             <button type="button" className={styles.textBtn} onClick={resend} disabled={cooldown > 0 || busy}>
-              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend the code'}
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend the link'}
             </button>
             <button
               type="button"
@@ -172,7 +136,7 @@ export function SignInForm({ next }: { next: string }) {
       {topNav}
       <form className={styles.body} onSubmit={onSendCode}>
         <h1 className={styles.disp}>Sign in</h1>
-        <p className={styles.lead}>We&apos;ll email you a 6-digit code. No password.</p>
+        <p className={styles.lead}>We&apos;ll email you a sign-in link. No password.</p>
         <div className={styles.field}>
           <label htmlFor="email" className={styles.mono}>Email</label>
           <input
@@ -192,7 +156,7 @@ export function SignInForm({ next }: { next: string }) {
         {error && <p className={styles.error} role="alert">{error}</p>}
         <div className={styles.grow} />
         <button type="submit" className={styles.btn} disabled={!emailOk || busy}>
-          {busy ? 'Sending...' : 'Send my code'}
+          {busy ? 'Sending...' : 'Email me a link'}
         </button>
       </form>
     </main>

@@ -1,0 +1,6 @@
+# Only what Heats manages from the repo. `supabase config push` leaves undeclared settings alone.
+project_id = "qhzdsobnftgjxmhaloqg"
+
+[auth]
+# Where sign-in links may send people back to (/auth/callback on each host).
+additional_redirect_urls = ["http://localhost:3000/**", "https://heats.run/**", "https://www.heats.run/**"]

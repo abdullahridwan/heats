@@ -9,12 +9,16 @@ export const runtime = 'nodejs'
 const Body = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
   handle: z.string().optional(),
+  heat: z.number().int().optional(),
+  next: z.string().optional(),
 })
 
+// Sends the sign-in email. The link goes to /auth/callback, carrying the claimed handle and the heat
+// being joined, so tapping it finishes everything in one step.
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null))
   if (!parsed.success) return NextResponse.json({ error: 'bad_email' }, { status: 400 })
-  const { email, handle: rawHandle } = parsed.data
+  const { email, handle: rawHandle, heat, next } = parsed.data
 
   const { data: existing } = await db().from('users').select('id').eq('email', email).maybeSingle()
   const newRunner = !existing
@@ -30,8 +34,16 @@ export async function POST(req: Request) {
     if (taken) return NextResponse.json({ error: 'handle_taken' }, { status: 409 })
   }
 
+  const callback = new URL('/auth/callback', new URL(req.url).origin)
+  if (handle) callback.searchParams.set('handle', handle)
+  if (heat) callback.searchParams.set('heat', String(heat))
+  if (next && next.startsWith('/') && !next.startsWith('//')) callback.searchParams.set('next', next)
+
   const supabase = await supabaseServer()
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, emailRedirectTo: callback.toString() },
+  })
   if (error) {
     const rateLimited = error.status === 429 || /rate/i.test(error.message)
     if (rateLimited) return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
