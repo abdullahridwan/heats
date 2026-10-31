@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     <div className="app-body">
       <header>
         <nav aria-label="Main" className="app-header">
-          <Link href="/" aria-label="Heats home" className="app-header-logo">
+          <Link href={runner ? '/calendar' : '/'} aria-label="Heats home" className="app-header-logo">
             <ContourMark />
           </Link>
           <div className="app-header-links">

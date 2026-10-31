@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Stamp } from '@/components/stamp'
 import { CasePlayer, JoinPlayer, SubmitPlayer } from '@/components/how/players'
 import { Footer } from '@/components/site/footer'
@@ -29,6 +30,8 @@ async function shell() {
 
 export default async function Home() {
   const [stamps, { runner, nextHeat }] = await Promise.all([seasonStamps(), shell()])
+  // The landing page is for people who have not joined yet. Signed in, home is the calendar.
+  if (runner) redirect('/calendar')
   const last = stamps.length - 1
   const mid = last / 2
 
