@@ -4,7 +4,7 @@
   font-family: var(--f-sans), sans-serif;
 }
 
-.page a:not(.cta) {
+.page :where(a) {
   color: var(--navy);
 }
 
